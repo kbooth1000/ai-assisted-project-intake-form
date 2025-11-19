@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details - Tree Farm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .field-group {
+            margin-bottom: 15px;
+        }
+
+        .field-label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .field-value {
+            color: #333;
+            font-size: 14px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+        }
+
+        .field-value:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .field-value.empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        .field-value.editing {
+            padding: 0;
+            border-color: #667eea;
+        }
+
+        .field-value input,
+        .field-value textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            font-size: 14px;
+            font-family: inherit;
+            background: transparent;
+            outline: none;
+        }
+
+        .field-value textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .badge:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .badge.removable:hover::after {
+            content: '×';
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .add-badge-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #28a745;
+            color: white;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .add-badge-btn:hover {
+            background: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        td:hover {
+            background: #f8f9ff;
+        }
+
+        td.editing {
+            padding: 0;
+            background: white;
+        }
+
+        td input,
+        td textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            font-size: 14px;
+            font-family: inherit;
+            background: transparent;
+            outline: none;
+        }
+
+        td textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn-edit-row {
+            background: #ffc107;
+            color: #333;
+            font-size: 12px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-edit-row:hover {
+            background: #e0a800;
+        }
+
+        .btn-delete-row {
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-row:hover {
+            background: #c82333;
+        }
+
+        .btn-add-row {
+            background: #28a745;
+            color: white;
+            margin-top: 10px;
+            font-size: 13px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-row:hover {
+            background: #218838;
+        }
+
+        .success-notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #28a745;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .success-notification.show {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .discount-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #28a745;
+            color: white;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 3px;
+        }
+
+        .actions {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Details</h1>
+        <p class="subtitle">Review the project information below</p>
+
+        <!-- Basic Information -->
+        <div class="section">
+            <h2 class="section-title">Basic Information</h2>
+            <div class="field-group">
+                <span class="field-label">Project Name</span>
+                <div class="field-value" id="projectName"></div>
+            </div>
+            <div class="field-group">
+                <span class="field-label">Foundation Team</span>
+                <div class="field-value" id="foundationTeam"></div>
+            </div>
+            <div class="field-group">
+                <span class="field-label">Project Types</span>
+                <div class="badge-container" id="projectTypes"></div>
+            </div>
+        </div>
+
+        <!-- Raiser's Edge Info -->
+        <div class="section" id="raisersEdgeSection" style="display: none;">
+            <h2 class="section-title">Raiser's Edge Info</h2>
+            <div class="grid-2col">
+                <div class="field-group">
+                    <span class="field-label">RE Fund</span>
+                    <div class="field-value" id="reFund"></div>
+                </div>
+                <div class="field-group">
+                    <span class="field-label">RE Appeal</span>
+                    <div class="field-value" id="reAppeal"></div>
+                </div>
+                <div class="field-group">
+                    <span class="field-label">RE Package</span>
+                    <div class="field-value" id="rePackage"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items/Tickets/Sponsorship Levels -->
+        <div class="section" id="itemsSection" style="display: none;">
+            <h2 class="section-title">Items/Tickets/Sponsorship Levels</h2>
+            <table id="itemsTable">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Fair Market Value</th>
+                        <th>Quantity Available</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Event Details -->
+        <div class="section" id="eventDetailsSection" style="display: none;">
+            <h2 class="section-title">Event Details</h2>
+            <div class="grid-2col">
+                <div class="field-group">
+                    <span class="field-label">Project Go-Live Date</span>
+                    <div class="field-value" id="goLiveDate"></div>
+                </div>
+                <div class="field-group">
+                    <span class="field-label">Event Date</span>
+                    <div class="field-value" id="eventDate"></div>
+                </div>
+                <div class="field-group">
+                    <span class="field-label">Event Time</span>
+                    <div class="field-value" id="eventTime"></div>
+                </div>
+                <div class="field-group">
+                    <span class="field-label">Ticket Cut-Off Date</span>
+                    <div class="field-value" id="cutoffDate"></div>
+                </div>
+            </div>
+            <div class="field-group">
+                <span class="field-label">Event Description</span>
+                <div class="field-value" id="eventDescription"></div>
+            </div>
+            <div class="field-group">
+                <span class="field-label">Event Location</span>
+                <div class="field-value" id="eventLocation"></div>
+            </div>
+        </div>
+
+        <!-- Discount Codes -->
+        <div class="section" id="discountCodesSection" style="display: none;">
+            <h2 class="section-title">Discount Codes</h2>
+            <table id="discountCodesTable">
+                <thead>
+                    <tr>
+                        <th>Discount Code</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Applicable Ticket Levels</th>
+                        <th>Quantity Available</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="discountCodesTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="btn btn-primary" onclick="submitForm()">Submit Changes</button>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+            <button class="btn btn-secondary" onclick="exportToJSON()">Export JSON</button>
+        </div>
+    </div>
+
+    <div id="successNotification" class="success-notification">
+        ✓ Changes submitted! Check console for JSON data.
+    </div>
+
+    <script>
+        // Project data
+        const projectData = {
+            "projectName": "Tree Farm",
+            "foundationTeam": "asdf",
+            "projectTypes": [
+                "Contact form/survey",
+                "Donation form",
+                "Event registration/ticket form",
+                "P2P site"
+            ],
+            "raisersEdgeInfo": {
+                "fund": "",
+                "appeal": "",
+                "package": ""
+            },
+            "items": [
+                {
+                    "name": "Item 1",
+                    "description": "",
+                    "price": 222,
+                    "fairMarketValue": 0,
+                    "quantityAvailable": 0
+                },
+                {
+                    "name": "Item 2",
+                    "description": "",
+                    "price": 155,
+                    "fairMarketValue": 0,
+                    "quantityAvailable": 0
+                },
+                {
+                    "name": "Item 3",
+                    "description": "",
+                    "price": 22,
+                    "fairMarketValue": 0,
+                    "quantityAvailable": 0
+                }
+            ],
+            "eventDetails": {
+                "goLiveDate": "",
+                "eventDate": "",
+                "eventTime": "",
+                "ticketCutoffDate": "",
+                "description": "",
+                "location": ""
+            },
+            "discountCodes": [
+                {
+                    "code": "choa25",
+                    "type": "percentage",
+                    "value": 25,
+                    "ticketLevels": [
+                        "Item 2",
+                        "Item 3"
+                    ],
+                    "quantityAvailable": 124
+                }
+            ]
+        };
+
+        const projectTypeOptions = [
+            "Contact form/survey",
+            "Donation form",
+            "Event registration/ticket form",
+            "P2P site",
+            "Email send",
+            "E-store",
+            "Web edit (on choa.org)"
+        ];
+
+        // Helper function to make a field editable
+        function makeEditable(element, currentValue, onSave, inputType = 'text') {
+            if (element.classList.contains('editing')) return;
+            
+            element.classList.add('editing');
+            const originalContent = element.innerHTML;
+            
+            let input;
+            if (inputType === 'textarea') {
+                input = document.createElement('textarea');
+                input.value = currentValue || '';
+                input.rows = 3;
+            } else if (inputType === 'date' || inputType === 'time') {
+                input = document.createElement('input');
+                input.type = inputType;
+                input.value = currentValue || '';
+            } else if (inputType === 'number') {
+                input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.01';
+                input.value = currentValue || '0';
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.value = currentValue || '';
+            }
+            
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+            
+            function finishEditing() {
+                const newValue = input.value;
+                element.classList.remove('editing');
+                onSave(newValue);
+                renderPage();
+            }
+            
+            input.addEventListener('blur', finishEditing);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && inputType !== 'textarea') {
+                    finishEditing();
+                } else if (e.key === 'Escape') {
+                    element.classList.remove('editing');
+                    element.innerHTML = originalContent;
+                }
+            });
+        }
+
+        // Helper function to format currency
+        function formatCurrency(amount) {
+            return '$' + parseFloat(amount).toFixed(2);
+        }
+
+        // Helper function to format date
+        function formatDate(dateString) {
+            if (!dateString) return 'Not specified';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Helper function to format time
+        function formatTime(timeString) {
+            if (!timeString) return 'Not specified';
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        // Render the entire page
+        function renderPage() {
+            // Basic information
+            const projectNameEl = document.getElementById('projectName');
+            projectNameEl.innerHTML = projectData.projectName || '<em style="color: #999;">Click to edit</em>';
+            projectNameEl.onclick = () => makeEditable(projectNameEl, projectData.projectName, (val) => {
+                projectData.projectName = val;
+            });
+
+            const foundationTeamEl = document.getElementById('foundationTeam');
+            foundationTeamEl.innerHTML = projectData.foundationTeam || '<em style="color: #999;">Click to edit</em>';
+            foundationTeamEl.onclick = () => makeEditable(foundationTeamEl, projectData.foundationTeam, (val) => {
+                projectData.foundationTeam = val;
+            });
+
+            // Project types
+            const typesContainer = document.getElementById('projectTypes');
+            typesContainer.innerHTML = '';
+            projectData.projectTypes.forEach((type, index) => {
+                const badge = document.createElement('span');
+                badge.className = 'badge removable';
+                badge.textContent = type;
+                badge.onclick = () => {
+                    if (confirm(`Remove "${type}" from project types?`)) {
+                        projectData.projectTypes.splice(index, 1);
+                        renderPage();
+                    }
+                };
+                typesContainer.appendChild(badge);
+            });
+            
+            // Add button for project types
+            const addTypeBtn = document.createElement('button');
+            addTypeBtn.className = 'add-badge-btn';
+            addTypeBtn.textContent = '+ Add Type';
+            addTypeBtn.onclick = () => {
+                const availableTypes = projectTypeOptions.filter(t => !projectData.projectTypes.includes(t));
+                if (availableTypes.length === 0) {
+                    alert('All project types are already selected!');
+                    return;
+                }
+                const selected = prompt(`Available types:\n${availableTypes.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nEnter the number or name:`);
+                if (selected) {
+                    const selectedType = availableTypes[parseInt(selected) - 1] || availableTypes.find(t => t.toLowerCase().includes(selected.toLowerCase()));
+                    if (selectedType) {
+                        projectData.projectTypes.push(selectedType);
+                        renderPage();
+                    }
+                }
+            };
+            typesContainer.appendChild(addTypeBtn);
+
+            // Raiser's Edge Info
+            if (projectData.raisersEdgeInfo) {
+                document.getElementById('raisersEdgeSection').style.display = 'block';
+                
+                const reFundEl = document.getElementById('reFund');
+                reFundEl.innerHTML = projectData.raisersEdgeInfo.fund || '<em style="color: #999;">Click to edit</em>';
+                reFundEl.onclick = () => makeEditable(reFundEl, projectData.raisersEdgeInfo.fund, (val) => {
+                    projectData.raisersEdgeInfo.fund = val;
+                });
+
+                const reAppealEl = document.getElementById('reAppeal');
+                reAppealEl.innerHTML = projectData.raisersEdgeInfo.appeal || '<em style="color: #999;">Click to edit</em>';
+                reAppealEl.onclick = () => makeEditable(reAppealEl, projectData.raisersEdgeInfo.appeal, (val) => {
+                    projectData.raisersEdgeInfo.appeal = val;
+                });
+
+                const rePackageEl = document.getElementById('rePackage');
+                rePackageEl.innerHTML = projectData.raisersEdgeInfo.package || '<em style="color: #999;">Click to edit</em>';
+                rePackageEl.onclick = () => makeEditable(rePackageEl, projectData.raisersEdgeInfo.package, (val) => {
+                    projectData.raisersEdgeInfo.package = val;
+                });
+            }
+
+            // Items
+            if (projectData.items && projectData.items.length > 0) {
+                document.getElementById('itemsSection').style.display = 'block';
+                const tbody = document.getElementById('itemsTableBody');
+                tbody.innerHTML = '';
+                
+                projectData.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Item name
+                    const nameCell = document.createElement('td');
+                    nameCell.innerHTML = `<strong>${item.name}</strong>`;
+                    nameCell.onclick = () => makeEditable(nameCell, item.name, (val) => {
+                        projectData.items[index].name = val;
+                    });
+                    row.appendChild(nameCell);
+                    
+                    // Description
+                    const descCell = document.createElement('td');
+                    descCell.innerHTML = item.description || '<em style="color: #999;">Click to add description</em>';
+                    descCell.onclick = () => makeEditable(descCell, item.description, (val) => {
+                        projectData.items[index].description = val;
+                    }, 'textarea');
+                    row.appendChild(descCell);
+                    
+                    // Price
+                    const priceCell = document.createElement('td');
+                    priceCell.textContent = formatCurrency(item.price);
+                    priceCell.onclick = () => makeEditable(priceCell, item.price, (val) => {
+                        projectData.items[index].price = parseFloat(val) || 0;
+                    }, 'number');
+                    row.appendChild(priceCell);
+                    
+                    // Fair Market Value
+                    const fmvCell = document.createElement('td');
+                    fmvCell.innerHTML = item.fairMarketValue ? formatCurrency(item.fairMarketValue) : '<em style="color: #999;">N/A</em>';
+                    fmvCell.onclick = () => makeEditable(fmvCell, item.fairMarketValue, (val) => {
+                        projectData.items[index].fairMarketValue = parseFloat(val) || 0;
+                    }, 'number');
+                    row.appendChild(fmvCell);
+                    
+                    // Quantity
+                    const qtyCell = document.createElement('td');
+                    qtyCell.innerHTML = item.quantityAvailable || '<em style="color: #999;">Unlimited</em>';
+                    qtyCell.onclick = () => makeEditable(qtyCell, item.quantityAvailable, (val) => {
+                        projectData.items[index].quantityAvailable = parseInt(val) || 0;
+                    }, 'number');
+                    row.appendChild(qtyCell);
+                    
+                    // Actions
+                    const actionsCell = document.createElement('td');
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-delete-row';
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.onclick = () => {
+                        if (confirm(`Delete item "${item.name}"?`)) {
+                            projectData.items.splice(index, 1);
+                            renderPage();
+                        }
+                    };
+                    actionsCell.appendChild(deleteBtn);
+                    row.appendChild(actionsCell);
+                    
+                    tbody.appendChild(row);
+                });
+
+                // Add row button
+                const addRowContainer = document.getElementById('itemsSection');
+                let addBtn = addRowContainer.querySelector('.btn-add-row');
+                if (!addBtn) {
+                    addBtn = document.createElement('button');
+                    addBtn.className = 'btn-add-row';
+                    addBtn.textContent = '+ Add Item';
+                    addRowContainer.appendChild(addBtn);
+                }
+                addBtn.onclick = () => {
+                    projectData.items.push({
+                        name: 'New Item',
+                        description: '',
+                        price: 0,
+                        fairMarketValue: 0,
+                        quantityAvailable: 0
+                    });
+                    renderPage();
+                };
+            }
+
+            // Event Details
+            if (projectData.eventDetails) {
+                document.getElementById('eventDetailsSection').style.display = 'block';
+                
+                const goLiveDateEl = document.getElementById('goLiveDate');
+                goLiveDateEl.innerHTML = projectData.eventDetails.goLiveDate ? formatDate(projectData.eventDetails.goLiveDate) : '<em style="color: #999;">Click to set date</em>';
+                goLiveDateEl.onclick = () => makeEditable(goLiveDateEl, projectData.eventDetails.goLiveDate, (val) => {
+                    projectData.eventDetails.goLiveDate = val;
+                }, 'date');
+
+                const eventDateEl = document.getElementById('eventDate');
+                eventDateEl.innerHTML = projectData.eventDetails.eventDate ? formatDate(projectData.eventDetails.eventDate) : '<em style="color: #999;">Click to set date</em>';
+                eventDateEl.onclick = () => makeEditable(eventDateEl, projectData.eventDetails.eventDate, (val) => {
+                    projectData.eventDetails.eventDate = val;
+                }, 'date');
+
+                const eventTimeEl = document.getElementById('eventTime');
+                eventTimeEl.innerHTML = projectData.eventDetails.eventTime ? formatTime(projectData.eventDetails.eventTime) : '<em style="color: #999;">Click to set time</em>';
+                eventTimeEl.onclick = () => makeEditable(eventTimeEl, projectData.eventDetails.eventTime, (val) => {
+                    projectData.eventDetails.eventTime = val;
+                }, 'time');
+
+                const cutoffDateEl = document.getElementById('cutoffDate');
+                cutoffDateEl.innerHTML = projectData.eventDetails.ticketCutoffDate ? formatDate(projectData.eventDetails.ticketCutoffDate) : '<em style="color: #999;">Click to set date</em>';
+                cutoffDateEl.onclick = () => makeEditable(cutoffDateEl, projectData.eventDetails.ticketCutoffDate, (val) => {
+                    projectData.eventDetails.ticketCutoffDate = val;
+                }, 'date');
+
+                const eventDescEl = document.getElementById('eventDescription');
+                eventDescEl.innerHTML = projectData.eventDetails.description || '<em style="color: #999;">Click to add description</em>';
+                eventDescEl.onclick = () => makeEditable(eventDescEl, projectData.eventDetails.description, (val) => {
+                    projectData.eventDetails.description = val;
+                }, 'textarea');
+
+                const eventLocEl = document.getElementById('eventLocation');
+                eventLocEl.innerHTML = projectData.eventDetails.location || '<em style="color: #999;">Click to add location</em>';
+                eventLocEl.onclick = () => makeEditable(eventLocEl, projectData.eventDetails.location, (val) => {
+                    projectData.eventDetails.location = val;
+                });
+            }
+
+            // Discount Codes
+            if (projectData.discountCodes && projectData.discountCodes.length > 0) {
+                document.getElementById('discountCodesSection').style.display = 'block';
+                const tbody = document.getElementById('discountCodesTableBody');
+                tbody.innerHTML = '';
+                
+                projectData.discountCodes.forEach((discount, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Code
+                    const codeCell = document.createElement('td');
+                    codeCell.innerHTML = `<strong>${discount.code}</strong>`;
+                    codeCell.onclick = () => makeEditable(codeCell, discount.code, (val) => {
+                        projectData.discountCodes[index].code = val;
+                    });
+                    row.appendChild(codeCell);
+                    
+                    // Type
+                    const typeCell = document.createElement('td');
+                    typeCell.textContent = discount.type === 'percentage' ? 'Percentage' : 'Fixed Amount';
+                    typeCell.onclick = () => {
+                        const newType = discount.type === 'percentage' ? 'fixed' : 'percentage';
+                        if (confirm(`Change discount type to "${newType === 'percentage' ? 'Percentage' : 'Fixed Amount'}"?`)) {
+                            projectData.discountCodes[index].type = newType;
+                            renderPage();
+                        }
+                    };
+                    typeCell.style.cursor = 'pointer';
+                    row.appendChild(typeCell);
+                    
+                    // Value
+                    const valueCell = document.createElement('td');
+                    valueCell.textContent = discount.type === 'percentage' ? `${discount.value}%` : formatCurrency(discount.value);
+                    valueCell.onclick = () => makeEditable(valueCell, discount.value, (val) => {
+                        projectData.discountCodes[index].value = parseFloat(val) || 0;
+                    }, 'number');
+                    row.appendChild(valueCell);
+                    
+                    // Ticket Levels
+                    const levelsCell = document.createElement('td');
+                    if (discount.ticketLevels && discount.ticketLevels.length > 0) {
+                        discount.ticketLevels.forEach((level, levelIndex) => {
+                            const levelBadge = document.createElement('span');
+                            levelBadge.className = 'discount-badge';
+                            levelBadge.textContent = level;
+                            levelBadge.style.cursor = 'pointer';
+                            levelBadge.onclick = () => {
+                                if (confirm(`Remove "${level}" from applicable ticket levels?`)) {
+                                    projectData.discountCodes[index].ticketLevels.splice(levelIndex, 1);
+                                    renderPage();
+                                }
+                            };
+                            levelsCell.appendChild(levelBadge);
+                        });
+                    } else {
+                        levelsCell.innerHTML = '<em style="color: #999;">All levels</em>';
+                    }
+                    
+                    // Add level button
+                    const addLevelBtn = document.createElement('span');
+                    addLevelBtn.className = 'discount-badge';
+                    addLevelBtn.style.background = '#28a745';
+                    addLevelBtn.textContent = '+';
+                    addLevelBtn.onclick = () => {
+                        const availableLevels = projectData.items.map(item => item.name).filter(name => !discount.ticketLevels.includes(name));
+                        if (availableLevels.length === 0) {
+                            alert('All items are already included!');
+                            return;
+                        }
+                        const selected = prompt(`Available items:\n${availableLevels.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nEnter the number or name:`);
+                        if (selected) {
+                            const selectedLevel = availableLevels[parseInt(selected) - 1] || availableLevels.find(t => t.toLowerCase().includes(selected.toLowerCase()));
+                            if (selectedLevel) {
+                                if (!projectData.discountCodes[index].ticketLevels) {
+                                    projectData.discountCodes[index].ticketLevels = [];
+                                }
+                                projectData.discountCodes[index].ticketLevels.push(selectedLevel);
+                                renderPage();
+                            }
+                        }
+                    };
+                    levelsCell.appendChild(addLevelBtn);
+                    row.appendChild(levelsCell);
+                    
+                    // Quantity
+                    const qtyCell = document.createElement('td');
+                    qtyCell.innerHTML = discount.quantityAvailable || '<em style="color: #999;">Unlimited</em>';
+                    qtyCell.onclick = () => makeEditable(qtyCell, discount.quantityAvailable, (val) => {
+                        projectData.discountCodes[index].quantityAvailable = parseInt(val) || 0;
+                    }, 'number');
+                    row.appendChild(qtyCell);
+                    
+                    // Actions
+                    const actionsCell = document.createElement('td');
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-delete-row';
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.onclick = () => {
+                        if (confirm(`Delete discount code "${discount.code}"?`)) {
+                            projectData.discountCodes.splice(index, 1);
+                            renderPage();
+                        }
+                    };
+                    actionsCell.appendChild(deleteBtn);
+                    row.appendChild(actionsCell);
+                    
+                    tbody.appendChild(row);
+                });
+
+                // Add row button
+                const addRowContainer = document.getElementById('discountCodesSection');
+                let addBtn = addRowContainer.querySelector('.btn-add-row');
+                if (!addBtn) {
+                    addBtn = document.createElement('button');
+                    addBtn.className = 'btn-add-row';
+                    addBtn.textContent = '+ Add Discount Code';
+                    addRowContainer.appendChild(addBtn);
+                }
+                addBtn.onclick = () => {
+                    projectData.discountCodes.push({
+                        code: 'NEWCODE',
+                        type: 'percentage',
+                        value: 10,
+                        ticketLevels: [],
+                        quantityAvailable: 0
+                    });
+                    renderPage();
+                };
+            }
+        }
+
+        // Submit form
+        function submitForm() {
+            console.log('=== UPDATED PROJECT DATA ===');
+            console.log(JSON.stringify(projectData, null, 2));
+            console.log('============================');
+            
+            // Show success notification
+            const notification = document.getElementById('successNotification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Export to JSON
+        function exportToJSON() {
+            const dataStr = JSON.stringify(projectData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${projectData.projectName.replace(/\s+/g, '-').toLowerCase()}-project-data.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize page
+        renderPage();
+    </script>
+</body>
+</html>
