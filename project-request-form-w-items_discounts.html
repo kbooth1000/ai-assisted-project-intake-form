@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Intake Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .conditional-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.3s ease;
+        }
+
+        .conditional-section.visible {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        td input,
+        td textarea {
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-add {
+            background: #28a745;
+            color: white;
+            margin-top: 10px;
+            font-size: 13px;
+            padding: 8px 16px;
+        }
+
+        .btn-add:hover {
+            background: #218838;
+        }
+
+        .btn-remove {
+            background: #dc3545;
+            color: white;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .btn-remove:hover {
+            background: #c82333;
+        }
+
+        .form-actions {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .success-message {
+            display: none;
+            padding: 15px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .radio-group input[type="radio"] {
+            width: auto;
+        }
+
+        .discount-type-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .checkbox-list label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Intake Form</h1>
+        <p class="subtitle">Please fill out the information about your project below.</p>
+
+        <div id="successMessage" class="success-message">
+            ✓ Form submitted successfully! Check the browser console to see the JSON data.
+        </div>
+
+        <form id="projectForm">
+            <!-- Basic Fields -->
+            <div class="form-group">
+                <label for="projectName">Project Name *</label>
+                <input type="text" id="projectName" name="projectName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="foundationTeam">Foundation Team *</label>
+                <input type="text" id="foundationTeam" name="foundationTeam" required>
+            </div>
+
+            <div class="form-group">
+                <label>Project Type * (select all that apply)</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type1" name="projectType" value="Contact form/survey">
+                        <label for="type1">Contact form/survey</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type2" name="projectType" value="Donation form">
+                        <label for="type2">Donation form</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type3" name="projectType" value="Event registration/ticket form">
+                        <label for="type3">Event registration/ticket form</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type4" name="projectType" value="P2P site">
+                        <label for="type4">P2P site</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type5" name="projectType" value="Email send">
+                        <label for="type5">Email send</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type6" name="projectType" value="E-store">
+                        <label for="type6">E-store</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type7" name="projectType" value="Web edit (on choa.org)">
+                        <label for="type7">Web edit (on choa.org)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Raiser's Edge Info Section -->
+            <div id="raisersEdgeSection" class="conditional-section">
+                <h3 class="section-title">Raiser's Edge Info</h3>
+                <div class="form-group">
+                    <label for="reFund">RE Fund</label>
+                    <input type="text" id="reFund" name="reFund">
+                </div>
+                <div class="form-group">
+                    <label for="reAppeal">RE Appeal</label>
+                    <input type="text" id="reAppeal" name="reAppeal">
+                </div>
+                <div class="form-group">
+                    <label for="rePackage">RE Package</label>
+                    <input type="text" id="rePackage" name="rePackage">
+                </div>
+            </div>
+
+            <!-- Item/Ticket/Sponsorship Levels Section -->
+            <div id="itemsSection" class="conditional-section">
+                <h3 class="section-title">Item/Ticket/Sponsorship Levels</h3>
+                <table id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Item Description</th>
+                            <th>Item Price ($)</th>
+                            <th>Fair Market Value ($)</th>
+                            <th>Quantity Available</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <tr>
+                            <td><input type="text" class="item-name" required></td>
+                            <td><textarea class="item-description" rows="2"></textarea></td>
+                            <td><input type="number" class="item-price" step="0.01" min="0" required></td>
+                            <td><input type="number" class="item-fmv" step="0.01" min="0"></td>
+                            <td><input type="number" class="item-quantity" min="0"></td>
+                            <td><button type="button" class="btn btn-remove" onclick="removeItemRow(this)">Remove</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-add" onclick="addItemRow()">+ Add Row</button>
+            </div>
+
+            <!-- Event Details Section -->
+            <div id="eventDetailsSection" class="conditional-section">
+                <h3 class="section-title">Event Details</h3>
+                <div class="form-group">
+                    <label for="goLiveDate">Project Go-Live Date</label>
+                    <input type="date" id="goLiveDate" name="goLiveDate">
+                </div>
+                <div class="form-group">
+                    <label for="eventDate">Event Date</label>
+                    <input type="date" id="eventDate" name="eventDate">
+                </div>
+                <div class="form-group">
+                    <label for="eventTime">Event Time</label>
+                    <input type="time" id="eventTime" name="eventTime">
+                </div>
+                <div class="form-group">
+                    <label for="cutoffDate">Ticket Cut-Off Date</label>
+                    <input type="date" id="cutoffDate" name="cutoffDate">
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Event Description (for the landing page)</label>
+                    <textarea id="eventDescription" name="eventDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="eventLocation">Event Location</label>
+                    <input type="text" id="eventLocation" name="eventLocation">
+                </div>
+            </div>
+
+            <!-- Discount Codes Section -->
+            <div id="discountCodesSection" class="conditional-section">
+                <h3 class="section-title">Discount Codes</h3>
+                <table id="discountCodesTable">
+                    <thead>
+                        <tr>
+                            <th>Discount Code</th>
+                            <th>Fixed Amount or Percentage</th>
+                            <th>Ticket Levels</th>
+                            <th>Quantity Available</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="discountCodesTableBody">
+                        <tr>
+                            <td><input type="text" class="discount-code" name="discountCode_0"></td>
+                            <td>
+                                <div class="discount-type-container">
+                                    <div class="radio-group">
+                                        <input type="radio" name="discountType_0" value="fixed" checked>
+                                        <label>Fixed Amount ($)</label>
+                                        <input type="radio" name="discountType_0" value="percentage">
+                                        <label>Percentage (%)</label>
+                                    </div>
+                                    <input type="number" class="discount-value" step="0.01" min="0" name="discountValue_0">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="checkbox-list ticket-levels-checkboxes">
+                                    <!-- Dynamically populated -->
+                                </div>
+                            </td>
+                            <td><input type="number" class="discount-quantity" min="0"  name="discountQuantity_0"></td>
+                            <td><button type="button" class="btn btn-remove" onclick="removeDiscountRow(this)">Remove</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-add" onclick="addDiscountRow()">+ Add Row</button>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Form</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let discountRowCounter = 0;
+
+        // Update visibility based on selected project types
+        function updateConditionalSections() {
+            const checkboxes = document.querySelectorAll('input[name="projectType"]:checked');
+            const selectedTypes = Array.from(checkboxes).map(cb => cb.value);
+
+            // Raiser's Edge Info: Show if Donation form, Event registration, P2P site, or E-store
+            const showRaisersEdge = selectedTypes.some(type => 
+                ['Donation form', 'Event registration/ticket form', 'P2P site', 'E-store'].includes(type)
+            );
+            document.getElementById('raisersEdgeSection').classList.toggle('visible', showRaisersEdge);
+
+            // Items Table: Show if Event registration or P2P site
+            const showItems = selectedTypes.some(type => 
+                ['Event registration/ticket form', 'P2P site'].includes(type)
+            );
+            document.getElementById('itemsSection').classList.toggle('visible', showItems);
+
+            // Event Details: Show if Event registration or P2P site
+            const showEventDetails = selectedTypes.some(type => 
+                ['Event registration/ticket form', 'P2P site'].includes(type)
+            );
+            document.getElementById('eventDetailsSection').classList.toggle('visible', showEventDetails);
+
+            // Discount Codes: Show only if P2P site
+            const showDiscountCodes = selectedTypes.includes('P2P site');
+            document.getElementById('discountCodesSection').classList.toggle('visible', showDiscountCodes);
+
+            // Update discount code checkboxes when items section visibility changes
+            if (showDiscountCodes) {
+                updateTicketLevelCheckboxes();
+            }
+        }
+
+        // Add event listeners to project type checkboxes
+        document.querySelectorAll('input[name="projectType"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateConditionalSections);
+        });
+
+        // Add a new row to the items table
+        function addItemRow() {
+            const tbody = document.getElementById('itemsTableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="item-name"></td>
+                <td><textarea class="item-description" rows="2"></textarea></td>
+                <td><input type="number" class="item-price" step="0.01" min="0"></td>
+                <td><input type="number" class="item-fmv" step="0.01" min="0"></td>
+                <td><input type="number" class="item-quantity" min="0"></td>
+                <td><button type="button" class="btn btn-remove" onclick="removeItemRow(this)">Remove</button></td>
+            `;
+            tbody.appendChild(row);
+
+            // Add event listener to update discount codes when item name changes
+            row.querySelector('.item-name').addEventListener('input', updateTicketLevelCheckboxes);
+        }
+
+        // Remove a row from the items table
+        function removeItemRow(button) {
+            const tbody = document.getElementById('itemsTableBody');
+            if (tbody.children.length > 1) {
+                button.closest('tr').remove();
+                updateTicketLevelCheckboxes();
+            } else {
+                alert('At least one item row is required.');
+            }
+        }
+
+        // Add event listeners to initial item name input
+        document.querySelector('.item-name').addEventListener('input', updateTicketLevelCheckboxes);
+
+        // Add a new row to the discount codes table
+        function addDiscountRow() {
+            discountRowCounter++;
+            const tbody = document.getElementById('discountCodesTableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="discount-code" required name="discountCode_${discountRowCounter}"></td>
+                <td>
+                    <div class="discount-type-container">
+                        <div class="radio-group">
+                            <input type="radio" name="discountType_${discountRowCounter}" value="fixed" checked>
+                            <label>Fixed Amount ($)</label>
+                            <input type="radio" name="discountType_${discountRowCounter}" value="percentage">
+                            <label>Percentage (%)</label>
+                        </div>
+                        <input type="number" class="discount-value" step="0.01" min="0" required name="discountValue_${discountRowCounter}"
+                    </div>
+                </td>
+                <td>
+                    <div class="checkbox-list ticket-levels-checkboxes">
+                        <!-- Dynamically populated -->
+                    </div>
+                </td>
+                <td><input type="number" class="discount-quantity" min="0" name="discountQuantity_${discountRowCounter}></td>
+                <td><button type="button" class="btn btn-remove" onclick="removeDiscountRow(this)">Remove</button></td>
+            `;
+            tbody.appendChild(row);
+            updateTicketLevelCheckboxes();
+        }
+
+        // Remove a row from the discount codes table
+        function removeDiscountRow(button) {
+            const tbody = document.getElementById('discountCodesTableBody');
+            if (tbody.children.length > 1) {
+                button.closest('tr').remove();
+            } else {
+                alert('At least one discount code row is required.');
+            }
+        }
+
+        // Update ticket level checkboxes in discount codes table
+        function updateTicketLevelCheckboxes() {
+            const itemNames = Array.from(document.querySelectorAll('.item-name'))
+                .map(input => input.value.trim())
+                .filter(name => name !== '');
+
+            document.querySelectorAll('.ticket-levels-checkboxes').forEach(container => {
+                // Store currently checked values
+                const checkedValues = Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(cb => cb.value);
+
+                // Clear and rebuild
+                container.innerHTML = '';
+                
+                if (itemNames.length === 0) {
+                    container.innerHTML = '<em style="color: #999; font-size: 12px;">Add items above to see options</em>';
+                } else {
+                    itemNames.forEach((name, index) => {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = name;
+                        checkbox.id = `ticket_${container.closest('tr').rowIndex}_${index}`;
+                        checkbox.checked = checkedValues.includes(name);
+
+                        const label = document.createElement('label');
+                        label.htmlFor = checkbox.id;
+                        label.textContent = name;
+                        label.style.display = 'flex';
+                        label.style.alignItems = 'center';
+                        label.style.gap = '5px';
+
+                        label.insertBefore(checkbox, label.firstChild);
+                        container.appendChild(label);
+                    });
+                }
+            });
+        }
+
+        // Reset form
+        function resetForm() {
+            if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
+                document.getElementById('projectForm').reset();
+                updateConditionalSections();
+                
+                // Reset items table to one row
+                const itemsBody = document.getElementById('itemsTableBody');
+                itemsBody.innerHTML = `
+                    <tr>
+                        <td><input type="text" class="item-name" required></td>
+                        <td><textarea class="item-description" rows="2"></textarea></td>
+                        <td><input type="number" class="item-price" step="0.01" min="0" required></td>
+                        <td><input type="number" class="item-fmv" step="0.01" min="0"></td>
+                        <td><input type="number" class="item-quantity" min="0"></td>
+                        <td><button type="button" class="btn btn-remove" onclick="removeItemRow(this)">Remove</button></td>
+                    </tr>
+                `;
+                document.querySelector('.item-name').addEventListener('input', updateTicketLevelCheckboxes);
+
+                // Reset discount codes table to one row
+                discountRowCounter = 0;
+                const discountBody = document.getElementById('discountCodesTableBody');
+                discountBody.innerHTML = `
+                    <tr>
+                        <td><input type="text" class="discount-code" required></td>
+                        <td>
+                            <div class="discount-type-container">
+                                <div class="radio-group">
+                                    <input type="radio" name="discountType_0" value="fixed" checked>
+                                    <label>Fixed Amount ($)</label>
+                                    <input type="radio" name="discountType_0" value="percentage">
+                                    <label>Percentage (%)</label>
+                                </div>
+                                <input type="number" class="discount-value" step="0.01" min="0" required>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="checkbox-list ticket-levels-checkboxes">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </td>
+                        <td><input type="number" class="discount-quantity" min="0"></td>
+                        <td><button type="button" class="btn btn-remove" onclick="removeDiscountRow(this)">Remove</button></td>
+                    </tr>
+                `;
+
+                document.getElementById('successMessage').classList.remove('show');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                projectName: document.getElementById('projectName').value,
+                foundationTeam: document.getElementById('foundationTeam').value,
+                projectTypes: Array.from(document.querySelectorAll('input[name="projectType"]:checked'))
+                    .map(cb => cb.value)
+            };
+
+            // Check which sections are visible and collect their data
+            const raisersEdgeVisible = document.getElementById('raisersEdgeSection').classList.contains('visible');
+            if (raisersEdgeVisible) {
+                formData.raisersEdgeInfo = {
+                    fund: document.getElementById('reFund').value,
+                    appeal: document.getElementById('reAppeal').value,
+                    package: document.getElementById('rePackage').value
+                };
+            }
+
+            const itemsVisible = document.getElementById('itemsSection').classList.contains('visible');
+            if (itemsVisible) {
+                formData.items = [];
+                document.querySelectorAll('#itemsTableBody tr').forEach(row => {
+                    const item = {
+                        name: row.querySelector('.item-name').value,
+                        description: row.querySelector('.item-description').value,
+                        price: parseFloat(row.querySelector('.item-price').value) || 0,
+                        fairMarketValue: parseFloat(row.querySelector('.item-fmv').value) || 0,
+                        quantityAvailable: parseInt(row.querySelector('.item-quantity').value) || 0
+                    };
+                    formData.items.push(item);
+                });
+            }
+
+            const eventDetailsVisible = document.getElementById('eventDetailsSection').classList.contains('visible');
+            if (eventDetailsVisible) {
+                formData.eventDetails = {
+                    goLiveDate: document.getElementById('goLiveDate').value,
+                    eventDate: document.getElementById('eventDate').value,
+                    eventTime: document.getElementById('eventTime').value,
+                    ticketCutoffDate: document.getElementById('cutoffDate').value,
+                    description: document.getElementById('eventDescription').value,
+                    location: document.getElementById('eventLocation').value
+                };
+            }
+
+            const discountCodesVisible = document.getElementById('discountCodesSection').classList.contains('visible');
+            if (discountCodesVisible) {
+                formData.discountCodes = [];
+                document.querySelectorAll('#discountCodesTableBody tr').forEach(row => {
+                    const discountTypeRadio = row.querySelector('input[type="radio"]:checked');
+                    const ticketLevels = Array.from(row.querySelectorAll('.ticket-levels-checkboxes input[type="checkbox"]:checked'))
+                        .map(cb => cb.value);
+
+                    const discount = {
+                        code: row.querySelector('.discount-code').value,
+                        type: discountTypeRadio ? discountTypeRadio.value : 'fixed',
+                        value: parseFloat(row.querySelector('.discount-value').value) || 0,
+                        ticketLevels: ticketLevels,
+                        quantityAvailable: parseInt(row.querySelector('.discount-quantity').value) || 0
+                    };
+                    formData.discountCodes.push(discount);
+                });
+            }
+
+            // Log to console as formatted JSON
+            console.log('=== PROJECT INTAKE FORM DATA ===');
+            console.log(JSON.stringify(formData, null, 2));
+            console.log('================================');
+
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            successMessage.classList.add('show');
+            
+            // Scroll to top to show success message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 5000);
+        });
+
+        // Initialize on page load
+        updateConditionalSections();
+    </script>
+</body>
+</html>
