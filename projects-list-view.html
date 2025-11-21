@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Intake - With Supabase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .setup-warning {
+            padding: 20px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .setup-warning h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .setup-warning code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .setup-warning ol {
+            margin: 15px 0 15px 20px;
+        }
+
+        .setup-warning li {
+            margin-bottom: 8px;
+            color: #856404;
+        }
+
+        .projects-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .project-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .project-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .project-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .project-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .actions {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .error {
+            padding: 15px;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Intake Manager</h1>
+        <p class="subtitle">Connected to Supabase PostgreSQL Database</p>
+
+        <div class="setup-warning" id="setupWarning">
+            <h3>⚙️ Setup Required</h3>
+            <p>To use this app with Supabase, follow these steps:</p>
+            <ol>
+                <li>Create a free account at <strong>supabase.com</strong></li>
+                <li>Create a new project</li>
+                <li>In the SQL Editor, run this SQL:
+                    <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0; overflow-x: auto;">
+CREATE TABLE projects (
+  id BIGSERIAL PRIMARY KEY,
+  project_name TEXT NOT NULL,
+  foundation_team TEXT,
+  project_types JSONB,
+  raisers_edge_info JSONB,
+  items JSONB,
+  event_details JSONB,
+  discount_codes JSONB,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Enable all access" ON projects FOR ALL USING (true);</pre>
+                </li>
+                <li>Go to Project Settings > API</li>
+                <li>Copy your <code>URL</code> and <code>anon key</code></li>
+                <li>Replace the values in the <code>supabaseConfig</code> object in this HTML file (around line 250)</li>
+            </ol>
+        </div>
+
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="loadProjects()">🔄 Refresh</button>
+            <button class="btn btn-success" onclick="createNewProject()">+ New Project</button>
+        </div>
+
+        <!-- Projects List -->
+        <div id="projectsList" class="projects-list">
+            <div class="loading">Loading projects...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        // ============================================
+        // SUPABASE CONFIGURATION
+        // ============================================
+        // Replace these with your actual Supabase credentials
+        const supabaseConfig = {
+            url: 'https://sdftthxmaogbsjbfzpps.supabase.co',
+            anonKey: 'sb_publishable_UQvee-9ip6Lhd_gzQdFI7g_CrYre4Jh'
+        };
+
+        // ============================================
+        // SUPABASE CLIENT SETUP
+        // ============================================
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        
+        let supabase;
+        try {
+            supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+            console.log('Supabase client initialized');
+        } catch (error) {
+            console.error('Failed to initialize Supabase:', error);
+            showError('Failed to connect to Supabase. Check your configuration.');
+        }
+
+        // ============================================
+        // DATABASE FUNCTIONS
+        // ============================================
+
+        window.loadProjects = async function() {
+            try {
+                const { data, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                renderProjects(data);
+                console.log('Loaded projects:', data);
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                showError('Failed to load projects: ' + error.message);
+            }
+        };
+
+        window.createNewProject = async function() {
+            const projectName = prompt('Enter project name:');
+            if (!projectName) return;
+
+            const foundationTeam = prompt('Enter foundation team (optional):');
+
+            try {
+                const { data, error } = await supabase
+                    .from('projects')
+                    .insert([
+                        {
+                            project_name: projectName,
+                            foundation_team: foundationTeam,
+                            project_types: ['Contact form/survey'],
+                            raisers_edge_info: { fund: '', appeal: '', package: '' },
+                            items: [],
+                            event_details: { goLiveDate: '', eventDate: '', eventTime: '', ticketCutoffDate: '', description: '', location: '' },
+                            discount_codes: []
+                        }
+                    ])
+                    .select();
+
+                if (error) throw error;
+
+                console.log('Created project:', data);
+                alert('Project created successfully!');
+                loadProjects();
+            } catch (error) {
+                console.error('Error creating project:', error);
+                showError('Failed to create project: ' + error.message);
+            }
+        };
+
+        async function deleteProject(id, projectName) {
+            if (!confirm(`Are you sure you want to delete "${projectName}"?`)) return;
+
+            try {
+                const { error } = await supabase
+                    .from('projects')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                console.log('Deleted project:', id);
+                alert('Project deleted successfully!');
+                loadProjects();
+            } catch (error) {
+                console.error('Error deleting project:', error);
+                showError('Failed to delete project: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // UI FUNCTIONS
+        // ============================================
+
+        function renderProjects(projects) {
+            const container = document.getElementById('projectsList');
+            
+            if (!projects || projects.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No projects yet. Click "New Project" to get started!</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            projects.forEach(project => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                
+                const createdDate = new Date(project.created_at).toLocaleDateString();
+                const types = Array.isArray(project.project_types) ? project.project_types.join(', ') : 'Not specified';
+                
+                card.innerHTML = `
+                    <h3>${project.project_name || 'Untitled Project'}</h3>
+                    <p><strong>Team:</strong> ${project.foundation_team || 'Not specified'}</p>
+                    <p><strong>Types:</strong> ${types}</p>
+                    <p style="color: #999; font-size: 12px; margin-top: 10px;">Created: ${createdDate}</p>
+                    <div style="margin-top: 15px;">
+                        <a href="project-details-view-editable.html?id=${project.id}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Edit</a>
+                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteProject(${project.id}, '${project.project_name.replace(/'/g, "\\'")}')">Delete</button>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        window.deleteProject = deleteProject;
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+
+        if (supabaseConfig.url.includes('YOUR_SUPABASE') || supabaseConfig.anonKey.includes('YOUR_SUPABASE')) {
+            console.warn('Supabase not configured yet. Please add your credentials.');
+            document.getElementById('projectsList').innerHTML = '<p style="color: #dc3545; text-align: center; padding: 40px;">⚠️ Please configure Supabase credentials in the code (see setup warning above)</p>';
+        } else {
+            document.getElementById('setupWarning').style.display = 'none';
+            loadProjects();
+        }
+    </script>
+</body>
+</html>

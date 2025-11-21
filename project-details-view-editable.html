@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Details - Tree Farm</title>
+    <title>Project Details - Edit</title>
     <style>
         * {
             margin: 0;
@@ -27,16 +27,67 @@
             padding: 40px;
         }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
         h1 {
             color: #333;
-            margin-bottom: 10px;
             font-size: 28px;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
         }
 
         .subtitle {
             color: #666;
             margin-bottom: 30px;
             font-size: 14px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .section {
@@ -279,6 +330,24 @@
             display: block;
         }
 
+        .error-notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #dc3545;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .error-notification.show {
+            display: block;
+        }
+
         @keyframes slideInRight {
             from {
                 opacity: 0;
@@ -331,6 +400,13 @@
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
+        .btn-primary:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .btn-secondary {
             background: #6c757d;
             color: white;
@@ -371,9 +447,19 @@
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading project data...</p>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>Project Details</h1>
-        <p class="subtitle">Review the project information below</p>
+        <div class="header">
+            <h1>Project Details</h1>
+            <a href="project-details-view-supabase.html" class="back-link">← Back to Projects</a>
+        </div>
+        <p class="subtitle">Click any field to edit. Changes are saved to Supabase.</p>
 
         <!-- Basic Information -->
         <div class="section">
@@ -393,7 +479,7 @@
         </div>
 
         <!-- Raiser's Edge Info -->
-        <div class="section" id="raisersEdgeSection" style="display: none;">
+        <div class="section" id="raisersEdgeSection">
             <h2 class="section-title">Raiser's Edge Info</h2>
             <div class="grid-2col">
                 <div class="field-group">
@@ -412,7 +498,7 @@
         </div>
 
         <!-- Items/Tickets/Sponsorship Levels -->
-        <div class="section" id="itemsSection" style="display: none;">
+        <div class="section" id="itemsSection">
             <h2 class="section-title">Items/Tickets/Sponsorship Levels</h2>
             <table id="itemsTable">
                 <thead>
@@ -431,7 +517,7 @@
         </div>
 
         <!-- Event Details -->
-        <div class="section" id="eventDetailsSection" style="display: none;">
+        <div class="section" id="eventDetailsSection">
             <h2 class="section-title">Event Details</h2>
             <div class="grid-2col">
                 <div class="field-group">
@@ -462,7 +548,7 @@
         </div>
 
         <!-- Discount Codes -->
-        <div class="section" id="discountCodesSection" style="display: none;">
+        <div class="section" id="discountCodesSection">
             <h2 class="section-title">Discount Codes</h2>
             <table id="discountCodesTable">
                 <thead>
@@ -482,75 +568,70 @@
 
         <!-- Actions -->
         <div class="actions">
-            <button class="btn btn-primary" onclick="submitForm()">Submit Changes</button>
+            <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">Save Changes to Supabase</button>
             <button class="btn btn-secondary" onclick="window.print()">Print</button>
             <button class="btn btn-secondary" onclick="exportToJSON()">Export JSON</button>
         </div>
     </div>
 
     <div id="successNotification" class="success-notification">
-        ✓ Changes submitted! Check console for JSON data.
+        ✓ Changes saved to Supabase!
     </div>
 
-    <script>
-        // Project data
-        const projectData = {
-            "projectName": "Tree Farm",
-            "foundationTeam": "asdf",
-            "projectTypes": [
-                "Contact form/survey",
-                "Donation form",
-                "Event registration/ticket form",
-                "P2P site"
-            ],
-            "raisersEdgeInfo": {
-                "fund": "",
-                "appeal": "",
-                "package": ""
+    <div id="errorNotification" class="error-notification">
+        ✕ Error saving changes. Check console.
+    </div>
+
+    <script type="module">
+        // ============================================
+        // SUPABASE CONFIGURATION
+        // ============================================
+        const supabaseConfig = {
+            url: 'https://sdftthxmaogbsjbfzpps.supabase.co',
+            anonKey: 'sb_publishable_UQvee-9ip6Lhd_gzQdFI7g_CrYre4Jh'
+        };
+
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        
+        let supabase;
+        try {
+            supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+            console.log('Supabase client initialized');
+        } catch (error) {
+            console.error('Failed to initialize Supabase:', error);
+            showError('Failed to connect to Supabase');
+        }
+
+        // ============================================
+        // GET PROJECT ID FROM URL
+        // ============================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('id');
+
+        if (!projectId) {
+            alert('No project ID provided. Redirecting to projects list.');
+            window.location.href = 'project-details-view-supabase.html';
+        }
+
+        // ============================================
+        // PROJECT DATA
+        // ============================================
+        let projectData = {
+            id: null,
+            projectName: '',
+            foundationTeam: '',
+            projectTypes: [],
+            raisersEdgeInfo: { fund: '', appeal: '', package: '' },
+            items: [],
+            eventDetails: {
+                goLiveDate: '',
+                eventDate: '',
+                eventTime: '',
+                ticketCutoffDate: '',
+                description: '',
+                location: ''
             },
-            "items": [
-                {
-                    "name": "Item 1",
-                    "description": "",
-                    "price": 222,
-                    "fairMarketValue": 0,
-                    "quantityAvailable": 0
-                },
-                {
-                    "name": "Item 2",
-                    "description": "",
-                    "price": 155,
-                    "fairMarketValue": 0,
-                    "quantityAvailable": 0
-                },
-                {
-                    "name": "Item 3",
-                    "description": "",
-                    "price": 22,
-                    "fairMarketValue": 0,
-                    "quantityAvailable": 0
-                }
-            ],
-            "eventDetails": {
-                "goLiveDate": "",
-                "eventDate": "",
-                "eventTime": "",
-                "ticketCutoffDate": "",
-                "description": "",
-                "location": ""
-            },
-            "discountCodes": [
-                {
-                    "code": "choa25",
-                    "type": "percentage",
-                    "value": 25,
-                    "ticketLevels": [
-                        "Item 2",
-                        "Item 3"
-                    ],
-                    "quantityAvailable": 124
-                }
-            ]
+            discountCodes: []
         };
 
         const projectTypeOptions = [
@@ -563,7 +644,100 @@
             "Web edit (on choa.org)"
         ];
 
-        // Helper function to make a field editable
+        // ============================================
+        // LOAD PROJECT FROM SUPABASE
+        // ============================================
+        async function loadProject() {
+            try {
+                const { data, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .eq('id', projectId)
+                    .single();
+
+                if (error) throw error;
+
+                if (!data) {
+                    alert('Project not found. Redirecting to projects list.');
+                    window.location.href = 'project-details-view-supabase.html';
+                    return;
+                }
+
+                // Map Supabase data to local projectData structure
+                projectData = {
+                    id: data.id,
+                    projectName: data.project_name || '',
+                    foundationTeam: data.foundation_team || '',
+                    projectTypes: data.project_types || [],
+                    raisersEdgeInfo: data.raisers_edge_info || { fund: '', appeal: '', package: '' },
+                    items: data.items || [],
+                    eventDetails: data.event_details || {
+                        goLiveDate: '',
+                        eventDate: '',
+                        eventTime: '',
+                        ticketCutoffDate: '',
+                        description: '',
+                        location: ''
+                    },
+                    discountCodes: data.discount_codes || []
+                };
+
+                console.log('Loaded project:', projectData);
+                document.getElementById('loadingOverlay').style.display = 'none';
+                renderPage();
+
+            } catch (error) {
+                console.error('Error loading project:', error);
+                document.getElementById('loadingOverlay').innerHTML = `
+                    <div style="text-align: center; color: #dc3545;">
+                        <p>Error loading project: ${error.message}</p>
+                        <a href="project-details-view-supabase.html" class="btn btn-primary" style="margin-top: 20px;">Back to Projects</a>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================
+        // SAVE PROJECT TO SUPABASE
+        // ============================================
+        async function saveProject() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            try {
+                const { data, error } = await supabase
+                    .from('projects')
+                    .update({
+                        project_name: projectData.projectName,
+                        foundation_team: projectData.foundationTeam,
+                        project_types: projectData.projectTypes,
+                        raisers_edge_info: projectData.raisersEdgeInfo,
+                        items: projectData.items,
+                        event_details: projectData.eventDetails,
+                        discount_codes: projectData.discountCodes,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', projectId)
+                    .select();
+
+                if (error) throw error;
+
+                console.log('Saved project:', data);
+                showSuccess();
+
+            } catch (error) {
+                console.error('Error saving project:', error);
+                showError(error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes to Supabase';
+            }
+        }
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
         function makeEditable(element, currentValue, onSave, inputType = 'text') {
             if (element.classList.contains('editing')) return;
             
@@ -612,19 +786,16 @@
             });
         }
 
-        // Helper function to format currency
         function formatCurrency(amount) {
-            return '$' + parseFloat(amount).toFixed(2);
+            return '$' + parseFloat(amount || 0).toFixed(2);
         }
 
-        // Helper function to format date
         function formatDate(dateString) {
             if (!dateString) return 'Not specified';
             const date = new Date(dateString);
             return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        // Helper function to format time
         function formatTime(timeString) {
             if (!timeString) return 'Not specified';
             const [hours, minutes] = timeString.split(':');
@@ -634,8 +805,26 @@
             return `${displayHour}:${minutes} ${ampm}`;
         }
 
-        // Render the entire page
+        function showSuccess() {
+            const notification = document.getElementById('successNotification');
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+
+        function showError(message) {
+            const notification = document.getElementById('errorNotification');
+            notification.textContent = '✕ ' + message;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 5000);
+        }
+
+        // ============================================
+        // RENDER PAGE
+        // ============================================
         function renderPage() {
+            // Update page title
+            document.title = `${projectData.projectName || 'Project'} - Edit`;
+
             // Basic information
             const projectNameEl = document.getElementById('projectName');
             projectNameEl.innerHTML = projectData.projectName || '<em style="color: #999;">Click to edit</em>';
@@ -652,6 +841,9 @@
             // Project types
             const typesContainer = document.getElementById('projectTypes');
             typesContainer.innerHTML = '';
+            
+            if (!projectData.projectTypes) projectData.projectTypes = [];
+            
             projectData.projectTypes.forEach((type, index) => {
                 const badge = document.createElement('span');
                 badge.className = 'badge removable';
@@ -665,7 +857,6 @@
                 typesContainer.appendChild(badge);
             });
             
-            // Add button for project types
             const addTypeBtn = document.createElement('button');
             addTypeBtn.className = 'add-badge-btn';
             addTypeBtn.textContent = '+ Add Type';
@@ -687,315 +878,292 @@
             typesContainer.appendChild(addTypeBtn);
 
             // Raiser's Edge Info
-            if (projectData.raisersEdgeInfo) {
-                document.getElementById('raisersEdgeSection').style.display = 'block';
-                
-                const reFundEl = document.getElementById('reFund');
-                reFundEl.innerHTML = projectData.raisersEdgeInfo.fund || '<em style="color: #999;">Click to edit</em>';
-                reFundEl.onclick = () => makeEditable(reFundEl, projectData.raisersEdgeInfo.fund, (val) => {
-                    projectData.raisersEdgeInfo.fund = val;
-                });
-
-                const reAppealEl = document.getElementById('reAppeal');
-                reAppealEl.innerHTML = projectData.raisersEdgeInfo.appeal || '<em style="color: #999;">Click to edit</em>';
-                reAppealEl.onclick = () => makeEditable(reAppealEl, projectData.raisersEdgeInfo.appeal, (val) => {
-                    projectData.raisersEdgeInfo.appeal = val;
-                });
-
-                const rePackageEl = document.getElementById('rePackage');
-                rePackageEl.innerHTML = projectData.raisersEdgeInfo.package || '<em style="color: #999;">Click to edit</em>';
-                rePackageEl.onclick = () => makeEditable(rePackageEl, projectData.raisersEdgeInfo.package, (val) => {
-                    projectData.raisersEdgeInfo.package = val;
-                });
+            if (!projectData.raisersEdgeInfo) {
+                projectData.raisersEdgeInfo = { fund: '', appeal: '', package: '' };
             }
+            
+            const reFundEl = document.getElementById('reFund');
+            reFundEl.innerHTML = projectData.raisersEdgeInfo.fund || '<em style="color: #999;">Click to edit</em>';
+            reFundEl.onclick = () => makeEditable(reFundEl, projectData.raisersEdgeInfo.fund, (val) => {
+                projectData.raisersEdgeInfo.fund = val;
+            });
+
+            const reAppealEl = document.getElementById('reAppeal');
+            reAppealEl.innerHTML = projectData.raisersEdgeInfo.appeal || '<em style="color: #999;">Click to edit</em>';
+            reAppealEl.onclick = () => makeEditable(reAppealEl, projectData.raisersEdgeInfo.appeal, (val) => {
+                projectData.raisersEdgeInfo.appeal = val;
+            });
+
+            const rePackageEl = document.getElementById('rePackage');
+            rePackageEl.innerHTML = projectData.raisersEdgeInfo.package || '<em style="color: #999;">Click to edit</em>';
+            rePackageEl.onclick = () => makeEditable(rePackageEl, projectData.raisersEdgeInfo.package, (val) => {
+                projectData.raisersEdgeInfo.package = val;
+            });
 
             // Items
-            if (projectData.items && projectData.items.length > 0) {
-                document.getElementById('itemsSection').style.display = 'block';
-                const tbody = document.getElementById('itemsTableBody');
-                tbody.innerHTML = '';
+            if (!projectData.items) projectData.items = [];
+            
+            const itemsTbody = document.getElementById('itemsTableBody');
+            itemsTbody.innerHTML = '';
+            
+            projectData.items.forEach((item, index) => {
+                const row = document.createElement('tr');
                 
-                projectData.items.forEach((item, index) => {
-                    const row = document.createElement('tr');
-                    
-                    // Item name
-                    const nameCell = document.createElement('td');
-                    nameCell.innerHTML = `<strong>${item.name}</strong>`;
-                    nameCell.onclick = () => makeEditable(nameCell, item.name, (val) => {
-                        projectData.items[index].name = val;
-                    });
-                    row.appendChild(nameCell);
-                    
-                    // Description
-                    const descCell = document.createElement('td');
-                    descCell.innerHTML = item.description || '<em style="color: #999;">Click to add description</em>';
-                    descCell.onclick = () => makeEditable(descCell, item.description, (val) => {
-                        projectData.items[index].description = val;
-                    }, 'textarea');
-                    row.appendChild(descCell);
-                    
-                    // Price
-                    const priceCell = document.createElement('td');
-                    priceCell.textContent = formatCurrency(item.price);
-                    priceCell.onclick = () => makeEditable(priceCell, item.price, (val) => {
-                        projectData.items[index].price = parseFloat(val) || 0;
-                    }, 'number');
-                    row.appendChild(priceCell);
-                    
-                    // Fair Market Value
-                    const fmvCell = document.createElement('td');
-                    fmvCell.innerHTML = item.fairMarketValue ? formatCurrency(item.fairMarketValue) : '<em style="color: #999;">N/A</em>';
-                    fmvCell.onclick = () => makeEditable(fmvCell, item.fairMarketValue, (val) => {
-                        projectData.items[index].fairMarketValue = parseFloat(val) || 0;
-                    }, 'number');
-                    row.appendChild(fmvCell);
-                    
-                    // Quantity
-                    const qtyCell = document.createElement('td');
-                    qtyCell.innerHTML = item.quantityAvailable || '<em style="color: #999;">Unlimited</em>';
-                    qtyCell.onclick = () => makeEditable(qtyCell, item.quantityAvailable, (val) => {
-                        projectData.items[index].quantityAvailable = parseInt(val) || 0;
-                    }, 'number');
-                    row.appendChild(qtyCell);
-                    
-                    // Actions
-                    const actionsCell = document.createElement('td');
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'btn-delete-row';
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.onclick = () => {
-                        if (confirm(`Delete item "${item.name}"?`)) {
-                            projectData.items.splice(index, 1);
-                            renderPage();
-                        }
-                    };
-                    actionsCell.appendChild(deleteBtn);
-                    row.appendChild(actionsCell);
-                    
-                    tbody.appendChild(row);
+                const nameCell = document.createElement('td');
+                nameCell.innerHTML = `<strong>${item.name || 'Unnamed'}</strong>`;
+                nameCell.onclick = () => makeEditable(nameCell, item.name, (val) => {
+                    projectData.items[index].name = val;
                 });
-
-                // Add row button
-                const addRowContainer = document.getElementById('itemsSection');
-                let addBtn = addRowContainer.querySelector('.btn-add-row');
-                if (!addBtn) {
-                    addBtn = document.createElement('button');
-                    addBtn.className = 'btn-add-row';
-                    addBtn.textContent = '+ Add Item';
-                    addRowContainer.appendChild(addBtn);
-                }
-                addBtn.onclick = () => {
-                    projectData.items.push({
-                        name: 'New Item',
-                        description: '',
-                        price: 0,
-                        fairMarketValue: 0,
-                        quantityAvailable: 0
-                    });
-                    renderPage();
+                row.appendChild(nameCell);
+                
+                const descCell = document.createElement('td');
+                descCell.innerHTML = item.description || '<em style="color: #999;">Click to add</em>';
+                descCell.onclick = () => makeEditable(descCell, item.description, (val) => {
+                    projectData.items[index].description = val;
+                }, 'textarea');
+                row.appendChild(descCell);
+                
+                const priceCell = document.createElement('td');
+                priceCell.textContent = formatCurrency(item.price);
+                priceCell.onclick = () => makeEditable(priceCell, item.price, (val) => {
+                    projectData.items[index].price = parseFloat(val) || 0;
+                }, 'number');
+                row.appendChild(priceCell);
+                
+                const fmvCell = document.createElement('td');
+                fmvCell.innerHTML = item.fairMarketValue ? formatCurrency(item.fairMarketValue) : '<em style="color: #999;">N/A</em>';
+                fmvCell.onclick = () => makeEditable(fmvCell, item.fairMarketValue, (val) => {
+                    projectData.items[index].fairMarketValue = parseFloat(val) || 0;
+                }, 'number');
+                row.appendChild(fmvCell);
+                
+                const qtyCell = document.createElement('td');
+                qtyCell.innerHTML = item.quantityAvailable || '<em style="color: #999;">Unlimited</em>';
+                qtyCell.onclick = () => makeEditable(qtyCell, item.quantityAvailable, (val) => {
+                    projectData.items[index].quantityAvailable = parseInt(val) || 0;
+                }, 'number');
+                row.appendChild(qtyCell);
+                
+                const actionsCell = document.createElement('td');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-delete-row';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = () => {
+                    if (confirm(`Delete item "${item.name}"?`)) {
+                        projectData.items.splice(index, 1);
+                        renderPage();
+                    }
                 };
+                actionsCell.appendChild(deleteBtn);
+                row.appendChild(actionsCell);
+                
+                itemsTbody.appendChild(row);
+            });
+
+            // Add item button
+            let addItemBtn = document.getElementById('itemsSection').querySelector('.btn-add-row');
+            if (!addItemBtn) {
+                addItemBtn = document.createElement('button');
+                addItemBtn.className = 'btn-add-row';
+                addItemBtn.textContent = '+ Add Item';
+                document.getElementById('itemsSection').appendChild(addItemBtn);
             }
+            addItemBtn.onclick = () => {
+                projectData.items.push({
+                    name: 'New Item',
+                    description: '',
+                    price: 0,
+                    fairMarketValue: 0,
+                    quantityAvailable: 0
+                });
+                renderPage();
+            };
 
             // Event Details
-            if (projectData.eventDetails) {
-                document.getElementById('eventDetailsSection').style.display = 'block';
-                
-                const goLiveDateEl = document.getElementById('goLiveDate');
-                goLiveDateEl.innerHTML = projectData.eventDetails.goLiveDate ? formatDate(projectData.eventDetails.goLiveDate) : '<em style="color: #999;">Click to set date</em>';
-                goLiveDateEl.onclick = () => makeEditable(goLiveDateEl, projectData.eventDetails.goLiveDate, (val) => {
-                    projectData.eventDetails.goLiveDate = val;
-                }, 'date');
-
-                const eventDateEl = document.getElementById('eventDate');
-                eventDateEl.innerHTML = projectData.eventDetails.eventDate ? formatDate(projectData.eventDetails.eventDate) : '<em style="color: #999;">Click to set date</em>';
-                eventDateEl.onclick = () => makeEditable(eventDateEl, projectData.eventDetails.eventDate, (val) => {
-                    projectData.eventDetails.eventDate = val;
-                }, 'date');
-
-                const eventTimeEl = document.getElementById('eventTime');
-                eventTimeEl.innerHTML = projectData.eventDetails.eventTime ? formatTime(projectData.eventDetails.eventTime) : '<em style="color: #999;">Click to set time</em>';
-                eventTimeEl.onclick = () => makeEditable(eventTimeEl, projectData.eventDetails.eventTime, (val) => {
-                    projectData.eventDetails.eventTime = val;
-                }, 'time');
-
-                const cutoffDateEl = document.getElementById('cutoffDate');
-                cutoffDateEl.innerHTML = projectData.eventDetails.ticketCutoffDate ? formatDate(projectData.eventDetails.ticketCutoffDate) : '<em style="color: #999;">Click to set date</em>';
-                cutoffDateEl.onclick = () => makeEditable(cutoffDateEl, projectData.eventDetails.ticketCutoffDate, (val) => {
-                    projectData.eventDetails.ticketCutoffDate = val;
-                }, 'date');
-
-                const eventDescEl = document.getElementById('eventDescription');
-                eventDescEl.innerHTML = projectData.eventDetails.description || '<em style="color: #999;">Click to add description</em>';
-                eventDescEl.onclick = () => makeEditable(eventDescEl, projectData.eventDetails.description, (val) => {
-                    projectData.eventDetails.description = val;
-                }, 'textarea');
-
-                const eventLocEl = document.getElementById('eventLocation');
-                eventLocEl.innerHTML = projectData.eventDetails.location || '<em style="color: #999;">Click to add location</em>';
-                eventLocEl.onclick = () => makeEditable(eventLocEl, projectData.eventDetails.location, (val) => {
-                    projectData.eventDetails.location = val;
-                });
-            }
-
-            // Discount Codes
-            if (projectData.discountCodes && projectData.discountCodes.length > 0) {
-                document.getElementById('discountCodesSection').style.display = 'block';
-                const tbody = document.getElementById('discountCodesTableBody');
-                tbody.innerHTML = '';
-                
-                projectData.discountCodes.forEach((discount, index) => {
-                    const row = document.createElement('tr');
-                    
-                    // Code
-                    const codeCell = document.createElement('td');
-                    codeCell.innerHTML = `<strong>${discount.code}</strong>`;
-                    codeCell.onclick = () => makeEditable(codeCell, discount.code, (val) => {
-                        projectData.discountCodes[index].code = val;
-                    });
-                    row.appendChild(codeCell);
-                    
-                    // Type
-                    const typeCell = document.createElement('td');
-                    typeCell.textContent = discount.type === 'percentage' ? 'Percentage' : 'Fixed Amount';
-                    typeCell.onclick = () => {
-                        const newType = discount.type === 'percentage' ? 'fixed' : 'percentage';
-                        if (confirm(`Change discount type to "${newType === 'percentage' ? 'Percentage' : 'Fixed Amount'}"?`)) {
-                            projectData.discountCodes[index].type = newType;
-                            renderPage();
-                        }
-                    };
-                    typeCell.style.cursor = 'pointer';
-                    row.appendChild(typeCell);
-                    
-                    // Value
-                    const valueCell = document.createElement('td');
-                    valueCell.textContent = discount.type === 'percentage' ? `${discount.value}%` : formatCurrency(discount.value);
-                    valueCell.onclick = () => makeEditable(valueCell, discount.value, (val) => {
-                        projectData.discountCodes[index].value = parseFloat(val) || 0;
-                    }, 'number');
-                    row.appendChild(valueCell);
-                    
-                    // Ticket Levels
-                    const levelsCell = document.createElement('td');
-                    if (discount.ticketLevels && discount.ticketLevels.length > 0) {
-                        discount.ticketLevels.forEach((level, levelIndex) => {
-                            const levelBadge = document.createElement('span');
-                            levelBadge.className = 'discount-badge';
-                            levelBadge.textContent = level;
-                            levelBadge.style.cursor = 'pointer';
-                            levelBadge.onclick = () => {
-                                if (confirm(`Remove "${level}" from applicable ticket levels?`)) {
-                                    projectData.discountCodes[index].ticketLevels.splice(levelIndex, 1);
-                                    renderPage();
-                                }
-                            };
-                            levelsCell.appendChild(levelBadge);
-                        });
-                    } else {
-                        levelsCell.innerHTML = '<em style="color: #999;">All levels</em>';
-                    }
-                    
-                    // Add level button
-                    const addLevelBtn = document.createElement('span');
-                    addLevelBtn.className = 'discount-badge';
-                    addLevelBtn.style.background = '#28a745';
-                    addLevelBtn.textContent = '+';
-                    addLevelBtn.onclick = () => {
-                        const availableLevels = projectData.items.map(item => item.name).filter(name => !discount.ticketLevels.includes(name));
-                        if (availableLevels.length === 0) {
-                            alert('All items are already included!');
-                            return;
-                        }
-                        const selected = prompt(`Available items:\n${availableLevels.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nEnter the number or name:`);
-                        if (selected) {
-                            const selectedLevel = availableLevels[parseInt(selected) - 1] || availableLevels.find(t => t.toLowerCase().includes(selected.toLowerCase()));
-                            if (selectedLevel) {
-                                if (!projectData.discountCodes[index].ticketLevels) {
-                                    projectData.discountCodes[index].ticketLevels = [];
-                                }
-                                projectData.discountCodes[index].ticketLevels.push(selectedLevel);
-                                renderPage();
-                            }
-                        }
-                    };
-                    levelsCell.appendChild(addLevelBtn);
-                    row.appendChild(levelsCell);
-                    
-                    // Quantity
-                    const qtyCell = document.createElement('td');
-                    qtyCell.innerHTML = discount.quantityAvailable || '<em style="color: #999;">Unlimited</em>';
-                    qtyCell.onclick = () => makeEditable(qtyCell, discount.quantityAvailable, (val) => {
-                        projectData.discountCodes[index].quantityAvailable = parseInt(val) || 0;
-                    }, 'number');
-                    row.appendChild(qtyCell);
-                    
-                    // Actions
-                    const actionsCell = document.createElement('td');
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'btn-delete-row';
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.onclick = () => {
-                        if (confirm(`Delete discount code "${discount.code}"?`)) {
-                            projectData.discountCodes.splice(index, 1);
-                            renderPage();
-                        }
-                    };
-                    actionsCell.appendChild(deleteBtn);
-                    row.appendChild(actionsCell);
-                    
-                    tbody.appendChild(row);
-                });
-
-                // Add row button
-                const addRowContainer = document.getElementById('discountCodesSection');
-                let addBtn = addRowContainer.querySelector('.btn-add-row');
-                if (!addBtn) {
-                    addBtn = document.createElement('button');
-                    addBtn.className = 'btn-add-row';
-                    addBtn.textContent = '+ Add Discount Code';
-                    addRowContainer.appendChild(addBtn);
-                }
-                addBtn.onclick = () => {
-                    projectData.discountCodes.push({
-                        code: 'NEWCODE',
-                        type: 'percentage',
-                        value: 10,
-                        ticketLevels: [],
-                        quantityAvailable: 0
-                    });
-                    renderPage();
+            if (!projectData.eventDetails) {
+                projectData.eventDetails = {
+                    goLiveDate: '', eventDate: '', eventTime: '',
+                    ticketCutoffDate: '', description: '', location: ''
                 };
             }
-        }
-
-        // Submit form
-        function submitForm() {
-            console.log('=== UPDATED PROJECT DATA ===');
-            console.log(JSON.stringify(projectData, null, 2));
-            console.log('============================');
             
-            // Show success notification
-            const notification = document.getElementById('successNotification');
-            notification.classList.add('show');
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+            const goLiveDateEl = document.getElementById('goLiveDate');
+            goLiveDateEl.innerHTML = projectData.eventDetails.goLiveDate ? formatDate(projectData.eventDetails.goLiveDate) : '<em style="color: #999;">Click to set</em>';
+            goLiveDateEl.onclick = () => makeEditable(goLiveDateEl, projectData.eventDetails.goLiveDate, (val) => {
+                projectData.eventDetails.goLiveDate = val;
+            }, 'date');
+
+            const eventDateEl = document.getElementById('eventDate');
+            eventDateEl.innerHTML = projectData.eventDetails.eventDate ? formatDate(projectData.eventDetails.eventDate) : '<em style="color: #999;">Click to set</em>';
+            eventDateEl.onclick = () => makeEditable(eventDateEl, projectData.eventDetails.eventDate, (val) => {
+                projectData.eventDetails.eventDate = val;
+            }, 'date');
+
+            const eventTimeEl = document.getElementById('eventTime');
+            eventTimeEl.innerHTML = projectData.eventDetails.eventTime ? formatTime(projectData.eventDetails.eventTime) : '<em style="color: #999;">Click to set</em>';
+            eventTimeEl.onclick = () => makeEditable(eventTimeEl, projectData.eventDetails.eventTime, (val) => {
+                projectData.eventDetails.eventTime = val;
+            }, 'time');
+
+            const cutoffDateEl = document.getElementById('cutoffDate');
+            cutoffDateEl.innerHTML = projectData.eventDetails.ticketCutoffDate ? formatDate(projectData.eventDetails.ticketCutoffDate) : '<em style="color: #999;">Click to set</em>';
+            cutoffDateEl.onclick = () => makeEditable(cutoffDateEl, projectData.eventDetails.ticketCutoffDate, (val) => {
+                projectData.eventDetails.ticketCutoffDate = val;
+            }, 'date');
+
+            const eventDescEl = document.getElementById('eventDescription');
+            eventDescEl.innerHTML = projectData.eventDetails.description || '<em style="color: #999;">Click to add</em>';
+            eventDescEl.onclick = () => makeEditable(eventDescEl, projectData.eventDetails.description, (val) => {
+                projectData.eventDetails.description = val;
+            }, 'textarea');
+
+            const eventLocEl = document.getElementById('eventLocation');
+            eventLocEl.innerHTML = projectData.eventDetails.location || '<em style="color: #999;">Click to add</em>';
+            eventLocEl.onclick = () => makeEditable(eventLocEl, projectData.eventDetails.location, (val) => {
+                projectData.eventDetails.location = val;
+            });
+
+            // Discount Codes
+            if (!projectData.discountCodes) projectData.discountCodes = [];
+            
+            const discountTbody = document.getElementById('discountCodesTableBody');
+            discountTbody.innerHTML = '';
+            
+            projectData.discountCodes.forEach((discount, index) => {
+                const row = document.createElement('tr');
+                
+                const codeCell = document.createElement('td');
+                codeCell.innerHTML = `<strong>${discount.code || 'NEWCODE'}</strong>`;
+                codeCell.onclick = () => makeEditable(codeCell, discount.code, (val) => {
+                    projectData.discountCodes[index].code = val;
+                });
+                row.appendChild(codeCell);
+                
+                const typeCell = document.createElement('td');
+                typeCell.textContent = discount.type === 'percentage' ? 'Percentage' : 'Fixed Amount';
+                typeCell.onclick = () => {
+                    const newType = discount.type === 'percentage' ? 'fixed' : 'percentage';
+                    if (confirm(`Change to "${newType === 'percentage' ? 'Percentage' : 'Fixed Amount'}"?`)) {
+                        projectData.discountCodes[index].type = newType;
+                        renderPage();
+                    }
+                };
+                row.appendChild(typeCell);
+                
+                const valueCell = document.createElement('td');
+                valueCell.textContent = discount.type === 'percentage' ? `${discount.value}%` : formatCurrency(discount.value);
+                valueCell.onclick = () => makeEditable(valueCell, discount.value, (val) => {
+                    projectData.discountCodes[index].value = parseFloat(val) || 0;
+                }, 'number');
+                row.appendChild(valueCell);
+                
+                const levelsCell = document.createElement('td');
+                if (!discount.ticketLevels) discount.ticketLevels = [];
+                
+                discount.ticketLevels.forEach((level, levelIndex) => {
+                    const levelBadge = document.createElement('span');
+                    levelBadge.className = 'discount-badge';
+                    levelBadge.textContent = level;
+                    levelBadge.style.cursor = 'pointer';
+                    levelBadge.onclick = () => {
+                        if (confirm(`Remove "${level}"?`)) {
+                            projectData.discountCodes[index].ticketLevels.splice(levelIndex, 1);
+                            renderPage();
+                        }
+                    };
+                    levelsCell.appendChild(levelBadge);
+                });
+                
+                if (discount.ticketLevels.length === 0) {
+                    levelsCell.innerHTML = '<em style="color: #999;">All levels</em>';
+                }
+                
+                const addLevelBtn = document.createElement('span');
+                addLevelBtn.className = 'discount-badge';
+                addLevelBtn.style.background = '#28a745';
+                addLevelBtn.style.cursor = 'pointer';
+                addLevelBtn.textContent = '+';
+                addLevelBtn.onclick = () => {
+                    const availableLevels = projectData.items.map(item => item.name).filter(name => !discount.ticketLevels.includes(name));
+                    if (availableLevels.length === 0) {
+                        alert('All items are already included!');
+                        return;
+                    }
+                    const selected = prompt(`Available:\n${availableLevels.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nEnter number or name:`);
+                    if (selected) {
+                        const selectedLevel = availableLevels[parseInt(selected) - 1] || availableLevels.find(t => t.toLowerCase().includes(selected.toLowerCase()));
+                        if (selectedLevel) {
+                            projectData.discountCodes[index].ticketLevels.push(selectedLevel);
+                            renderPage();
+                        }
+                    }
+                };
+                levelsCell.appendChild(addLevelBtn);
+                row.appendChild(levelsCell);
+                
+                const qtyCell = document.createElement('td');
+                qtyCell.innerHTML = discount.quantityAvailable || '<em style="color: #999;">Unlimited</em>';
+                qtyCell.onclick = () => makeEditable(qtyCell, discount.quantityAvailable, (val) => {
+                    projectData.discountCodes[index].quantityAvailable = parseInt(val) || 0;
+                }, 'number');
+                row.appendChild(qtyCell);
+                
+                const actionsCell = document.createElement('td');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-delete-row';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = () => {
+                    if (confirm(`Delete "${discount.code}"?`)) {
+                        projectData.discountCodes.splice(index, 1);
+                        renderPage();
+                    }
+                };
+                actionsCell.appendChild(deleteBtn);
+                row.appendChild(actionsCell);
+                
+                discountTbody.appendChild(row);
+            });
+
+            // Add discount button
+            let addDiscountBtn = document.getElementById('discountCodesSection').querySelector('.btn-add-row');
+            if (!addDiscountBtn) {
+                addDiscountBtn = document.createElement('button');
+                addDiscountBtn.className = 'btn-add-row';
+                addDiscountBtn.textContent = '+ Add Discount Code';
+                document.getElementById('discountCodesSection').appendChild(addDiscountBtn);
+            }
+            addDiscountBtn.onclick = () => {
+                projectData.discountCodes.push({
+                    code: 'NEWCODE',
+                    type: 'percentage',
+                    value: 10,
+                    ticketLevels: [],
+                    quantityAvailable: 0
+                });
+                renderPage();
+            };
         }
 
-        // Export to JSON
-        function exportToJSON() {
+        // ============================================
+        // GLOBAL FUNCTIONS
+        // ============================================
+        window.submitForm = saveProject;
+
+        window.exportToJSON = function() {
             const dataStr = JSON.stringify(projectData, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `${projectData.projectName.replace(/\s+/g, '-').toLowerCase()}-project-data.json`;
+            link.download = `${(projectData.projectName || 'project').replace(/\s+/g, '-').toLowerCase()}-data.json`;
             link.click();
             URL.revokeObjectURL(url);
-        }
+        };
 
-        // Initialize page
-        renderPage();
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        loadProject();
     </script>
 </body>
 </html>
