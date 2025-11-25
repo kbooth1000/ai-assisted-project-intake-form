@@ -472,7 +472,7 @@
 
         <div id="projectContent" style="display: none;">
             <h1 id="project_title">Project Details</h1>
-            <p class="subtitle">Click on any field to edit. <span id="editStatus" class="edit-status" style="display: none;">Unsaved changes</span></p>
+            <p class="subtitle" id="subtitle">Click on any field to edit. <span id="editStatus" class="edit-status" style="display: none;">Unsaved changes</span></p>
 
             <div id="successMessage" class="success-message">
                 ✓ Project updated successfully!
@@ -677,7 +677,7 @@
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveProject()">Save Changes</button>
-                <button type="button" class="btn btn-secondary" onclick="reloadProject()">Discard Changes</button>
+                <button type="button" class="btn btn-secondary" id="discardBtn" onclick="reloadProject()">Discard Changes</button>
             </div>
         </div>
     </div>
@@ -697,6 +697,7 @@
         let projectData = null;
         let hasUnsavedChanges = false;
         let discountRowCounter = 0;
+        let isNewProject = false;
 
         // Get project ID from URL
         function getProjectIdFromUrl() {
@@ -805,9 +806,9 @@
 
         // Fetch project from Supabase
         async function fetchProject(id) {
-                console.log('Supabase URL:', supabaseConfig.url);
+            console.log('Supabase URL:', supabaseConfig.url);
             showLoading();
-            
+
             try {
                 const { data, error } = await supabase
                     .from('projects')
@@ -825,6 +826,28 @@
                 console.error('Error fetching project:', error);
                 showError(error.message || 'Failed to load project');
             }
+        }
+
+        // Initialize new project
+        function initNewProject() {
+            isNewProject = true;
+            projectData = {
+                project_name: '',
+                foundation_team: '',
+                project_types: [],
+                raisers_edge_info: null,
+                event_details: null,
+                items: null,
+                discount_codes: null
+            };
+
+            document.getElementById('project_title').textContent = 'Create New Project';
+            document.getElementById('subtitle').innerHTML = 'Fill out the form to create a new project. <span id="editStatus" class="edit-status" style="display: none;">Unsaved changes</span>';
+            document.getElementById('saveBtn').textContent = 'Create Project';
+            document.getElementById('discardBtn').textContent = 'Cancel';
+
+            renderProject(projectData);
+            showContent();
         }
 
         // Check if project types include Raiser's Edge relevant types
@@ -1290,7 +1313,7 @@
         // Save project
         async function saveProject() {
             const formData = collectFormData();
-            
+
             // Validate
             const errors = validateFormData(formData);
             if (errors.length > 0) {
@@ -1300,23 +1323,62 @@
 
             const saveBtn = document.getElementById('saveBtn');
             saveBtn.disabled = true;
+            const originalBtnText = saveBtn.textContent;
             saveBtn.textContent = 'Saving...';
 
             try {
-                const { data, error } = await supabase
-                    .from('projects')
-                    .update(formData)
-                    .eq('id', projectId)
-                    .select()
-                    .single();
-if(error) console.log('Supabase error details:', error, {formData});
-                if (error) throw error;
+                let data, error;
 
-                projectData = data;
+                if (isNewProject) {
+                    // Create new project
+                    const result = await supabase
+                        .from('projects')
+                        .insert([formData])
+                        .select()
+                        .single();
+
+                    data = result.data;
+                    error = result.error;
+
+                    if (error) console.log('Supabase error details:', error, { formData });
+                    if (error) throw error;
+
+                    // Update state to editing mode
+                    isNewProject = false;
+                    projectId = data.id;
+                    projectData = data;
+
+                    // Update URL to include the new project ID
+                    window.history.replaceState({}, '', `?id=${data.id}`);
+
+                    // Update UI
+                    document.getElementById('project_title').textContent = data.project_name || 'Project Details';
+                    document.getElementById('subtitle').innerHTML = 'Click on any field to edit. <span id="editStatus" class="edit-status" style="display: none;">Unsaved changes</span>';
+                    document.getElementById('saveBtn').textContent = 'Save Changes';
+                    document.getElementById('discardBtn').textContent = 'Discard Changes';
+
+                    showSuccessMessage('Project created successfully!');
+                } else {
+                    // Update existing project
+                    const result = await supabase
+                        .from('projects')
+                        .update(formData)
+                        .eq('id', projectId)
+                        .select()
+                        .single();
+
+                    data = result.data;
+                    error = result.error;
+
+                    if (error) console.log('Supabase error details:', error, { formData });
+                    if (error) throw error;
+
+                    projectData = data;
+                    showSuccessMessage('Project updated successfully!');
+                }
+
                 clearUnsavedStatus();
-                showSuccessMessage('Project updated successfully!');
-            console.log('Supabase error details:', error, { formData });
-                
+
                 // Update page title if project name changed
                 document.getElementById('project_title').textContent = formData.project_name || 'Project Details';
                 document.title = (formData.project_name || 'Project') + ' - Details';
@@ -1326,19 +1388,34 @@ if(error) console.log('Supabase error details:', error, {formData});
                 showErrorMessage('Failed to save: ' + (error.message || 'Unknown error'));
             } finally {
                 saveBtn.disabled = false;
-                saveBtn.textContent = 'Save Changes';
+                if (!isNewProject) {
+                    saveBtn.textContent = 'Save Changes';
+                } else {
+                    saveBtn.textContent = 'Create Project';
+                }
             }
         }
 
         // Reload project
         function reloadProject() {
-            if (hasUnsavedChanges) {
-                if (!confirm('Are you sure you want to discard your changes?')) {
-                    return;
+            if (isNewProject) {
+                // For new projects, go back to projects list
+                if (hasUnsavedChanges) {
+                    if (!confirm('Are you sure you want to cancel? Your changes will be lost.')) {
+                        return;
+                    }
                 }
+                window.location.href = 'projects-list.html';
+            } else {
+                // For existing projects, reload the data
+                if (hasUnsavedChanges) {
+                    if (!confirm('Are you sure you want to discard your changes?')) {
+                        return;
+                    }
+                }
+                fetchProject(projectId);
+                clearUnsavedStatus();
             }
-            fetchProject(projectId);
-            clearUnsavedStatus();
         }
 
         // Warn before leaving with unsaved changes
@@ -1352,14 +1429,16 @@ if(error) console.log('Supabase error details:', error, {formData});
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             projectId = getProjectIdFromUrl();
-            
-            if (!projectId) {
-                showError('No project ID provided. Please add ?id=X to the URL.');
-                return;
-            }
 
             setupInlineEditing();
-            fetchProject(projectId);
+
+            if (!projectId || projectId === 'new') {
+                // Create new project mode
+                initNewProject();
+            } else {
+                // Edit existing project mode
+                fetchProject(projectId);
+            }
         });
     </script>
 </body>

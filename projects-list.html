@@ -198,6 +198,24 @@
             margin-bottom: 15px;
         }
 
+        .btn-new-project {
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-new-project:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -230,8 +248,15 @@
 
         <!-- Main Content -->
         <div id="content">
-            <h1>Projects</h1>
-            <p class="subtitle">Browse and manage your projects</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <div>
+                    <h1 style="margin-bottom: 5px;">Projects</h1>
+                    <p class="subtitle" style="margin-bottom: 0;">Browse and manage your projects</p>
+                </div>
+                <button onclick="window.location.href='details.html?id=new'" class="btn-new-project">
+                    + New Project
+                </button>
+            </div>
 
             <!-- Search Box -->
             <div class="search-container">
