@@ -574,60 +574,60 @@
                 </div>
             </div>
 
-            <!-- Event Details Section -->
+              <!-- Event Details Section -->
             <div id="event_detailsSection" class="section">
                 <h3 class="section-title">Event Details</h3>
                 <div class="form-group">
                     <label>Project Go-Live Date</label>
-                    <div class="editable-field" data-field="go_live_date" data-type="date">
+                    <div class="editable-field" data-field="event_details.go_live_date" data-type="date">
                         <div class="field-display"></div>
                         <div class="field-edit">
-                            <input type="date">
+                            <input type="date" name="go_live_date">
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Event Date</label>
-                    <div class="editable-field" data-field="event_date" data-type="date">
+                    <div class="editable-field" data-field="event_details.event_date" data-type="date">
                         <div class="field-display"></div>
                         <div class="field-edit">
-                            <input type="date">
+                            <input type="date" name="event_date">
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Event Time</label>
-                    <div class="editable-field" data-field="event_time" data-type="time">
+                    <div class="editable-field" data-field="event_details.event_time" data-type="time">
                         <div class="field-display"></div>
                         <div class="field-edit">
-                            <input type="time">
+                            <input type="time" name="event_time">
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Ticket Cut-Off Date</label>
-                    <div class="editable-field" data-field="ticket_cutoff_date" data-type="date">
+                    <div class="editable-field" data-field="event_details.ticket_cutoff_date" data-type="date">
                         <div class="field-display"></div>
                         <div class="field-edit">
-                            <input type="date">
+                            <input type="date" name="ticket_cutoff_date">
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Event Description</label>
-                    <div class="editable-field" data-field="event_description" data-type="textarea">
+                    <div class="editable-field" data-field="event_details.event_description" data-type="textarea">
                         <div class="field-display"></div>
                         <div class="field-edit">
-                            <textarea rows="4"></textarea>
+                            <textarea rows="4" name="event_description"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Event Location</label>
-                    <div class="editable-field" data-field="location">
+                    <div class="editable-field" data-field="event_details.location">
                         <div class="field-display"></div>
                         <div class="field-edit">
-                            <input type="text">
+                            <input type="text" name="location">
                         </div>
                     </div>
                 </div>
@@ -1204,14 +1204,15 @@
             // Event Details - collect if section is visible
             const eventDetailsSection = document.getElementById('event_detailsSection');
             if (eventDetailsSection.style.display !== 'none') {
-                data.event_details = {
-                    go_live_date: document.querySelector('[data-field="go_live_date"] input').value || '',
-                    event_date: document.querySelector('[data-field="event_date"] input').value || '',
-                    event_time: document.querySelector('[data-field="event_time"] input').value || '',
-                    ticket_cutoff_date: document.querySelector('[data-field="ticket_cutoff_date"] input').value || '',
-                    event_description: document.querySelector('[data-field="event_description"] textarea').value || '',
-                    location: document.querySelector('[data-field="location"] input').value || ''
-                };
+                data.event_details =  {
+                    go_live_date: document.querySelector('[data-field="event_details.go_live_date"] input').value || '',
+                    event_date: document.querySelector('[data-field="event_details.event_date"] input').value || '',
+                    event_time: document.querySelector('[data-field="event_details.event_time"] input').value || '',
+                    ticket_cutoff_date: document.querySelector('[data-field="event_details.ticket_cutoff_date"] input').value || '',
+                    event_description: document.querySelector('[data-field="event_details.event_description"] textarea').value || '',
+                    location: document.querySelector('[data-field="event_details.location"] input').value || ''
+                }
+            ;
             } else {
                 // Clear Event Details if section is not visible
                 data.event_details = null;
@@ -1305,6 +1306,7 @@ if(error) console.log('Supabase error details:', error, {formData});
                 projectData = data;
                 clearUnsavedStatus();
                 showSuccessMessage('Project updated successfully!');
+            console.log('Supabase error details:', error, { formData });
                 
                 // Update page title if project name changed
                 document.getElementById('project_title').textContent = formData.project_name || 'Project Details';
