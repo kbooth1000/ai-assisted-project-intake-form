@@ -579,7 +579,7 @@
                 <h3 class="section-title">Event Details</h3>
                 <div class="form-group">
                     <label>Project Go-Live Date</label>
-                    <div class="editable-field" data-field="event_details.goLiveDate" data-type="date">
+                    <div class="editable-field" data-field="go_live_date" data-type="date">
                         <div class="field-display"></div>
                         <div class="field-edit">
                             <input type="date">
@@ -588,7 +588,7 @@
                 </div>
                 <div class="form-group">
                     <label>Event Date</label>
-                    <div class="editable-field" data-field="event_details.eventDate" data-type="date">
+                    <div class="editable-field" data-field="event_date" data-type="date">
                         <div class="field-display"></div>
                         <div class="field-edit">
                             <input type="date">
@@ -597,7 +597,7 @@
                 </div>
                 <div class="form-group">
                     <label>Event Time</label>
-                    <div class="editable-field" data-field="event_details.eventTime" data-type="time">
+                    <div class="editable-field" data-field="event_time" data-type="time">
                         <div class="field-display"></div>
                         <div class="field-edit">
                             <input type="time">
@@ -606,7 +606,7 @@
                 </div>
                 <div class="form-group">
                     <label>Ticket Cut-Off Date</label>
-                    <div class="editable-field" data-field="event_details.ticketCutoffDate" data-type="date">
+                    <div class="editable-field" data-field="ticket_cutoff_date" data-type="date">
                         <div class="field-display"></div>
                         <div class="field-edit">
                             <input type="date">
@@ -615,7 +615,7 @@
                 </div>
                 <div class="form-group">
                     <label>Event Description</label>
-                    <div class="editable-field" data-field="event_details.description" data-type="textarea">
+                    <div class="editable-field" data-field="event_description" data-type="textarea">
                         <div class="field-display"></div>
                         <div class="field-edit">
                             <textarea rows="4"></textarea>
@@ -624,7 +624,7 @@
                 </div>
                 <div class="form-group">
                     <label>Event Location</label>
-                    <div class="editable-field" data-field="event_details.location">
+                    <div class="editable-field" data-field="location">
                         <div class="field-display"></div>
                         <div class="field-edit">
                             <input type="text">
@@ -833,6 +833,18 @@
             return projectTypes && projectTypes.some(type => reTypes.includes(type));
         }
 
+        // Check if project types include Event Details relevant types
+        function shouldShowEventDetails(projectTypes) {
+            const eventTypes = ['P2P site', 'Event registration/ticket form'];
+            return projectTypes && projectTypes.some(type => eventTypes.includes(type));
+        }
+
+        // Check if project types include Items/Tickets relevant types
+        function shouldShowItems(projectTypes) {
+            const itemTypes = ['P2P site', 'Event registration/ticket form'];
+            return projectTypes && projectTypes.some(type => itemTypes.includes(type));
+        }
+
         // Render project data
         function renderProject(data) {
             // Set page title
@@ -878,13 +890,18 @@
 
             // Show/hide sections based on project type
             const showRaisersEdge = shouldShowRaisersEdge(data.project_types);
+            const showEventDetails = shouldShowEventDetails(data.project_types);
+            const showItems = shouldShowItems(data.project_types);
+
             document.getElementById('raisersEdgeSection').style.display =
                 showRaisersEdge ? 'block' : 'none';
 
             document.getElementById('event_detailsSection').style.display =
-                data.event_details ? 'block' : 'none';
+                showEventDetails ? 'block' : 'none';
+
             document.getElementById('itemsSection').style.display =
-                (data.items && data.items.length > 0) ? 'block' : 'none';
+                showItems ? 'block' : 'none';
+
             document.getElementById('discount_codesSection').style.display =
                 (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
         }
@@ -927,10 +944,19 @@
                 .map(cb => cb.value);
             renderproject_types(selectedTypes);
 
-            // Show/hide Raiser's Edge section based on selected types
+            // Show/hide sections based on selected types
             const showRaisersEdge = shouldShowRaisersEdge(selectedTypes);
+            const showEventDetails = shouldShowEventDetails(selectedTypes);
+            const showItems = shouldShowItems(selectedTypes);
+
             document.getElementById('raisersEdgeSection').style.display =
                 showRaisersEdge ? 'block' : 'none';
+
+            document.getElementById('event_detailsSection').style.display =
+                showEventDetails ? 'block' : 'none';
+
+            document.getElementById('itemsSection').style.display =
+                showItems ? 'block' : 'none';
 
             markUnsaved();
         }
@@ -940,9 +966,10 @@
             const tbody = document.getElementById('itemsTableBody');
             tbody.innerHTML = '';
 
-            if (items.length === 0) {
+            if (!items || items.length === 0) {
                 // Add empty row
-                addItemRow();
+                const row = createItemRow();
+                tbody.appendChild(row);
             } else {
                 items.forEach((item, index) => {
                     const row = createItemRow(item, index);
@@ -1174,20 +1201,25 @@
                 data.raisers_edge_info = null;
             }
 
-            // Event Details
-            if (document.getElementById('event_detailsSection').style.display !== 'none') {
+            // Event Details - collect if section is visible
+            const eventDetailsSection = document.getElementById('event_detailsSection');
+            if (eventDetailsSection.style.display !== 'none') {
                 data.event_details = {
-                    goLiveDate: document.querySelector('[data-field="event_details.goLiveDate"] input').value,
-                    eventDate: document.querySelector('[data-field="event_details.eventDate"] input').value,
-                    eventTime: document.querySelector('[data-field="event_details.eventTime"] input').value,
-                    ticketCutoffDate: document.querySelector('[data-field="event_details.ticketCutoffDate"] input').value,
-                    description: document.querySelector('[data-field="event_details.description"] textarea').value,
-                    location: document.querySelector('[data-field="event_details.location"] input').value
+                    go_live_date: document.querySelector('[data-field="go_live_date"] input').value || '',
+                    event_date: document.querySelector('[data-field="event_date"] input').value || '',
+                    event_time: document.querySelector('[data-field="event_time"] input').value || '',
+                    ticket_cutoff_date: document.querySelector('[data-field="ticket_cutoff_date"] input').value || '',
+                    event_description: document.querySelector('[data-field="event_description"] textarea').value || '',
+                    location: document.querySelector('[data-field="location"] input').value || ''
                 };
+            } else {
+                // Clear Event Details if section is not visible
+                data.event_details = null;
             }
 
-            // Items
-            if (document.getElementById('itemsSection').style.display !== 'none') {
+            // Items - collect if section is visible
+            const itemsSection = document.getElementById('itemsSection');
+            if (itemsSection.style.display !== 'none') {
                 data.items = [];
                 document.querySelectorAll('#itemsTableBody tr').forEach(row => {
                     const name = row.querySelector('.item-name').value.trim();
@@ -1201,6 +1233,9 @@
                         });
                     }
                 });
+            } else {
+                // Clear Items if section is not visible
+                data.items = null;
             }
 
             // Discount Codes
@@ -1264,7 +1299,7 @@
                     .eq('id', projectId)
                     .select()
                     .single();
-
+if(error) console.log('Supabase error details:', error, {formData});
                 if (error) throw error;
 
                 projectData = data;
