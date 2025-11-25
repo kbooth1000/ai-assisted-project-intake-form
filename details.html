@@ -845,6 +845,13 @@
             return projectTypes && projectTypes.some(type => itemTypes.includes(type));
         }
 
+
+        // Check if project types include P2P relevant types
+        function shouldShowDiscountCodes(projectTypes) {
+            const itemTypes = ['P2P site'];
+            return projectTypes && projectTypes.some(type => itemTypes.includes(type));
+        }
+
         // Render project data
         function renderProject(data) {
             // Set page title
@@ -892,6 +899,7 @@
             const showRaisersEdge = shouldShowRaisersEdge(data.project_types);
             const showEventDetails = shouldShowEventDetails(data.project_types);
             const showItems = shouldShowItems(data.project_types);
+            const showDiscountCodes = shouldShowDiscountCodes(data.project_types);
 
             document.getElementById('raisersEdgeSection').style.display =
                 showRaisersEdge ? 'block' : 'none';
@@ -903,7 +911,8 @@
                 showItems ? 'block' : 'none';
 
             document.getElementById('discount_codesSection').style.display =
-                (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
+                showDiscountCodes ? 'block' : 'none';
+                // (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
         }
 
         // Render project types
