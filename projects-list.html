@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Loading and Error States */
+        .loading-container,
+        .error-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .error-detail {
+            color: #666;
+            font-size: 14px;
+        }
+
+        #content {
+            display: none;
+        }
+
+        /* Search and Filter */
+        .search-container {
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .project-card:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .project-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .project-team {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .project-team-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .project-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .project-date {
+            font-size: 13px;
+            color: #888;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-message {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-detail {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .project-count {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Loading State -->
+        <div id="loading" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading projects...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error-container" style="display: none;">
+            <div class="error-icon">⚠️</div>
+            <p class="error-message" id="errorMessage">Something went wrong</p>
+            <p class="error-detail" id="errorDetail"></p>
+        </div>
+
+        <!-- Main Content -->
+        <div id="content">
+            <h1>Projects</h1>
+            <p class="subtitle">Browse and manage your projects</p>
+
+            <!-- Search Box -->
+            <div class="search-container">
+                <input
+                    type="text"
+                    id="searchBox"
+                    class="search-box"
+                    placeholder="Search projects by name or team..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <!-- Project Count -->
+            <div class="project-count">
+                Showing <span id="displayedCount">0</span> of <span id="totalCount">0</span> projects
+            </div>
+
+            <!-- Projects Grid -->
+            <div class="projects-grid" id="projectsGrid"></div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">📋</div>
+                <p class="empty-message">No projects found</p>
+                <p class="empty-detail">Try adjusting your search or check back later</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // Supabase configuration
+        const supabaseConfig = {
+            url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
+            anonKey: 'sb_publishable_kswqdxghg9sQ3XOLVBZipg_8AD_KShN'
+        };
+
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey);
+
+        // Store projects data
+        let allProjects = [];
+        let filteredProjects = [];
+
+        // Show error state
+        function showError(message, detail = '') {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorDetail').textContent = detail;
+        }
+
+        // Show content
+        function showContent() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        // Fetch all projects from Supabase
+        async function fetchProjects() {
+            try {
+                console.log('Fetching projects from Supabase...');
+                console.log('Supabase URL:', supabaseConfig.url);
+
+                const { data, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Supabase error:', error);
+                    throw error;
+                }
+
+                console.log('Successfully fetched projects:', data);
+                return data || [];
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                });
+                throw error;
+            }
+        }
+
+        // Helper function to format date
+        function formatDate(dateString) {
+            if (!dateString) return null;
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Create project card HTML
+        function createProjectCard(project) {
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            card.onclick = () => {
+                window.location.href = `details.html?id=${project.id}`;
+            };
+
+            // Project name
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'project-name';
+            nameDiv.textContent = project.project_name || 'Unnamed Project';
+            card.appendChild(nameDiv);
+
+            // Foundation team
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'project-team';
+            teamDiv.innerHTML = `<span class="project-team-label">Team:</span> ${project.foundation_team || 'Not specified'}`;
+            card.appendChild(teamDiv);
+
+            // Project types
+            const projectTypes = project.project_types || [];
+            if (projectTypes.length > 0) {
+                const typesDiv = document.createElement('div');
+                typesDiv.className = 'project-types';
+                projectTypes.forEach(type => {
+                    const badge = document.createElement('span');
+                    badge.className = 'type-badge';
+                    badge.textContent = type;
+                    typesDiv.appendChild(badge);
+                });
+                card.appendChild(typesDiv);
+            }
+
+            // Created date
+            const createdDate = formatDate(project.created_at);
+            if (createdDate) {
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'project-date';
+                dateDiv.textContent = `Created: ${createdDate}`;
+                card.appendChild(dateDiv);
+            }
+
+            return card;
+        }
+
+        // Render projects grid
+        function renderProjects(projects) {
+            const grid = document.getElementById('projectsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            // Clear existing content
+            grid.innerHTML = '';
+
+            if (projects.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                grid.style.display = 'grid';
+                emptyState.style.display = 'none';
+
+                projects.forEach(project => {
+                    const card = createProjectCard(project);
+                    grid.appendChild(card);
+                });
+            }
+
+            // Update counts
+            document.getElementById('displayedCount').textContent = projects.length;
+            document.getElementById('totalCount').textContent = allProjects.length;
+        }
+
+        // Filter projects based on search query
+        function filterProjects(query) {
+            const searchTerm = query.toLowerCase().trim();
+
+            if (!searchTerm) {
+                filteredProjects = [...allProjects];
+            } else {
+                filteredProjects = allProjects.filter(project => {
+                    const name = (project.project_name || '').toLowerCase();
+                    const team = (project.foundation_team || '').toLowerCase();
+                    const types = (project.project_types || []).join(' ').toLowerCase();
+
+                    return name.includes(searchTerm) ||
+                           team.includes(searchTerm) ||
+                           types.includes(searchTerm);
+                });
+            }
+
+            renderProjects(filteredProjects);
+        }
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchBox = document.getElementById('searchBox');
+
+            // Debounce search input
+            let searchTimeout;
+            searchBox.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterProjects(e.target.value);
+                }, 300);
+            });
+        }
+
+        // Initialize page
+        async function init() {
+            try {
+                allProjects = await fetchProjects();
+                filteredProjects = [...allProjects];
+
+                setupSearch();
+                renderProjects(filteredProjects);
+                showContent();
+            } catch (error) {
+                showError('Error loading projects', error.message || 'Please try again later');
+            }
+        }
+
+        // Run on page load
+        init();
+    </script>
+</body>
+</html>
