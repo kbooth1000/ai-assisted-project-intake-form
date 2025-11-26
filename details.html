@@ -504,42 +504,37 @@
             </div>
 
             <div class="form-group">
-                <label>Project Types</label>
-                <div id="project_typesDisplay" class="tags-display"></div>
-                <div id="project_typesEdit" style="display: none; margin-top: 10px;">
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="type1" name="project_type" value="Contact form/survey">
-                            <label for="type1">Contact form/survey</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="type2" name="project_type" value="Donation form">
-                            <label for="type2">Donation form</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="type3" name="project_type" value="Event registration/ticket form">
-                            <label for="type3">Event registration/ticket form</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="type4" name="project_type" value="P2P site">
-                            <label for="type4">P2P site</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="type5" name="project_type" value="Email send">
-                            <label for="type5">Email send</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="type6" name="project_type" value="E-store">
-                            <label for="type6">E-store</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="type7" name="project_type" value="Web edit (on choa.org)">
-                            <label for="type7">Web edit (on choa.org)</label>
-                        </div>
+                <label>Project Type(s)</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type1" name="project_type" value="Contact form/survey" onchange="handleProjectTypeChange()">
+                        <label for="type1">Contact form/survey</label>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="closeproject_typesEdit()" style="margin-top: 10px;">Done</button>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type2" name="project_type" value="Donation form" onchange="handleProjectTypeChange()">
+                        <label for="type2">Donation form</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type3" name="project_type" value="Event registration/ticket form" onchange="handleProjectTypeChange()">
+                        <label for="type3">Event registration/ticket form</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type4" name="project_type" value="P2P site" onchange="handleProjectTypeChange()">
+                        <label for="type4">P2P site</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type5" name="project_type" value="Email send" onchange="handleProjectTypeChange()">
+                        <label for="type5">Email send</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type6" name="project_type" value="E-store" onchange="handleProjectTypeChange()">
+                        <label for="type6">E-store</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="type7" name="project_type" value="Web edit (on choa.org)" onchange="handleProjectTypeChange()">
+                        <label for="type7">Web edit (on choa.org)</label>
+                    </div>
                 </div>
-                <button type="button" class="btn btn-secondary" id="editproject_typesBtn" onclick="openproject_typesEdit()" style="margin-top: 10px;">Edit Types</button>
             </div>
 
             <!-- Raiser's Edge Info Section -->
@@ -940,46 +935,22 @@
 
         // Render project types
         function renderproject_types(types) {
-            const display = document.getElementById('project_typesDisplay');
-            display.innerHTML = '';
-            
-            if (types.length === 0) {
-                display.innerHTML = '<span style="color: #999; font-style: italic;">No project types selected</span>';
-            } else {
-                types.forEach(type => {
-                    const tag = document.createElement('span');
-                    tag.className = 'tag';
-                    tag.textContent = type;
-                    display.appendChild(tag);
-                });
-            }
-
             // Update checkboxes
             document.querySelectorAll('input[name="project_type"]').forEach(cb => {
                 cb.checked = types.includes(cb.value);
             });
         }
 
-        // Open project types edit
-        function openproject_typesEdit() {
-            document.getElementById('project_typesEdit').style.display = 'block';
-            document.getElementById('editproject_typesBtn').style.display = 'none';
-        }
-
-        // Close project types edit
-        function closeproject_typesEdit() {
-            document.getElementById('project_typesEdit').style.display = 'none';
-            document.getElementById('editproject_typesBtn').style.display = 'inline-block';
-
-            // Update display
+        // Handle project type change
+        function handleProjectTypeChange() {
             const selectedTypes = Array.from(document.querySelectorAll('input[name="project_type"]:checked'))
                 .map(cb => cb.value);
-            renderproject_types(selectedTypes);
 
             // Show/hide sections based on selected types
             const showRaisersEdge = shouldShowRaisersEdge(selectedTypes);
             const showEventDetails = shouldShowEventDetails(selectedTypes);
             const showItems = shouldShowItems(selectedTypes);
+            const showDiscountCodes = shouldShowDiscountCodes(selectedTypes);
 
             document.getElementById('raisersEdgeSection').style.display =
                 showRaisersEdge ? 'block' : 'none';
@@ -989,6 +960,9 @@
 
             document.getElementById('itemsSection').style.display =
                 showItems ? 'block' : 'none';
+
+            document.getElementById('discount_codesSection').style.display =
+                showDiscountCodes ? 'block' : 'none';
 
             markUnsaved();
         }
