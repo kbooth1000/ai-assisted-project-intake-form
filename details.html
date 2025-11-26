@@ -669,6 +669,29 @@
                 <button type="button" class="btn btn-add" onclick="addDiscountRow()">+ Add Discount Code</button>
             </div>
 
+            <!-- Confirmation and Closed Page Content Section -->
+            <div id="confirmationSection" class="section">
+                <h3 class="section-title">Confirmation and Closed Page Content</h3>
+                <div class="form-group">
+                    <label>Enter confirmation/acknowledgement and email autoresponder text</label>
+                    <div class="editable-field" data-field="confirmation_content.confirmation_text" data-type="textarea">
+                        <div class="field-display"></div>
+                        <div class="field-edit">
+                            <textarea rows="4" name="confirmation_text"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Once closed, what should display on the site landing page?</label>
+                    <div class="editable-field" data-field="confirmation_content.closed_page_text" data-type="textarea">
+                        <div class="field-display"></div>
+                        <div class="field-edit">
+                            <textarea rows="4" name="closed_page_text"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveProject()">Save Changes</button>
@@ -831,6 +854,7 @@
                 foundation_team: '',
                 project_types: [],
                 raisers_edge_info: null,
+                confirmation_content: null,
                 event_details: null,
                 items: null,
                 discount_codes: null
@@ -868,6 +892,12 @@
         function shouldShowDiscountCodes(projectTypes) {
             const itemTypes = ['P2P site'];
             return projectTypes && projectTypes.some(type => itemTypes.includes(type));
+        }
+
+        // Check if project types include Confirmation Content relevant types
+        function shouldShowConfirmation(projectTypes) {
+            const confirmationTypes = ['Contact form/survey', 'Donation form', 'Event registration/ticket form', 'P2P site', 'E-store'];
+            return projectTypes && projectTypes.some(type => confirmationTypes.includes(type));
         }
 
         // Render project data
@@ -915,12 +945,16 @@
 
             // Show/hide sections based on project type
             const showRaisersEdge = shouldShowRaisersEdge(data.project_types);
+            const showConfirmation = shouldShowConfirmation(data.project_types);
             const showEventDetails = shouldShowEventDetails(data.project_types);
             const showItems = shouldShowItems(data.project_types);
             const showDiscountCodes = shouldShowDiscountCodes(data.project_types);
 
             document.getElementById('raisersEdgeSection').style.display =
                 showRaisersEdge ? 'block' : 'none';
+
+            document.getElementById('confirmationSection').style.display =
+                showConfirmation ? 'block' : 'none';
 
             document.getElementById('event_detailsSection').style.display =
                 showEventDetails ? 'block' : 'none';
@@ -948,12 +982,16 @@
 
             // Show/hide sections based on selected types
             const showRaisersEdge = shouldShowRaisersEdge(selectedTypes);
+            const showConfirmation = shouldShowConfirmation(selectedTypes);
             const showEventDetails = shouldShowEventDetails(selectedTypes);
             const showItems = shouldShowItems(selectedTypes);
             const showDiscountCodes = shouldShowDiscountCodes(selectedTypes);
 
             document.getElementById('raisersEdgeSection').style.display =
                 showRaisersEdge ? 'block' : 'none';
+
+            document.getElementById('confirmationSection').style.display =
+                showConfirmation ? 'block' : 'none';
 
             document.getElementById('event_detailsSection').style.display =
                 showEventDetails ? 'block' : 'none';
@@ -1205,6 +1243,18 @@
             } else {
                 // Clear Raiser's Edge info if section is not visible
                 data.raisers_edge_info = null;
+            }
+
+            // Confirmation Content - collect if section is visible
+            const confirmationSection = document.getElementById('confirmationSection');
+            if (confirmationSection.style.display !== 'none') {
+                data.confirmation_content = {
+                    confirmation_text: document.querySelector('[data-field="confirmation_content.confirmation_text"] textarea').value || '',
+                    closed_page_text: document.querySelector('[data-field="confirmation_content.closed_page_text"] textarea').value || ''
+                };
+            } else {
+                // Clear Confirmation Content if section is not visible
+                data.confirmation_content = null;
             }
 
             // Event Details - collect if section is visible
