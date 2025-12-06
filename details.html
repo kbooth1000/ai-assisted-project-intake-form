@@ -692,6 +692,20 @@
                 </div>
             </div>
 
+            <!-- Additional Comments Section -->
+            <div id="additionalCommentsSection" class="section">
+                <h3 class="section-title">Additional Comments</h3>
+                <div class="form-group">
+                    <label>Additional Needs/Comments</label>
+                    <div class="editable-field" data-field="additional_comments" data-type="textarea">
+                        <div class="field-display"></div>
+                        <div class="field-edit">
+                            <textarea rows="4" name="additional_comments"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveProject()">Save Changes</button>
@@ -857,7 +871,8 @@
                 confirmation_content: null,
                 event_details: null,
                 items: null,
-                discount_codes: null
+                discount_codes: null,
+                additional_comments: ''
             };
 
             document.getElementById('project_title').textContent = 'Create New Project';
@@ -1315,6 +1330,9 @@
                     }
                 });
             }
+
+            // Additional Comments - always collect
+            data.additional_comments = document.querySelector('[data-field="additional_comments"] textarea').value || '';
 
             return data;
         }
