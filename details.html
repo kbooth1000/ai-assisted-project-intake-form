@@ -482,23 +482,139 @@
                 ✗ <span id="errorMessageText">Error updating project.</span>
             </div>
 
-            <!-- Basic Fields -->
-            <div class="form-group">
-                <label>Project Name *</label>
-                <div class="editable-field" data-field="project_name" data-required="true">
-                    <div class="field-display"></div>
-                    <div class="field-edit">
-                        <input type="text" required>
+            <!-- Basic Fields and Admin Section Container -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- Left Column: Basic Fields -->
+                <div>
+                    <div class="form-group">
+                        <label>Project Name *</label>
+                        <div class="editable-field" data-field="project_name" data-required="true">
+                            <div class="field-display"></div>
+                            <div class="field-edit">
+                                <input type="text" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Foundation Team *</label>
+                        <div class="editable-field" data-field="foundation_team" data-required="true">
+                            <div class="field-display"></div>
+                            <div class="field-edit">
+                                <input type="text" required>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label>Foundation Team *</label>
-                <div class="editable-field" data-field="foundation_team" data-required="true">
-                    <div class="field-display"></div>
-                    <div class="field-edit">
-                        <input type="text" required>
+                <!-- Right Column: Admin Section -->
+                <div id="adminSection" style="display: none;">
+                    <h3 class="section-title" style="margin-top: 0;">Admin</h3>
+
+                    <!-- Group A -->
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label>Assigned to:</label>
+                            <div class="editable-field" data-field="admin_data.assigned_to">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <input type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Date assigned:</label>
+                            <div class="editable-field" data-field="admin_data.date_assigned" data-type="date">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <input type="date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_status">Status:</label>
+                            <div class="editable-field" data-field="admin_data.status" data-type="select">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <select id="project_status">
+                                        <option value="">Select status...</option>
+                                        <option value="Assigned">Assigned</option>
+                                        <option value="Development">Development</option>
+                                        <option value="Testing">Testing</option>
+                                        <option value="Live">Live</option>
+                                        <option value="Closed">Closed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group B -->
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="ds_validated" data-field="admin_data.ds_validated" style="width: auto; margin: 0;" onchange="markUnsaved()">
+                                DS validated:
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact form ID:</label>
+                            <div class="editable-field" data-field="admin_data.contact_form_id">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <input type="text" maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Event registration form ID:</label>
+                            <div class="editable-field" data-field="admin_data.event_registration_form_id">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <input type="text" maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Donation form ID:</label>
+                            <div class="editable-field" data-field="admin_data.donation_form_id">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <input type="text" maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>P2P ID:</label>
+                            <div class="editable-field" data-field="admin_data.p2p_id">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <input type="text" maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>E-store ID:</label>
+                            <div class="editable-field" data-field="admin_data.estore_id">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <input type="text" maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group C -->
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                        <div class="form-group">
+                            <label>Admin comments:</label>
+                            <div class="editable-field" data-field="admin_data.admin_comments" data-type="textarea">
+                                <div class="field-display"></div>
+                                <div class="field-edit">
+                                    <textarea rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -737,6 +853,12 @@
             return urlParams.get('id');
         }
 
+        // Check if admin mode is enabled
+        function isAdminMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('r') === 'admin';
+        }
+
         // Format date for display
         function formatDate(dateStr) {
             if (!dateStr) return '';
@@ -872,7 +994,8 @@
                 event_details: null,
                 items: null,
                 discount_codes: null,
-                additional_comments: ''
+                additional_comments: '',
+                admin_data: null
             };
 
             document.getElementById('project_title').textContent = 'Create New Project';
@@ -921,12 +1044,17 @@
             document.getElementById('project_title').textContent = data.project_name || 'Project Details';
             document.title = (data.project_name || 'Project') + ' - Details';
 
+            // Show/hide admin section based on URL parameter
+            if (isAdminMode()) {
+                document.getElementById('adminSection').style.display = 'block';
+            }
+
             // Render simple editable fields
             document.querySelectorAll('.editable-field').forEach(field => {
                 const fieldName = field.dataset.field;
                 const value = getNestedValue(data, fieldName);
                 const display = field.querySelector('.field-display');
-                const input = field.querySelector('input, textarea');
+                const input = field.querySelector('input, textarea, select');
                 const fieldType = field.dataset.type;
 
                 // Set display value
@@ -935,6 +1063,8 @@
                     displayValue = formatDate(value);
                 } else if (fieldType === 'time' && value) {
                     displayValue = formatTime(value);
+                } else if (fieldType === 'select' && value) {
+                    displayValue = value;
                 }
 
                 display.textContent = displayValue;
@@ -945,9 +1075,19 @@
 
                 // Set input value
                 if (input) {
-                    input.value = value || '';
+                    if (input.tagName === 'SELECT') {
+                        input.value = value || '';
+                    } else {
+                        input.value = value || '';
+                    }
                 }
             });
+
+            // Handle checkbox for DS validated
+            const dsValidatedCheckbox = document.getElementById('ds_validated');
+            if (dsValidatedCheckbox && data.admin_data) {
+                dsValidatedCheckbox.checked = data.admin_data.ds_validated || false;
+            }
 
             // Render project types
             renderproject_types(data.project_types || []);
@@ -1197,13 +1337,14 @@
         function setupInlineEditing() {
             document.querySelectorAll('.editable-field').forEach(field => {
                 const display = field.querySelector('.field-display');
-                const input = field.querySelector('input, textarea');
+                const input = field.querySelector('input, textarea, select');
 
                 display.addEventListener('click', () => {
                     field.classList.add('editing');
                     input.focus();
                 });
-
+console.log({field})
+console.log({input})
                 input.addEventListener('blur', () => {
                     const fieldName = field.dataset.field;
                     const fieldType = field.dataset.type;
@@ -1333,6 +1474,24 @@
 
             // Additional Comments - always collect
             data.additional_comments = document.querySelector('[data-field="additional_comments"] textarea').value || '';
+
+            // Admin Data - collect if admin mode is enabled
+            if (isAdminMode()) {
+                data.admin_data = {
+                    assigned_to: document.querySelector('[data-field="admin_data.assigned_to"] input').value || '',
+                    date_assigned: document.querySelector('[data-field="admin_data.date_assigned"] input').value || '',
+                    status: document.querySelector('[data-field="admin_data.status"] select').value || '',
+                    ds_validated: document.getElementById('ds_validated').checked || false,
+                    contact_form_id: document.querySelector('[data-field="admin_data.contact_form_id"] input').value || '',
+                    event_registration_form_id: document.querySelector('[data-field="admin_data.event_registration_form_id"] input').value || '',
+                    donation_form_id: document.querySelector('[data-field="admin_data.donation_form_id"] input').value || '',
+                    p2p_id: document.querySelector('[data-field="admin_data.p2p_id"] input').value || '',
+                    estore_id: document.querySelector('[data-field="admin_data.estore_id"] input').value || '',
+                    admin_comments: document.querySelector('[data-field="admin_data.admin_comments"] textarea').value || ''
+                };
+            } else {
+                data.admin_data = null;
+            }
 
             return data;
         }
