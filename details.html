@@ -115,6 +115,11 @@
         border-radius: 6px;
         font-size: 14px;
         transition: border-color 0.3s;
+        min-width: 15px;
+      }
+
+      select#assigned_to {
+        width: 100px;
       }
 
       input[type='text']:focus,
@@ -163,7 +168,7 @@
       }
 
       .field-display::after {
-        content: '✎';
+        content: '\270E';
         position: absolute;
         right: 12px;
         top: 50%;
@@ -539,7 +544,7 @@
   </head>
   <body>
     <div class="container">
-      <a href="projects-list.html" class="back-link">← Back to Projects</a>
+      <a href="projects-list.html" class="back-link">&#8592; Back to Projects</a>
 
       <div id="loadingState" class="loading-state">
         <div class="loading-spinner"></div>
@@ -547,7 +552,7 @@
       </div>
 
       <div id="errorState" class="error-state" style="display: none">
-        <h2>⚠️ Project Not Found</h2>
+        <h2>&#9888;&#65039; Project Not Found</h2>
         <p id="errorMessage">The requested project could not be found.</p>
       </div>
 
@@ -561,11 +566,11 @@
         </p>
 
         <div id="successMessage" class="success-message">
-          ✓ Project updated successfully!
+          &#10003; Project updated successfully!
         </div>
 
         <div id="errorMessageBox" class="error-message">
-          ✗ <span id="errorMessageText">Error updating project.</span>
+          &#10007; <span id="errorMessageText">Error updating project.</span>
         </div>
 
         <!-- Basic Fields and Admin Section Container -->
@@ -615,11 +620,14 @@
               "
             >
               <div class="form-group">
-                <label>Assigned to:</label>
+                <label for="assigned_to">Assigned to:</label>
                 <div class="editable-field" data-field="admin_data.assigned_to">
                   <div class="field-display"></div>
                   <div class="field-edit">
-                    <input type="text" />
+                    <!-- <input type="text" /> -->
+                     <select name="assigned_to" id="assigned_to">
+                        <option value="Select">Select</option>
+                     </select>
                   </div>
                 </div>
               </div>
@@ -1183,7 +1191,7 @@
       // Show success message
       function showSuccessMessage(message) {
         const el = document.getElementById('successMessage');
-        el.textContent = '✓ ' + message;
+        el.textContent = '&#10003; ' + message;
         el.classList.add('show');
         setTimeout(() => el.classList.remove('show'), 5000);
       }
@@ -1873,7 +1881,7 @@
           data.admin_data = {
             assigned_to:
               document.querySelector(
-                '[data-field="admin_data.assigned_to"] input'
+                '[data-field="admin_data.assigned_to"] select'
               ).value || '',
             date_assigned:
               document.querySelector(
@@ -2070,6 +2078,16 @@
           // Edit existing project mode
           fetchProject(projectId);
         }
+
+const foundationMembers = [[S51:projects_foundation_members_list]]
+
+foundationMembers.forEach(member=>{
+    const opt = document.createElement('option');
+    opt.value = `${member.first_name} ${member.last_name}`;
+    opt.textContent = `${member.first_name} ${member.last_name}`;
+    document.querySelector('#assigned_to').appendChild(opt);
+})
+
       });
     </script>
   </body>
