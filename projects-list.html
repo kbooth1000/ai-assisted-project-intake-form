@@ -128,11 +128,20 @@
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
+        .project-card-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 5px;
+            gap: 15px; 
+            align-items: center;
+            line-height: 1;
+        }
+
         .project-name {
             font-size: 18px;
             font-weight: 600;
             color: #333;
-            margin-bottom: 10px;
         }
 
         .project-owner-info {
@@ -156,17 +165,46 @@
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-top: 12px;
         }
 
         .type-badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 1px 8px 2px;
             background: #667eea;
             color: white;
             border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
+        }
+
+        /* Project Type Specific Colors */
+        .type-badge.contact-form {
+            background: #17a2b8; /* Teal */
+        }
+
+        .type-badge.donation-form {
+            background: #28a745; /* Green */
+        }
+
+        .type-badge.event-registration {
+            background: #fd7e14; /* Orange */
+        }
+
+        .type-badge.p2p-site {
+            background: #e83e8c; /* Pink */
+        }
+
+        .type-badge.email-send {
+            background: #6f42c1; /* Purple */
+        }
+
+        .type-badge.estore {
+            background: #ffc107; /* Amber */
+            color: #333;
+        }
+
+        .type-badge.web-edit {
+            background: #20c997; /* Teal-Green */
         }
 
         .project-date {
@@ -418,6 +456,20 @@
             });
         }
 
+        // Get CSS class for project type badge
+        function getTypeClass(type) {
+            const typeMap = {
+                'Contact form/survey': 'contact-form',
+                'Donation form': 'donation-form',
+                'Event registration/ticket form': 'event-registration',
+                'P2P site': 'p2p-site',
+                'Email send': 'email-send',
+                'E-store': 'estore',
+                'Web edit (on choa.org)': 'web-edit'
+            };
+            return typeMap[type] || '';
+        }
+
         // Create project card HTML
         function createProjectCard(project) {
             const card = document.createElement('div');
@@ -425,6 +477,9 @@
             card.onclick = () => {
                 window.location.href = `details.html?id=${project.id}`;
             };
+
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'project-card-header';   
 
             // Project name
             const nameDiv = document.createElement('div');
@@ -454,20 +509,24 @@
             card.appendChild(projectOwnerDiv);
 
             
-
             // Project types
+            const typesDiv = document.createElement('div');
             const projectTypes = project.project_types || [];
             if (projectTypes.length > 0) {
-                const typesDiv = document.createElement('div');
+                // typesDiv = 
                 typesDiv.className = 'project-types';
                 projectTypes.forEach(type => {
                     const badge = document.createElement('span');
-                    badge.className = 'type-badge';
+                    badge.className = 'type-badge ' + getTypeClass(type);
                     badge.textContent = type;
                     typesDiv.appendChild(badge);
                 });
                 card.appendChild(typesDiv);
             }
+
+            cardHeader.appendChild(nameDiv);
+            cardHeader.appendChild(typesDiv);
+            card.appendChild(cardHeader);
 
             // Created date
             const createdDate = formatDate(project.created_at);
