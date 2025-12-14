@@ -2196,7 +2196,7 @@ async function loadOrgMembers() {
     try {
         const { data, error } = await supabase
             .from('org_members')
-            .select('first_name, last_name')
+            .select('first_name, last_name, role')
             .order('last_name', { ascending: true });
 
         if (error) {
@@ -2206,7 +2206,10 @@ async function loadOrgMembers() {
 
         const assignedToSelect = document.querySelector('#assigned_to');
         if (assignedToSelect && data) {
-            data.forEach(member => {
+            console.log({data});
+            const admins = data.filter(member => member.role.toLowerCase() === 'admin');
+            console.log({admins});
+            admins.forEach(member => {
                 const opt = document.createElement('option');
                 const fullName = `${member.first_name} ${member.last_name}`;
                 opt.value = fullName;
