@@ -107,7 +107,8 @@
         /* Projects Grid */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            /* grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); */
+            grid-template-columns: 1fr;
             gap: 20px;
         }
 
@@ -134,7 +135,13 @@
             margin-bottom: 10px;
         }
 
-        .project-team {
+        .project-owner-info {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .project-team,
+        .project-owner {
             font-size: 14px;
             color: #666;
             margin-bottom: 12px;
@@ -425,20 +432,28 @@
             nameDiv.textContent = project.project_name || 'Unnamed Project';
             card.appendChild(nameDiv);
 
+            const projectOwnerDiv = document.createElement('div');
+            projectOwnerDiv.className = 'project-owner-info';
+
             // Foundation team
             const teamDiv = document.createElement('div');
             teamDiv.className = 'project-team';
             teamDiv.innerHTML = `<span class="project-team-label">Team:</span> ${project.foundation_team || 'Not specified'}`;
-            card.appendChild(teamDiv);
+            projectOwnerDiv.appendChild(teamDiv);
 
             // Assigned to
+            
             const assignedTo = project.admin_data?.assigned_to;
             if (assignedTo) {
                 const assignedDiv = document.createElement('div');
-                assignedDiv.className = 'project-team';
-                assignedDiv.innerHTML = `<span class="project-team-label">Assigned to:</span> ${assignedTo}`;
-                card.appendChild(assignedDiv);
+                assignedDiv.className = 'project-owner';
+                assignedDiv.innerHTML = `<span class="project-owner-label">Assigned to:</span> ${assignedTo}`;
+                projectOwnerDiv.appendChild(assignedDiv);
             }
+
+            card.appendChild(projectOwnerDiv);
+
+            
 
             // Project types
             const projectTypes = project.project_types || [];
