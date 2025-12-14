@@ -518,6 +518,39 @@
         color: #856404;
       }
 
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+
+      .user-email {
+        color: #333;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .btn-logout {
+        padding: 8px 16px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-logout:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+      }
+
       @media (max-width: 768px) {
         .container {
           padding: 20px;
@@ -557,6 +590,12 @@
       </div>
 
       <div id="projectContent" style="display: none">
+        <!-- User Info Bar -->
+        <div class="user-info" style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="user-email" id="userEmail">Loading...</span>
+          <button onclick="logout()" class="btn-logout">Log Out</button>
+        </div>
+
         <h1 id="project_title">Project Details</h1>
         <p class="subtitle" id="subtitle">
           Click on any field to edit.
@@ -1074,7 +1113,7 @@
       // Supabase Configuration
       const supabaseConfig = {
         url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
-        anonKey: 'sb_publishable_kswqdxghg9sQ3XOLVBZipg_8AD_KShN',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w',
       };
 
       // Initialize Supabase client
@@ -2057,6 +2096,47 @@
         }
       }
 
+      // Check authentication and get user
+      async function checkAuthAndGetUser() {
+        try {
+          const { data: { session }, error } = await supabase.auth.getSession();
+
+          if (error) throw error;
+
+          if (!session) {
+            // Not logged in, redirect to login page
+            window.location.href = 'login.html';
+            return null;
+          }
+
+          // Display user email
+          const userEmailElement = document.getElementById('userEmail');
+          if (userEmailElement && session.user) {
+            userEmailElement.textContent = session.user.email;
+          }
+
+          return session.user;
+        } catch (error) {
+          console.error('Error checking authentication:', error);
+          window.location.href = 'login.html';
+          return null;
+        }
+      }
+
+      // Logout function
+      async function logout() {
+        try {
+          const { error } = await supabase.auth.signOut();
+          if (error) throw error;
+
+          // Redirect to login page
+          window.location.href = 'login.html';
+        } catch (error) {
+          console.error('Error logging out:', error);
+          alert('Failed to log out: ' + error.message);
+        }
+      }
+
       // Warn before leaving with unsaved changes
       window.addEventListener('beforeunload', (e) => {
         if (hasUnsavedChanges) {
@@ -2066,7 +2146,11 @@
       });
 
       // Initialize
-      document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('DOMContentLoaded', async () => {
+        // Check authentication first
+        const user = await checkAuthAndGetUser();
+        if (!user) return; // Will redirect to login
+
         projectId = getProjectIdFromUrl();
 
         setupInlineEditing();
@@ -2079,14 +2163,36 @@
           fetchProject(projectId);
         }
 
-const foundationMembers = [[S51:projects_foundation_members_list]]
+// Fetch organization members from Supabase
+async function loadOrgMembers() {
+    try {
+        const { data, error } = await supabase
+            .from('org_members')
+            .select('first_name, last_name')
+            .order('last_name', { ascending: true });
 
-foundationMembers.forEach(member=>{
-    const opt = document.createElement('option');
-    opt.value = `${member.first_name} ${member.last_name}`;
-    opt.textContent = `${member.first_name} ${member.last_name}`;
-    document.querySelector('#assigned_to').appendChild(opt);
-})
+        if (error) {
+            console.error('Error fetching org members:', error);
+            return;
+        }
+
+        const assignedToSelect = document.querySelector('#assigned_to');
+        if (assignedToSelect && data) {
+            data.forEach(member => {
+                const opt = document.createElement('option');
+                const fullName = `${member.first_name} ${member.last_name}`;
+                opt.value = fullName;
+                opt.textContent = fullName;
+                assignedToSelect.appendChild(opt);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading org members:', error);
+    }
+}
+
+// Load org members
+loadOrgMembers();
 
       });
     </script>
