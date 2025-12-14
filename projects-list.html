@@ -308,9 +308,20 @@
                 >
             </div>
 
-            <!-- Project Count -->
-            <div class="project-count">
-                Showing <span id="displayedCount">0</span> of <span id="totalCount">0</span> projects
+            <!-- Sort and Count -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div class="project-count">
+                    Showing <span id="displayedCount">0</span> of <span id="totalCount">0</span> projects
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="sortBy" style="font-size: 14px; color: #666; margin: 0;">Sort by:</label>
+                    <select id="sortBy" onchange="handleSortChange()" style="padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                        <option value="created_at">Date Created</option>
+                        <option value="project_name">Project Name</option>
+                        <option value="assigned_to">Assigned To</option>
+                        <option value="foundation_team">Team</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Projects Grid -->
@@ -341,6 +352,7 @@
         // Store projects data
         let allProjects = [];
         let filteredProjects = [];
+        let currentSortBy = 'created_at';
 
         // Show error state
         function showError(message, detail = '') {
@@ -419,6 +431,15 @@
             teamDiv.innerHTML = `<span class="project-team-label">Team:</span> ${project.foundation_team || 'Not specified'}`;
             card.appendChild(teamDiv);
 
+            // Assigned to
+            const assignedTo = project.admin_data?.assigned_to;
+            if (assignedTo) {
+                const assignedDiv = document.createElement('div');
+                assignedDiv.className = 'project-team';
+                assignedDiv.innerHTML = `<span class="project-team-label">Assigned to:</span> ${assignedTo}`;
+                card.appendChild(assignedDiv);
+            }
+
             // Project types
             const projectTypes = project.project_types || [];
             if (projectTypes.length > 0) {
@@ -471,6 +492,52 @@
             document.getElementById('totalCount').textContent = allProjects.length;
         }
 
+        // Sort projects based on current sort option
+        function sortProjects(projects) {
+            const sorted = [...projects];
+
+            switch(currentSortBy) {
+                case 'project_name':
+                    sorted.sort((a, b) => {
+                        const nameA = (a.project_name || '').toLowerCase();
+                        const nameB = (b.project_name || '').toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    });
+                    break;
+                case 'assigned_to':
+                    sorted.sort((a, b) => {
+                        const assignedA = (a.admin_data?.assigned_to || 'ZZZ').toLowerCase();
+                        const assignedB = (b.admin_data?.assigned_to || 'ZZZ').toLowerCase();
+                        return assignedA.localeCompare(assignedB);
+                    });
+                    break;
+                case 'foundation_team':
+                    sorted.sort((a, b) => {
+                        const teamA = (a.foundation_team || '').toLowerCase();
+                        const teamB = (b.foundation_team || '').toLowerCase();
+                        return teamA.localeCompare(teamB);
+                    });
+                    break;
+                case 'created_at':
+                default:
+                    sorted.sort((a, b) => {
+                        const dateA = new Date(a.created_at || 0);
+                        const dateB = new Date(b.created_at || 0);
+                        return dateB - dateA; // Most recent first
+                    });
+                    break;
+            }
+
+            return sorted;
+        }
+
+        // Handle sort change
+        function handleSortChange() {
+            currentSortBy = document.getElementById('sortBy').value;
+            const sorted = sortProjects(filteredProjects);
+            renderProjects(sorted);
+        }
+
         // Filter projects based on search query
         function filterProjects(query) {
             const searchTerm = query.toLowerCase().trim();
@@ -489,7 +556,8 @@
                 });
             }
 
-            renderProjects(filteredProjects);
+            const sorted = sortProjects(filteredProjects);
+            renderProjects(sorted);
         }
 
         // Setup search functionality
@@ -558,7 +626,8 @@
                 filteredProjects = [...allProjects];
 
                 setupSearch();
-                renderProjects(filteredProjects);
+                const sorted = sortProjects(filteredProjects);
+                renderProjects(sorted);
                 showContent();
             } catch (error) {
                 showError('Error loading projects', error.message || 'Please try again later');
