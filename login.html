@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Project Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type='email'] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type='email']:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            display: none;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-text {
+            color: #666;
+            font-size: 13px;
+            margin-top: 15px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="icon">🔐</div>
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Enter your email to receive a magic link</p>
+
+        <div id="successMessage" class="message success-message"></div>
+        <div id="errorMessage" class="message error-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                Send Magic Link
+            </button>
+        </form>
+
+        <p class="info-text">
+            We'll send you a secure login link to your email. Click the link to access your account.
+        </p>
+    </div>
+
+    <script>
+        // Supabase Configuration
+        const supabaseConfig = {
+            url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w',
+        };
+
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(
+            supabaseConfig.url,
+            supabaseConfig.anonKey
+        );
+
+        // Get form elements
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('show');
+            errorMessage.classList.remove('show');
+
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 10000);
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            successMessage.classList.remove('show');
+
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        // Handle form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+
+            if (!email) {
+                showError('Please enter your email address');
+                return;
+            }
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+
+            try {
+                // Send magic link
+                const { data, error } = await supabase.auth.signInWithOtp({
+                    email: email,
+                    options: {
+                        // Redirect URL after clicking magic link
+                        emailRedirectTo: window.location.origin + '/ai-assisted-project-intake-form/projects-list.html',
+                    }
+                });
+
+                if (error) throw error;
+
+                console.log('Magic link sent successfully:', data);
+
+                showSuccess(`✓ Magic link sent! Check your email (${email}) and click the link to log in.`);
+
+                // Clear the email input
+                emailInput.value = '';
+
+            } catch (error) {
+                console.error('Error sending magic link:', error);
+                showError('Failed to send magic link: ' + (error.message || 'Please try again'));
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Magic Link';
+            }
+        });
+
+        // Check if user is already logged in
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (session) {
+                // User is already logged in, redirect to projects list
+                window.location.href = 'projects-list.html';
+            }
+        }
+
+        // Run on page load
+        checkAuth();
+    </script>
+</body>
+</html>

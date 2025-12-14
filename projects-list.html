@@ -216,6 +216,39 @@
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .user-email {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -248,6 +281,12 @@
 
         <!-- Main Content -->
         <div id="content">
+            <!-- User Info Bar -->
+            <div class="user-info" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="user-email" id="userEmail">Loading...</span>
+                <button onclick="logout()" class="btn-logout">Log Out</button>
+            </div>
+
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <div>
                     <h1 style="margin-bottom: 5px;">Projects</h1>
@@ -293,7 +332,7 @@
         // Supabase configuration
         const supabaseConfig = {
             url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
-            anonKey: 'sb_publishable_kswqdxghg9sQ3XOLVBZipg_8AD_KShN'
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w'
         };
 
         // Initialize Supabase client
@@ -467,9 +506,54 @@
             });
         }
 
+        // Check authentication and get user
+        async function checkAuthAndGetUser() {
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+
+                if (error) throw error;
+
+                if (!session) {
+                    // Not logged in, redirect to login page
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                // Display user email
+                const userEmailElement = document.getElementById('userEmail');
+                if (userEmailElement && session.user) {
+                    userEmailElement.textContent = session.user.email;
+                }
+
+                return session.user;
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                window.location.href = 'login.html';
+                return null;
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+
+                // Redirect to login page
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+                alert('Failed to log out: ' + error.message);
+            }
+        }
+
         // Initialize page
         async function init() {
             try {
+                // Check authentication first
+                const user = await checkAuthAndGetUser();
+                if (!user) return; // Will redirect to login
+
                 allProjects = await fetchProjects();
                 filteredProjects = [...allProjects];
 
