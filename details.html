@@ -1128,6 +1128,7 @@
       let hasUnsavedChanges = false;
       let discountRowCounter = 0;
       let isNewProject = false;
+      let userIsAdmin = false;
 
       // Get project ID from URL
       function getProjectIdFromUrl() {
@@ -1138,7 +1139,28 @@
       // Check if admin mode is enabled
       function isAdminMode() {
         const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('r') === 'admin';
+        return urlParams.get('r') === 'admin' || userIsAdmin;
+      }
+
+      // Check if user has admin role in org_members table
+      async function checkUserAdminRole(userEmail) {
+        try {
+          const { data, error } = await supabase
+            .from('org_members')
+            .select('role')
+            .eq('user_email', userEmail)
+            .single();
+
+          if (error) {
+            console.log('Error checking admin role:', error);
+            return false;
+          }
+
+          return data && data.role === 'admin';
+        } catch (error) {
+          console.error('Error checking user admin role:', error);
+          return false;
+        }
       }
 
       // Format date for display
@@ -2113,6 +2135,12 @@
           const userEmailElement = document.getElementById('userEmail');
           if (userEmailElement && session.user) {
             userEmailElement.textContent = session.user.email;
+          }
+
+          // Check if user has admin role
+          if (session.user && session.user.email) {
+            userIsAdmin = await checkUserAdminRole(session.user.email);
+            console.log('User admin status:', userIsAdmin);
           }
 
           return session.user;
