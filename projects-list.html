@@ -470,6 +470,20 @@
             return typeMap[type] || '';
         }
 
+        // Get abbreviated label for project type
+        function getTypeLabel(type) {
+            const labelMap = {
+                'Contact form/survey': 'survey',
+                'Donation form': 'donation',
+                'Event registration/ticket form': 'event',
+                'P2P site': 'P2P',
+                'Email send': 'email',
+                'E-store': 'e-store',
+                'Web edit (on choa.org)': 'web edit'
+            };
+            return labelMap[type] || type;
+        }
+
         // Create project card HTML
         function createProjectCard(project) {
             const card = document.createElement('div');
@@ -513,12 +527,12 @@
             const typesDiv = document.createElement('div');
             const projectTypes = project.project_types || [];
             if (projectTypes.length > 0) {
-                // typesDiv = 
+                // typesDiv =
                 typesDiv.className = 'project-types';
                 projectTypes.forEach(type => {
                     const badge = document.createElement('span');
                     badge.className = 'type-badge ' + getTypeClass(type);
-                    badge.textContent = type;
+                    badge.textContent = getTypeLabel(type);
                     typesDiv.appendChild(badge);
                 });
                 card.appendChild(typesDiv);

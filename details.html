@@ -636,10 +636,23 @@
                 class="editable-field"
                 data-field="foundation_team"
                 data-required="true"
+                data-type="select"
               >
                 <div class="field-display"></div>
                 <div class="field-edit">
-                  <input type="text" required />
+                  <select required id="foundation_team" name="foundation_team">
+                    <option value="">Select team...</option>
+                    <option value="Aflac">Aflac</option>
+                    <option value="Annual Events">Annual Events</option>
+                    <option value="Cause Marketing">Cause Marketing</option>
+                    <option value="CMN">CMN</option>
+                    <option value="Corporate">Corporate</option>
+                    <option value="E-Phil">E-Phil</option>
+                    <option value="Events">Events</option>
+                    <option value="Grateful Patients">Grateful Patients</option>
+                    <option value="Legacy">Legacy</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -1789,7 +1802,7 @@
             '[data-field="project_name"] input'
           ).value,
           foundation_team: document.querySelector(
-            '[data-field="foundation_team"] input'
+            '[data-field="foundation_team"] select'
           ).value,
           project_types: Array.from(
             document.querySelectorAll('input[name="project_type"]:checked')
