@@ -115,6 +115,25 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
             gap: 20px;
         }
 
+        /* Group Headers */
+        .group-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .group-header:first-child {
+            margin-top: 0;
+        }
+
+        .group-container {
+            margin-bottom: 20px;
+        }
+
         .project-card {
             background: #f8f9fa;
             border-radius: 8px;
@@ -364,9 +383,9 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label for="sortBy" style="font-size: 14px; color: #666; margin: 0;">Sort by:</label>
                     <select id="sortBy" onchange="handleSortChange()" style="padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                        <option value="assigned_to">Assigned To</option>
                         <option value="created_at">Date Created</option>
                         <option value="project_name">Project Name</option>
-                        <option value="assigned_to">Assigned To</option>
                         <option value="foundation_team">Team</option>
                     </select>
                 </div>
@@ -400,7 +419,8 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
         // Store projects data
         let allProjects = [];
         let filteredProjects = [];
-        let currentSortBy = 'created_at';
+        // let currentSortBy = 'created_at';
+        let currentSortBy = 'assigned_to';
 
         // Show error state
         function showError(message, detail = '') {
@@ -569,13 +589,59 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                 grid.style.display = 'none';
                 emptyState.style.display = 'block';
             } else {
-                grid.style.display = 'grid';
+                grid.style.display = 'block';
                 emptyState.style.display = 'none';
 
-                projects.forEach(project => {
-                    const card = createProjectCard(project);
-                    grid.appendChild(card);
-                });
+                // Check if we need to group by assigned_to
+                if (currentSortBy === 'assigned_to') {
+                    // Group projects by assigned_to
+                    const grouped = {};
+                    projects.forEach(project => {
+                        let assignedTo = project.admin_data?.assigned_to || 'Unassigned';
+                        if(project.admin_data?.assigned_to==='Select'){
+                          assignedTo = 'Unassigned';
+                        }
+                        if (!grouped[assignedTo]) {
+                            grouped[assignedTo] = [];
+                        }
+                        grouped[assignedTo].push(project);
+                    });
+
+                    // Get sorted keys (assigned to names)
+                    const sortedKeys = Object.keys(grouped).sort((a, b) => {
+                        // Put "Unassigned" at the end
+                        if (a === 'Unassigned') return 1;
+                        if (b === 'Unassigned') return -1;
+                        return a.localeCompare(b);
+                    });
+
+                    // Render each group
+                    sortedKeys.forEach(assignedTo => {
+                        // Create group header
+                        const header = document.createElement('div');
+                        header.className = 'group-header';
+                        header.textContent = assignedTo;
+                        grid.appendChild(header);
+
+                        // Create group container
+                        const groupContainer = document.createElement('div');
+                        groupContainer.className = 'group-container';
+
+                        // Add project cards to group
+                        grouped[assignedTo].forEach(project => {
+                            const card = createProjectCard(project);
+                            groupContainer.appendChild(card);
+                        });
+
+                        grid.appendChild(groupContainer);
+                    });
+                } else {
+                    // Normal rendering without grouping
+                    projects.forEach(project => {
+                        const card = createProjectCard(project);
+                        grid.appendChild(card);
+                    });
+                }
             }
 
             // Update counts
