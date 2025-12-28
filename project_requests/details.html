@@ -1133,7 +1133,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
       };
 
       // Initialize Supabase client
-      const supabase = window.supabase.createClient(
+      var supabase = window.supabase.createClient(
         supabaseConfig.url,
         supabaseConfig.anonKey
       );
