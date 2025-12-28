@@ -580,7 +580,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
   </head>
   <body>
     <div class="container">
-      <a href="projects-list.html" class="back-link">&#8592; Back to Projects</a>
+      <a href="projects_list.html" class="back-link">&#8592; Back to Projects</a>
 
       <div id="loadingState" class="loading-state">
         <div class="loading-spinner"></div>
@@ -2121,7 +2121,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
               return;
             }
           }
-          window.location.href = 'projects-list.html';
+          window.location.href = '/site/SPageNavigator/project_requests/projects_list.html';
         } else {
           // For existing projects, reload the data
           if (hasUnsavedChanges) {
@@ -2143,7 +2143,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
 
           if (!session) {
             // Not logged in, redirect to login page
-            window.location.href = 'login.html';
+            window.location.href = '/site/SPageNavigator/project_requests/login.html';
             return null;
           }
 
@@ -2162,7 +2162,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
           return session.user;
         } catch (error) {
           console.error('Error checking authentication:', error);
-          window.location.href = 'login.html';
+          window.location.href = '/site/SPageNavigator/project_requests/login.html';
           return null;
         }
       }
@@ -2174,7 +2174,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
           if (error) throw error;
 
           // Redirect to login page
-          window.location.href = 'login.html';
+          window.location.href = '/site/SPageNavigator/project_requests/login.html';
         } catch (error) {
           console.error('Error logging out:', error);
           alert('Failed to log out: ' + error.message);
