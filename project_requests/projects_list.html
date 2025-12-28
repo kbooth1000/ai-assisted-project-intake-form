@@ -340,7 +340,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                     <h1 style="margin-bottom: 5px;">Projects</h1>
                     <p class="subtitle" style="margin-bottom: 0;">Browse and manage your projects</p>
                 </div>
-                <button onclick="window.location.href='details.html?id=new'" class="btn-new-project">
+                <button onclick="window.location.href='/site/SPageNavigator/project_requests/details.html?id=new'" class="btn-new-project">
                     + New Project
                 </button>
             </div>
@@ -492,7 +492,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
             const card = document.createElement('div');
             card.className = 'project-card';
             card.onclick = () => {
-                window.location.href = `details.html?id=${project.id}`;
+                window.location.href = `/site/SPageNavigator/project_requests/details.html?id=${project.id}`;
             };
 
             const cardHeader = document.createElement('div');
@@ -674,7 +674,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
 
                 if (!session) {
                     // Not logged in, redirect to login page
-                    window.location.href = 'login.html';
+                    window.location.href = '/site/SPageNavigator/project_requests/login.html';
                     return null;
                 }
 
@@ -687,7 +687,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                 return session.user;
             } catch (error) {
                 console.error('Error checking authentication:', error);
-                window.location.href = 'login.html';
+                window.location.href = '/site/SPageNavigator/project_requests/login.html';
                 return null;
             }
         }
@@ -699,7 +699,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                 if (error) throw error;
 
                 // Redirect to login page
-                window.location.href = 'login.html';
+                window.location.href = '/site/SPageNavigator/project_requests/login.html';
             } catch (error) {
                 console.error('Error logging out:', error);
                 alert('Failed to log out: ' + error.message);
