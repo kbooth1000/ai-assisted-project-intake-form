@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Sign in...</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+</head>
+<body>
+      <!-- Status & button -->
+<div id="magic-container" style="max-width:600px;margin:24px auto;padding:16px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;">
+  <p id="magic-message">Click the button below to complete sign in.</p>
+  <button id="magic-button" style="background:#2563eb;color:#fff;padding:10px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer;">
+    Complete sign in
+  </button>
+</div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    // Replace these with your project values
+    const SUPABASE_URL = 'https://svzlfpqdarhwfyznrhyg.supabase.co';
+    const SUPABASE_ANON_KEY = 
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w';
+
+
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Helpers
+  const params = new URLSearchParams(window.location.search);
+  const token_hash = params.get('token_hash');
+  const type = params.get('type') || 'email';
+  const redirect_to = params.get('redirect_to') || '/';
+
+  const messageEl = document.getElementById('magic-message');
+  const buttonEl = document.getElementById('magic-button');
+
+  if (!token_hash) {
+    if (messageEl) messageEl.textContent = 'No token found in the URL. Please open the link from your email.';
+    if (buttonEl) buttonEl.disabled = true;
+  }
+
+  buttonEl?.addEventListener('click', async (e) => {
+    if (!token_hash) return;
+    buttonEl.disabled = true;
+    if (messageEl) messageEl.textContent = 'Verifying...';
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        token_hash,
+        type, // usually 'email'
+      });
+
+      if (error) {
+        console.error('verifyOtp error', error);
+        if (messageEl) messageEl.textContent = `Verification failed: ${error.message}`;
+        buttonEl.disabled = false;
+        return;
+      }
+
+      // Success: session is set by supabase-js (localStorage). Redirect user.
+      if (messageEl) messageEl.textContent = 'Sign-in successful. Redirecting…';
+      // Small delay for UX so user sees the success message
+      setTimeout(() => {
+        window.location.href = redirect_to;
+      }, 600);
+    } catch (err) {
+      console.error('Unexpected error', err);
+      if (messageEl) messageEl.textContent = 'Unexpected error during verification.';
+      buttonEl.disabled = false;
+    }
+  });
+</script>
