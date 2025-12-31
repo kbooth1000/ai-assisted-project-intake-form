@@ -258,7 +258,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                     email: email,
                     options: {
                         // Redirect URL after clicking magic link
-                        emailRedirectTo: window.location.origin + '/site/SPageNavigator/project_requests/projects_list.html',
+                        emailRedirectTo: window.location.origin + '/site/SPageNavigator/project_requests/auth_landing.html',
                     }
                 });
 
@@ -266,7 +266,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
 
                 console.log('Magic link sent successfully:', data);
 
-                showSuccess(`&#10003; Magic link sent! Check your email (${email}) and click the link to log in.`);
+                showSuccess(`&check; Magic link sent! Check your email (${email}) and click the link to log in.`);
 
                 // Clear the email input
                 emailInput.value = '';
