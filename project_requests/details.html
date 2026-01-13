@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Project Details</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <style>
       * {
         margin: 0;
@@ -18,7 +20,14 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
           Oxygen, Ubuntu, Cantarell, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #22962c);
+        background-image: linear-gradient(
+          to top,
+          green,
+          #a2dc39,
+          #8bc34a,
+          #4caf50,
+          #22962c
+        );
         min-height: 100vh;
         padding: 20px;
       }
@@ -580,7 +589,11 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
   </head>
   <body>
     <div class="container">
-      <a href="/site/SPageNavigator/project_requests/projects_list.html" class="back-link">&#8592; Back to Projects</a>
+      <a
+        href="/site/SPageNavigator/project_requests/projects_list.html"
+        class="back-link"
+        >&#8592; Back to Projects</a
+      >
 
       <div id="loadingState" class="loading-state">
         <div class="loading-spinner"></div>
@@ -594,7 +607,14 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
 
       <div id="projectContent" style="display: none">
         <!-- User Info Bar -->
-        <div class="user-info" style="display: flex; justify-content: space-between; align-items: center;">
+        <div
+          class="user-info"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
           <span class="user-email" id="userEmail">Loading...</span>
           <button onclick="logout()" class="btn-logout">Log Out</button>
         </div>
@@ -680,9 +700,9 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                   <div class="field-display"></div>
                   <div class="field-edit">
                     <!-- <input type="text" /> -->
-                     <select name="assigned_to" id="assigned_to">
-                        <option value="Select">Select</option>
-                     </select>
+                    <select name="assigned_to" id="assigned_to">
+                      <option value="Select">Select</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -1129,8 +1149,11 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
       // Supabase Configuration
       const supabaseConfig = {
         url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
-        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w',
+        anonKey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w',
       };
+      // Initialize EmailJS
+      emailjs.init('4SEqU8EI2kp_Xbs7Z');
 
       // Initialize Supabase client
       var supabase = window.supabase.createClient(
@@ -1230,15 +1253,13 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
         document.getElementById('errorState').style.display = 'none';
         document.getElementById('projectContent').style.display = 'block';
 
-
-
         const textareas = document.querySelectorAll('textarea');
 
         const resetTextareaHeight = (ta) => {
-            const taContent = ta.value;
-            ta.textContent = taContent;
+          const taContent = ta.value;
+          ta.textContent = taContent;
           ta.style.height = '40px'; // Reset height to recalculate
-            console.log('textarea:', ta.textContent, ta.scrollHeight);
+          console.log('textarea:', ta.textContent, ta.scrollHeight);
           ta.style.height = ta.scrollHeight + 'px'; // Set to scrollHeight
         };
 
@@ -1261,8 +1282,6 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
             resetTextareaHeight(textarea);
           });
         }
-
-
       }
 
       // Show success message
@@ -1498,7 +1517,6 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
         document.getElementById('discount_codesSection').style.display =
           showDiscountCodes ? 'block' : 'none';
         // (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
-
       }
 
       // Render project types
@@ -1564,23 +1582,23 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
       function createItemRow(item = {}, index = 0) {
         const row = document.createElement('tr');
         row.innerHTML = `
-                      <td><input type="text" class="item-name" value="${escapeHtml(
-                        item.name || ''
-                      )}" onchange="markUnsaved()"></td>
-                      <td><textarea class="item-description" rows="2" onchange="markUnsaved()">${escapeHtml(
-                        item.description || ''
-                      )}</textarea></td>
-                      <td><input type="number" class="item-price" step="0.01" min="0" value="${
-                        item.price || ''
-                      }" onchange="markUnsaved()"></td>
-                      <td><input type="number" class="item-fmv" step="0.01" min="0" value="${
-                        item.fairMarketValue || ''
-                      }" onchange="markUnsaved()"></td>
-                      <td><input type="number" class="item-quantity" min="0" value="${
-                        item.quantityAvailable || ''
-                      }" onchange="markUnsaved()"></td>
-                      <td><button type="button" class="btn btn-remove" onclick="removeItemRow(this)">Remove</button></td>
-                  `;
+                            <td><input type="text" class="item-name" value="${escapeHtml(
+                              item.name || ''
+                            )}" onchange="markUnsaved()"></td>
+                            <td><textarea class="item-description" rows="2" onchange="markUnsaved()">${escapeHtml(
+                              item.description || ''
+                            )}</textarea></td>
+                            <td><input type="number" class="item-price" step="0.01" min="0" value="${
+                              item.price || ''
+                            }" onchange="markUnsaved()"></td>
+                            <td><input type="number" class="item-fmv" step="0.01" min="0" value="${
+                              item.fairMarketValue || ''
+                            }" onchange="markUnsaved()"></td>
+                            <td><input type="number" class="item-quantity" min="0" value="${
+                              item.quantityAvailable || ''
+                            }" onchange="markUnsaved()"></td>
+                            <td><button type="button" class="btn btn-remove" onclick="removeItemRow(this)">Remove</button></td>
+                        `;
         return row;
       }
 
@@ -1630,38 +1648,38 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
         const isFixed = discount.type !== 'percentage';
 
         row.innerHTML = `
-                      <td><input type="text" class="discount-code" value="${escapeHtml(
-                        discount.code || ''
-                      )}" onchange="markUnsaved()"></td>
-                      <td>
-                          <div class="discount-type-container">
-                              <div class="radio-group">
-                                  <input type="radio" name="discount_type_${index}" value="fixed" ${
+                            <td><input type="text" class="discount-code" value="${escapeHtml(
+                              discount.code || ''
+                            )}" onchange="markUnsaved()"></td>
+                            <td>
+                                <div class="discount-type-container">
+                                    <div class="radio-group">
+                                        <input type="radio" name="discount_type_${index}" value="fixed" ${
           isFixed ? 'checked' : ''
         } onchange="markUnsaved()">
-                                  <label>Fixed ($)</label>
-                                  <input type="radio" name="discount_type_${index}" value="percentage" ${
+                                        <label>Fixed ($)</label>
+                                        <input type="radio" name="discount_type_${index}" value="percentage" ${
           !isFixed ? 'checked' : ''
         } onchange="markUnsaved()">
-                                  <label>Percent (%)</label>
-                              </div>
-                              <input type="number" class="discount-value" step="0.01" min="0" value="${
-                                discount.value || ''
-                              }" onchange="markUnsaved()">
-                          </div>
-                      </td>
-                      <td>
-                          <div class="checkbox-list ticket-levels-checkboxes" data-selected='${JSON.stringify(
-                            discount.ticketLevels || []
-                          )}'>
-                              <!-- Dynamically populated -->
-                          </div>
-                      </td>
-                      <td><input type="number" class="discount-quantity" min="0" value="${
-                        discount.quantityAvailable || ''
-                      }" onchange="markUnsaved()"></td>
-                      <td><button type="button" class="btn btn-remove" onclick="removeDiscountRow(this)">Remove</button></td>
-                  `;
+                                        <label>Percent (%)</label>
+                                    </div>
+                                    <input type="number" class="discount-value" step="0.01" min="0" value="${
+                                      discount.value || ''
+                                    }" onchange="markUnsaved()">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="checkbox-list ticket-levels-checkboxes" data-selected='${JSON.stringify(
+                                  discount.ticketLevels || []
+                                )}'>
+                                    <!-- Dynamically populated -->
+                                </div>
+                            </td>
+                            <td><input type="number" class="discount-quantity" min="0" value="${
+                              discount.quantityAvailable || ''
+                            }" onchange="markUnsaved()"></td>
+                            <td><button type="button" class="btn btn-remove" onclick="removeDiscountRow(this)">Remove</button></td>
+                        `;
         return row;
       }
 
@@ -1722,17 +1740,17 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                 label.style.alignItems = 'center';
                 label.style.gap = '5px';
                 label.innerHTML = `
-                                  <input type="checkbox" value="${escapeHtml(
-                                    name
-                                  )}"
-                                         ${
-                                           selectedValues.includes(name)
-                                             ? 'checked'
-                                             : ''
-                                         }
-                                         onchange="markUnsaved()">
-                                  ${escapeHtml(name)}
-                              `;
+                                        <input type="checkbox" value="${escapeHtml(
+                                          name
+                                        )}"
+                                               ${
+                                                 selectedValues.includes(name)
+                                                   ? 'checked'
+                                                   : ''
+                                               }
+                                               onchange="markUnsaved()">
+                                        ${escapeHtml(name)}
+                                    `;
                 container.appendChild(label);
               });
             }
@@ -2015,10 +2033,43 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
         return errors;
       }
 
+      sendEmailNotification = function (formData) {
+        const emailFormData = {
+          projectName: formData.project_name,
+          teamName: formData.foundation_team,
+          eventDate: formData.event_details.event_date,
+          eventTime: formData.event_details.event_time,
+          goLiveDate: formData.event_details.go_live_date,
+          shutoffDate: formData.event_details.ticket_cutoff_date,
+          eventTitle: formData.project_name,
+          eventDescription: formData.event_details.event_description,
+          reFund: formData.raisers_edge_info.fund,
+          reAppeal: formData.raisers_edge_info.appeal,
+          rePackage: formData.raisers_edge_info.package,
+          confirmationPage: formData.confirmation_content.confirmation_text,
+          confirmationEmail: formData.confirmation_content.confirmation_text,
+          closedContent: formData.confirmation_content.closed_page_text,
+          webAddress: '[need to add short url]',
+          additionalComments: formData.additional_comments,
+          projectTypes: formData.project_types.join(', '),
+          reNotApply: '[need to add does re info not apply]',
+        };
+
+        emailjs
+          .send('service_cxg4jsj', 'template_bv7hxpe', emailFormData)
+          .then(function (response) {
+            console.log('EMAIL SUCCESS!', response.status, response.text);
+          }),
+          function (error) {
+            console.log('FAILED...', error);
+          };
+      };
+
       // Save project
       async function saveProject() {
         const formData = collectFormData();
-
+        console.log('Form Data to save:', formData);
+        sendEmailNotification(formData);
         // Validate
         const errors = validateFormData(formData);
         if (errors.length > 0) {
@@ -2121,7 +2172,8 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
               return;
             }
           }
-          window.location.href = '/site/SPageNavigator/project_requests/projects_list.html';
+          window.location.href =
+            '/site/SPageNavigator/project_requests/projects_list.html';
         } else {
           // For existing projects, reload the data
           if (hasUnsavedChanges) {
@@ -2137,13 +2189,17 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
       // Check authentication and get user
       async function checkAuthAndGetUser() {
         try {
-          const { data: { session }, error } = await supabase.auth.getSession();
+          const {
+            data: { session },
+            error,
+          } = await supabase.auth.getSession();
 
           if (error) throw error;
 
           if (!session) {
             // Not logged in, redirect to login page
-            window.location.href = '/site/SPageNavigator/project_requests/login.html';
+            window.location.href =
+              '/site/SPageNavigator/project_requests/login.html';
             return null;
           }
 
@@ -2162,7 +2218,8 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
           return session.user;
         } catch (error) {
           console.error('Error checking authentication:', error);
-          window.location.href = '/site/SPageNavigator/project_requests/login.html';
+          window.location.href =
+            '/site/SPageNavigator/project_requests/login.html';
           return null;
         }
       }
@@ -2174,7 +2231,8 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
           if (error) throw error;
 
           // Redirect to login page
-          window.location.href = '/site/SPageNavigator/project_requests/login.html';
+          window.location.href =
+            '/site/SPageNavigator/project_requests/login.html';
         } catch (error) {
           console.error('Error logging out:', error);
           alert('Failed to log out: ' + error.message);
@@ -2207,40 +2265,41 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
           fetchProject(projectId);
         }
 
-// Fetch organization members from Supabase
-async function loadOrgMembers() {
-    try {
-        const { data, error } = await supabase
-            .from('org_members')
-            .select('first_name, last_name, role')
-            .order('last_name', { ascending: true });
+        // Fetch organization members from Supabase
+        async function loadOrgMembers() {
+          try {
+            const { data, error } = await supabase
+              .from('org_members')
+              .select('first_name, last_name, role')
+              .order('last_name', { ascending: true });
 
-        if (error) {
-            console.error('Error fetching org members:', error);
-            return;
-        }
+            if (error) {
+              console.error('Error fetching org members:', error);
+              return;
+            }
 
-        const assignedToSelect = document.querySelector('#assigned_to');
-        if (assignedToSelect && data) {
-            console.log({data});
-            const admins = data.filter(member => member.role.toLowerCase() === 'admin');
-            console.log({admins});
-            admins.forEach(member => {
+            const assignedToSelect = document.querySelector('#assigned_to');
+            if (assignedToSelect && data) {
+              console.log({ data });
+              const admins = data.filter(
+                (member) => member.role.toLowerCase() === 'admin'
+              );
+              console.log({ admins });
+              admins.forEach((member) => {
                 const opt = document.createElement('option');
                 const fullName = `${member.first_name} ${member.last_name}`;
                 opt.value = fullName;
                 opt.textContent = fullName;
                 assignedToSelect.appendChild(opt);
-            });
+              });
+            }
+          } catch (error) {
+            console.error('Error loading org members:', error);
+          }
         }
-    } catch (error) {
-        console.error('Error loading org members:', error);
-    }
-}
 
-// Load org members
-loadOrgMembers();
-
+        // Load org members
+        loadOrgMembers();
       });
     </script>
   </body>

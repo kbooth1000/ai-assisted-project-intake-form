@@ -2,974 +2,979 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Projects List</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-          Oxygen, Ubuntu, Cantarell, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        background-image: linear-gradient(
-          to top,
-          green,
-          #a2dc39,
-          #8bc34a,
-          #4caf50,
-          #22962c
-        );
-        min-height: 100vh;
-        padding: 20px;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        padding: 40px;
-      }
-
-      h1 {
-        color: #333;
-        margin-bottom: 10px;
-        font-size: 28px;
-      }
-
-      .subtitle {
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 14px;
-      }
-
-      /* Loading and Error States */
-      .loading-container,
-      .error-container {
-        text-align: center;
-        padding: 60px 20px;
-      }
-
-      .loading-spinner {
-        width: 50px;
-        height: 50px;
-        border: 4px solid #e0e0e0;
-        border-top-color: #667eea;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      }
 
-      .loading-text {
-        color: #666;
-        font-size: 16px;
-      }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-image: linear-gradient(to top,
+                    green,
+                    #a2dc39,
+                    #8bc34a,
+                    #4caf50,
+                    #22962c);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-      .error-icon {
-        font-size: 48px;
-        margin-bottom: 15px;
-      }
-
-      .error-message {
-        color: #dc3545;
-        font-size: 18px;
-        margin-bottom: 10px;
-      }
-
-      .error-detail {
-        color: #666;
-        font-size: 14px;
-      }
-
-      #content {
-        display: none;
-      }
-
-      /* Search and Filter */
-      .search-container {
-        margin-bottom: 30px;
-      }
-
-      .search-box {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 16px;
-        transition: border-color 0.3s;
-      }
-
-      .search-box:focus {
-        outline: none;
-        border-color: #667eea;
-      }
-
-      /* Projects Grid */
-      .projects-grid {
-        display: grid;
-        /* grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); */
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-
-      /* Group Headers */
-      .group-header {
-        font-size: 20px;
-        font-weight: 700;
-        color: #333;
-        margin-top: 30px;
-        margin-bottom: 15px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #667eea;
-      }
-
-      .group-header:first-child {
-        margin-top: 0;
-      }
-
-      .group-container {
-        margin-bottom: 20px;
-        border: solid #ddd 2px;
-        padding: 5px 2px 2px;
-      }
-
-      .project-card {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 20px;
-        border: 2px solid transparent;
-        transition: all 0.3s;
-        cursor: pointer;
-        position: relative;
-      }
-
-      .project-card:hover {
-        border-color: #667eea;
-        transform: translateY(-4px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-      }
-
-      .project-card-header {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        margin-bottom: 5px;
-        gap: 15px;
-        align-items: center;
-        line-height: 1;
-      }
-
-      .project-name {
-        font-size: 18px;
-        font-weight: 600;
-        color: #333;
-      }
-
-      .project-owner-info {
-        display: flex;
-        justify-content: space-between;
-      }
-
-      .project-team,
-      .project-owner {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 12px;
-      }
-
-      .project-team-label {
-        font-weight: 600;
-        color: #555;
-      }
-
-      .project-types {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-
-      .type-badge {
-        display: inline-block;
-        padding: 1px 8px 2px;
-        background: #667eea;
-        color: white;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 500;
-      }
-
-      /* Project Type Specific Colors */
-      .type-badge.contact-form {
-        background: #17a2b8; /* Teal */
-      }
-
-      .type-badge.donation-form {
-        background: #28a745; /* Green */
-      }
-
-      .type-badge.event-registration {
-        background: #fd7e14; /* Orange */
-      }
-
-      .type-badge.p2p-site {
-        background: #e83e8c; /* Pink */
-      }
-
-      .type-badge.email-send {
-        background: #6f42c1; /* Purple */
-      }
-
-      .type-badge.estore {
-        background: #ffc107; /* Amber */
-        color: #333;
-      }
-
-      .type-badge.web-edit {
-        background: #20c997; /* Teal-Green */
-      }
-
-      .status-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .status-badge.submitted {
-        background: #e3f2fd;
-        color: #1976d2;
-      }
-
-      .status-badge.in-progress {
-        background: #fff3e0;
-        color: #f57c00;
-      }
-
-      .status-badge.completed {
-        background: #e8f5e9;
-        color: #388e3c;
-      }
-
-      .status-badge.on-hold {
-        background: #fce4ec;
-        color: #c2185b;
-      }
-
-      .subgroup-header {
-        font-size: 16px;
-        font-weight: 600;
-        color: #555;
-        margin-top: 20px;
-        margin-bottom: 12px;
-        padding-left: 10px;
-        border-left: 3px solid #667eea;
-      }
-
-      .subgroup-header:first-child {
-        margin-top: 0;
-      }
-
-      .project-date {
-        font-size: 13px;
-        color: #888;
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid #e0e0e0;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-      }
-
-      .empty-icon {
-        font-size: 64px;
-        margin-bottom: 20px;
-        opacity: 0.3;
-      }
-
-      .empty-message {
-        color: #666;
-        font-size: 18px;
-        margin-bottom: 10px;
-      }
-
-      .empty-detail {
-        color: #999;
-        font-size: 14px;
-      }
-
-      .project-count {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 15px;
-      }
-
-      .btn-new-project {
-        padding: 12px 24px;
-        background: #28a745;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-
-      .btn-new-project:hover {
-        background: #218838;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 10px 15px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        margin-bottom: 20px;
-      }
-
-      .user-email {
-        color: #333;
-        font-size: 14px;
-        font-weight: 500;
-      }
-
-      .btn-logout {
-        padding: 8px 16px;
-        background: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-
-      .btn-logout:hover {
-        background: #c82333;
-        transform: translateY(-1px);
-      }
-
-      @media (max-width: 768px) {
         .container {
-          padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
         }
 
         h1 {
-          font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
         }
 
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Loading and Error States */
+        .loading-container,
+        .error-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .error-detail {
+            color: #666;
+            font-size: 14px;
+        }
+
+        #content {
+            display: none;
+        }
+
+        /* Search and Filter */
+        .search-container {
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Projects Grid */
         .projects-grid {
-          grid-template-columns: 1fr;
+            display: grid;
+            /* grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); */
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
-      }
+
+        /* Group Headers */
+        .group-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .group-header:first-child {
+            margin-top: 0;
+        }
+
+        .group-container {
+            margin-bottom: 20px;
+            border: solid #ddd 2px;
+            padding: 5px 2px 2px;
+        }
+
+        .project-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            box-shadow: #ccc 2px 2px 3px;
+            margin: 5px 10px;
+        }
+
+        .project-card:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .project-card-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 5px;
+            gap: 15px;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .project-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .project-owner-info {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .project-team,
+        .project-owner {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .project-owner {
+            margin-left: auto;
+        }
+
+        .project-team-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .project-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 1px 8px 2px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Project Type Specific Colors */
+        .type-badge.contact-form {
+            background: #17a2b8;
+            /* Teal */
+        }
+
+        .type-badge.donation-form {
+            background: #28a745;
+            /* Green */
+        }
+
+        .type-badge.event-registration {
+            background: #fd7e14;
+            /* Orange */
+        }
+
+        .type-badge.p2p-site {
+            background: #e83e8c;
+            /* Pink */
+        }
+
+        .type-badge.email-send {
+            background: #6f42c1;
+            /* Purple */
+        }
+
+        .type-badge.estore {
+            background: #ffc107;
+            /* Amber */
+            color: #333;
+        }
+
+        .type-badge.web-edit {
+            background: #20c997;
+            /* Teal-Green */
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sort-assigned_to .project-card .status-badge {
+            display: none;
+        }
+
+        .status-badge.submitted {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-badge.in-progress {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-badge.completed {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-badge.on-hold {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .subgroup-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .subgroup-header:first-child {
+            margin-top: 0;
+        }
+
+        .project-date {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+            padding-top: 3px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-message {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-detail {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .project-count {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .btn-new-project {
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-new-project:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .user-email {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="container">
-      <!-- Loading State -->
-      <div id="loading" class="loading-container">
-        <div class="loading-spinner"></div>
-        <p class="loading-text">Loading projects...</p>
-      </div>
+        <!-- Loading State -->
+        <div id="loading" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading projects...</p>
+        </div>
 
-      <!-- Error State -->
-      <div id="error" class="error-container" style="display: none">
-        <div class="error-icon">&#9888;&#65039;</div>
-        <p class="error-message" id="errorMessage">Something went wrong</p>
-        <p class="error-detail" id="errorDetail"></p>
-      </div>
+        <!-- Error State -->
+        <div id="error" class="error-container" style="display: none">
+            <div class="error-icon">&#9888;&#65039;</div>
+            <p class="error-message" id="errorMessage">Something went wrong</p>
+            <p class="error-detail" id="errorDetail"></p>
+        </div>
 
-      <!-- Main Content -->
-      <div id="content">
-        <!-- User Info Bar -->
-        <div
-          class="user-info"
-          style="
+        <!-- Main Content -->
+        <div id="content">
+            <!-- User Info Bar -->
+            <div class="user-info" style="
             display: flex;
             justify-content: space-between;
             align-items: center;
-          "
-        >
-          <span class="user-email" id="userEmail">Loading...</span>
-          <button onclick="logout()" class="btn-logout">Log Out</button>
-        </div>
+          ">
+                <span class="user-email" id="userEmail">Loading...</span>
+                <button onclick="logout()" class="btn-logout">Log Out</button>
+            </div>
 
-        <div
-          style="
+            <div style="
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-          "
-        >
-          <div>
-            <h1 style="margin-bottom: 5px">Projects</h1>
-            <p class="subtitle" style="margin-bottom: 0">
-              Browse and manage your projects
-            </p>
-          </div>
-          <button
-            onclick="window.location.href='/site/SPageNavigator/project_requests/details.html?id=new'"
-            class="btn-new-project"
-          >
-            + New Project
-          </button>
-        </div>
+          ">
+                <div>
+                    <h1 style="margin-bottom: 5px">Projects</h1>
+                    <p class="subtitle" style="margin-bottom: 0">
+                        Browse and manage your projects
+                    </p>
+                </div>
+                <button onclick="window.location.href='/site/SPageNavigator/project_requests/details.html?id=new'"
+                    class="btn-new-project">
+                    + New Project
+                </button>
+            </div>
 
-        <!-- Search Box -->
-        <div class="search-container">
-          <input
-            type="text"
-            id="searchBox"
-            class="search-box"
-            placeholder="Search projects by name or team..."
-            autocomplete="off"
-          />
-        </div>
+            <!-- Search Box -->
+            <div class="search-container">
+                <input type="text" id="searchBox" class="search-box" placeholder="Search projects by name or team..."
+                    autocomplete="off" />
+            </div>
 
-        <!-- Sort and Count -->
-        <div
-          style="
+            <!-- Sort and Count -->
+            <div style="
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-          "
-        >
-          <div class="project-count">
-            Showing <span id="displayedCount">0</span> of
-            <span id="totalCount">0</span> projects
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px">
-            <label for="sortBy" style="font-size: 14px; color: #666; margin: 0"
-              >Sort by:</label
-            >
-            <select
-              id="sortBy"
-              onchange="handleSortChange()"
-              style="
+          ">
+                <div class="project-count">
+                    Showing <span id="displayedCount">0</span> of
+                    <span id="totalCount">0</span> projects
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px">
+                    <label for="sortBy" style="font-size: 14px; color: #666; margin: 0">Sort by:</label>
+                    <select id="sortBy" onchange="handleSortChange()" style="
                 padding: 8px 12px;
                 border: 2px solid #e0e0e0;
                 border-radius: 6px;
                 font-size: 14px;
                 cursor: pointer;
-              "
-            >
-              <option value="assigned_to">Assigned To</option>
-              <option value="created_at">Date Created</option>
-              <option value="project_name">Project Name</option>
-              <option value="foundation_team">Team</option>
-            </select>
-          </div>
-        </div>
+              ">
+                        <option value="assigned_to">Assigned To</option>
+                        <option value="created_at">Date Created</option>
+                        <option value="project_name">Project Name</option>
+                        <option value="foundation_team">Team</option>
+                    </select>
+                </div>
+            </div>
 
-        <!-- Projects Grid -->
-        <div class="projects-grid" id="projectsGrid"></div>
+            <!-- Projects Grid -->
+            <div class="projects-grid" id="projectsGrid"></div>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="empty-state" style="display: none">
-          <div class="empty-icon">&#128203;</div>
-          <p class="empty-message">No projects found</p>
-          <p class="empty-detail">
-            Try adjusting your search or check back later
-          </p>
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none">
+                <div class="empty-icon">&#128203;</div>
+                <p class="empty-message">No projects found</p>
+                <p class="empty-detail">
+                    Try adjusting your search or check back later
+                </p>
+            </div>
         </div>
-      </div>
     </div>
 
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-      // Supabase configuration
-      const supabaseConfig = {
-        url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
-        anonKey:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w',
-      };
-
-      // Initialize Supabase client
-      var supabase = window.supabase.createClient(
-        supabaseConfig.url,
-        supabaseConfig.anonKey
-      );
-
-      // Store projects data
-      let allProjects = [];
-      let filteredProjects = [];
-      // let currentSortBy = 'created_at';
-      let currentSortBy = 'assigned_to';
-
-      // Show error state
-      function showError(message, detail = '') {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('content').style.display = 'none';
-        document.getElementById('error').style.display = 'block';
-        document.getElementById('errorMessage').textContent = message;
-        document.getElementById('errorDetail').textContent = detail;
-      }
-
-      // Show content
-      function showContent() {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('error').style.display = 'none';
-        document.getElementById('content').style.display = 'block';
-      }
-
-      // Fetch all projects from Supabase
-      async function fetchProjects() {
-        try {
-          console.log('Fetching projects from Supabase...');
-          console.log('Supabase URL:', supabaseConfig.url);
-
-          const { data, error } = await supabase
-            .from('projects')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-          if (error) {
-            console.error('Supabase error:', error);
-            throw error;
-          }
-
-          console.log('Successfully fetched projects:', data);
-          return data || [];
-        } catch (error) {
-          console.error('Error fetching projects:', error);
-          console.error('Error details:', {
-            message: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-          });
-          throw error;
-        }
-      }
-
-      // Helper function to format date
-      function formatDate(dateString) {
-        if (!dateString) return null;
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        });
-      }
-
-      // Get CSS class for project type badge
-      function getTypeClass(type) {
-        const typeMap = {
-          'Contact form/survey': 'contact-form',
-          'Donation form': 'donation-form',
-          'Event registration/ticket form': 'event-registration',
-          'P2P site': 'p2p-site',
-          'Email send': 'email-send',
-          'E-store': 'estore',
-          'Web edit (on choa.org)': 'web-edit',
-        };
-        return typeMap[type] || '';
-      }
-
-      // Get abbreviated label for project type
-      function getTypeLabel(type) {
-        const labelMap = {
-          'Contact form/survey': 'survey',
-          'Donation form': 'donation',
-          'Event registration/ticket form': 'event',
-          'P2P site': 'P2P',
-          'Email send': 'email',
-          'E-store': 'e-store',
-          'Web edit (on choa.org)': 'web edit',
-        };
-        return labelMap[type] || type;
-      }
-
-      // Get CSS class for status badge
-      function getStatusClass(status) {
-        if (!status) return '';
-        const normalized = status.toLowerCase().replace(/\s+/g, '-');
-        return normalized;
-      }
-
-      // Get display label for status
-      function getStatusLabel(status) {
-        return status || 'No Status';
-      }
-
-      // Create project card HTML
-      function createProjectCard(project) {
-        const card = document.createElement('div');
-        card.className = 'project-card';
-        card.onclick = () => {
-          window.location.href = `/site/SPageNavigator/project_requests/details.html?id=${project.id}`;
+        // Supabase configuration
+        const supabaseConfig = {
+            url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
+            anonKey:
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w',
         };
 
-        const cardHeader = document.createElement('div');
-        cardHeader.className = 'project-card-header';
+        // Initialize Supabase client
+        var supabase = window.supabase.createClient(
+            supabaseConfig.url,
+            supabaseConfig.anonKey
+        );
 
-        // Project name
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'project-name';
-        nameDiv.textContent = project.project_name || 'Unnamed Project';
+        // Store projects data
+        let allProjects = [];
+        let filteredProjects = [];
+        // let currentSortBy = 'created_at';
+        let currentSortBy = 'assigned_to';
 
-        // Status badge
-        const status = project.admin_data?.status;
-        if (status) {
-          const statusBadge = document.createElement('span');
-          statusBadge.className = 'status-badge ' + getStatusClass(status);
-          statusBadge.textContent = getStatusLabel(status);
-          nameDiv.appendChild(document.createTextNode(' '));
-          nameDiv.appendChild(statusBadge);
+        // Show error state
+        function showError(message, detail = '') {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorDetail').textContent = detail;
         }
 
-        card.appendChild(nameDiv);
-
-        const projectOwnerDiv = document.createElement('div');
-        projectOwnerDiv.className = 'project-owner-info';
-
-        // Foundation team
-        const teamDiv = document.createElement('div');
-        teamDiv.className = 'project-team';
-        teamDiv.innerHTML = `<span class="project-team-label">Team:</span> ${
-          project.foundation_team || 'Not specified'
-        }`;
-        projectOwnerDiv.appendChild(teamDiv);
-
-        // Assigned to
-
-        const assignedTo = project.admin_data?.assigned_to;
-        if (assignedTo) {
-          const assignedDiv = document.createElement('div');
-          assignedDiv.className = 'project-owner';
-          assignedDiv.innerHTML = `<span class="project-owner-label">Assigned to:</span> ${assignedTo}`;
-          projectOwnerDiv.appendChild(assignedDiv);
+        // Show content
+        function showContent() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
         }
 
-        card.appendChild(projectOwnerDiv);
+        // Fetch all projects from Supabase
+        async function fetchProjects() {
+            try {
+                console.log('Fetching projects from Supabase...');
+                console.log('Supabase URL:', supabaseConfig.url);
 
-        // Project types
-        const typesDiv = document.createElement('div');
-        const projectTypes = project.project_types || [];
-        if (projectTypes.length > 0) {
-          // typesDiv =
-          typesDiv.className = 'project-types';
-          projectTypes.forEach((type) => {
-            const badge = document.createElement('span');
-            badge.className = 'type-badge ' + getTypeClass(type);
-            badge.textContent = getTypeLabel(type);
-            typesDiv.appendChild(badge);
-          });
-          card.appendChild(typesDiv);
-        }
+                const { data, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-        cardHeader.appendChild(nameDiv);
-        cardHeader.appendChild(typesDiv);
-        card.appendChild(cardHeader);
-
-        // Created date
-        const createdDate = formatDate(project.created_at);
-        if (createdDate) {
-          const dateDiv = document.createElement('div');
-          dateDiv.className = 'project-date';
-          dateDiv.textContent = `Created: ${createdDate}`;
-          card.appendChild(dateDiv);
-        }
-
-        return card;
-      }
-
-      // Render projects grid
-      function renderProjects(projects) {
-        const grid = document.getElementById('projectsGrid');
-        const emptyState = document.getElementById('emptyState');
-
-        // Clear existing content
-        grid.innerHTML = '';
-
-        if (projects.length === 0) {
-          grid.style.display = 'none';
-          emptyState.style.display = 'block';
-        } else {
-          grid.style.display = 'block';
-          emptyState.style.display = 'none';
-
-          // Check if we need to group by assigned_to
-          if (currentSortBy === 'assigned_to') {
-            // Group projects by assigned_to
-            const grouped = {};
-            projects.forEach((project) => {
-              let assignedTo = project.admin_data?.assigned_to || 'Unassigned';
-              if (project.admin_data?.assigned_to === 'Select') {
-                assignedTo = 'Unassigned';
-              }
-              if (!grouped[assignedTo]) {
-                grouped[assignedTo] = {};
-              }
-
-              // Secondary grouping by status
-              const status = project.admin_data?.status || 'No Status';
-              if (!grouped[assignedTo][status]) {
-                grouped[assignedTo][status] = [];
-              }
-              grouped[assignedTo][status].push(project);
-            });
-
-            // Get sorted keys (assigned to names)
-            const sortedKeys = Object.keys(grouped).sort((a, b) => {
-              // Put "Unassigned" at the end
-              if (a === 'Unassigned') return 1;
-              if (b === 'Unassigned') return -1;
-              return a.localeCompare(b);
-            });
-
-            // Status order for sorting
-            const statusOrder = [
-              'Submitted',
-              'In Progress',
-              'On Hold',
-              'Completed',
-              'No Status',
-            ];
-
-            // Render each group
-            sortedKeys.forEach((assignedTo) => {
-              // Create group header
-              const header = document.createElement('div');
-              header.className = 'group-header';
-              header.textContent = assignedTo;
-              grid.appendChild(header);
-
-              // Create group container
-              const groupContainer = document.createElement('div');
-              groupContainer.className = 'group-container';
-
-              // Get status subgroups sorted by predefined order
-              const statusKeys = Object.keys(grouped[assignedTo]).sort(
-                (a, b) => {
-                  const indexA = statusOrder.indexOf(a);
-                  const indexB = statusOrder.indexOf(b);
-                  const orderA = indexA === -1 ? 999 : indexA;
-                  const orderB = indexB === -1 ? 999 : indexB;
-                  return orderA - orderB;
+                if (error) {
+                    console.error('Supabase error:', error);
+                    throw error;
                 }
-              );
 
-              // Render each status subgroup
-              statusKeys.forEach((status, index) => {
-                // Create subgroup header
-                const subHeader = document.createElement('div');
-                subHeader.className = 'subgroup-header';
-                subHeader.textContent = status;
-                groupContainer.appendChild(subHeader);
-
-                // Add project cards to status subgroup
-                grouped[assignedTo][status].forEach((project) => {
-                  const card = createProjectCard(project);
-                  groupContainer.appendChild(card);
+                console.log('Successfully fetched projects:', data);
+                return data || [];
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint,
                 });
-              });
-
-              grid.appendChild(groupContainer);
-            });
-          } else {
-            // Normal rendering without grouping
-            projects.forEach((project) => {
-              const card = createProjectCard(project);
-              grid.appendChild(card);
-            });
-          }
+                throw error;
+            }
         }
 
-        // Update counts
-        document.getElementById('displayedCount').textContent = projects.length;
-        document.getElementById('totalCount').textContent = allProjects.length;
-      }
-
-      // Sort projects based on current sort option
-      function sortProjects(projects) {
-        const sorted = [...projects];
-
-        switch (currentSortBy) {
-          case 'project_name':
-            sorted.sort((a, b) => {
-              const nameA = (a.project_name || '').toLowerCase();
-              const nameB = (b.project_name || '').toLowerCase();
-              return nameA.localeCompare(nameB);
+        // Helper function to format date
+        function formatDate(dateString) {
+            if (!dateString) return null;
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
             });
-            break;
-          case 'assigned_to':
-            sorted.sort((a, b) => {
-              const assignedA = (
-                a.admin_data?.assigned_to || 'ZZZ'
-              ).toLowerCase();
-              const assignedB = (
-                b.admin_data?.assigned_to || 'ZZZ'
-              ).toLowerCase();
-              return assignedA.localeCompare(assignedB);
+        }
+
+        // Get CSS class for project type badge
+        function getTypeClass(type) {
+            const typeMap = {
+                'Contact form/survey': 'contact-form',
+                'Donation form': 'donation-form',
+                'Event registration/ticket form': 'event-registration',
+                'P2P site': 'p2p-site',
+                'Email send': 'email-send',
+                'E-store': 'estore',
+                'Web edit (on choa.org)': 'web-edit',
+            };
+            return typeMap[type] || '';
+        }
+
+        // Get abbreviated label for project type
+        function getTypeLabel(type) {
+            const labelMap = {
+                'Contact form/survey': 'survey',
+                'Donation form': 'donation',
+                'Event registration/ticket form': 'event',
+                'P2P site': 'P2P',
+                'Email send': 'email',
+                'E-store': 'e-store',
+                'Web edit (on choa.org)': 'web edit',
+            };
+            return labelMap[type] || type;
+        }
+
+        // Get CSS class for status badge
+        function getStatusClass(status) {
+            if (!status) return '';
+            const normalized = status.toLowerCase().replace(/\s+/g, '-');
+            return normalized;
+        }
+
+        // Get display label for status
+        function getStatusLabel(status) {
+            return status || 'No Status';
+        }
+
+        // Create project card HTML
+        function createProjectCard(project) {
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            card.onclick = () => {
+                window.location.href = `/site/SPageNavigator/project_requests/details.html?id=${project.id}`;
+            };
+
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'project-card-header';
+
+            // Project name
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'project-name';
+            nameDiv.textContent = project.project_name || 'Unnamed Project';
+
+            // Status badge
+            const status = project.admin_data?.status;
+            if (status) {
+                const statusBadge = document.createElement('span');
+                statusBadge.className = 'status-badge ' + getStatusClass(status);
+                statusBadge.textContent = getStatusLabel(status);
+                nameDiv.appendChild(document.createTextNode(' '));
+                nameDiv.appendChild(statusBadge);
+            }
+
+            card.appendChild(nameDiv);
+
+            const projectOwnerDiv = document.createElement('div');
+            projectOwnerDiv.className = 'project-owner-info';
+
+            // Foundation team
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'project-team';
+            teamDiv.innerHTML = `<span class="project-team-label">Team:</span> ${project.foundation_team || 'Not specified'
+                }`;
+            projectOwnerDiv.appendChild(teamDiv);
+
+            // Assigned to
+
+
+
+            // Project types
+            const typesDiv = document.createElement('div');
+            const projectTypes = project.project_types || [];
+            if (projectTypes.length > 0) {
+                // typesDiv =
+                typesDiv.className = 'project-types';
+                projectTypes.forEach((type) => {
+                    const badge = document.createElement('span');
+                    badge.className = 'type-badge ' + getTypeClass(type);
+                    badge.textContent = getTypeLabel(type);
+                    typesDiv.appendChild(badge);
+                });
+                card.appendChild(typesDiv);
+            }
+
+
+            //      card.appendChild(projectOwnerDiv);
+
+            cardHeader.appendChild(nameDiv);
+            cardHeader.appendChild(typesDiv);
+
+            const assignedTo = project.admin_data?.assigned_to;
+            if (assignedTo) {
+                const assignedDiv = document.createElement('div');
+                assignedDiv.className = 'project-owner';
+                assignedDiv.innerHTML = `<span class="project-owner-label">Assigned to:</span> ${assignedTo}`;
+                //     projectOwnerDiv.appendChild(assignedDiv);
+                cardHeader.appendChild(assignedDiv);
+            }
+            card.appendChild(cardHeader);
+
+            // Created date
+            const createdDate = formatDate(project.created_at);
+            if (createdDate) {
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'project-date';
+                dateDiv.textContent = `Created: ${createdDate}`;
+                card.appendChild(dateDiv);
+            }
+
+            return card;
+        }
+
+        // Render projects grid
+        function renderProjects(projects) {
+            const grid = document.getElementById('projectsGrid');
+            grid.classList.add(`sort-${currentSortBy}`);
+            const emptyState = document.getElementById('emptyState');
+
+            // Clear existing content
+            grid.innerHTML = '';
+
+            if (projects.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                grid.style.display = 'block';
+                emptyState.style.display = 'none';
+
+                // Check if we need to group by assigned_to
+                if (currentSortBy === 'assigned_to') {
+                    // Group projects by assigned_to
+                    const grouped = {};
+                    projects.forEach((project) => {
+
+                        let assignedTo = project.admin_data?.assigned_to || 'Unassigned';
+                        if (project.admin_data?.assigned_to === 'Select') {
+                            assignedTo = 'Unassigned';
+                        }
+                        if (!grouped[assignedTo]) {
+                            grouped[assignedTo] = {};
+                        }
+
+                        // Secondary grouping by status
+                        const status = project.admin_data?.status || 'No Status';
+                        if (!grouped[assignedTo][status]) {
+                            grouped[assignedTo][status] = [];
+                        }
+                        grouped[assignedTo][status].push(project);
+                    });
+
+                    // Get sorted keys (assigned to names)
+                    const sortedKeys = Object.keys(grouped).sort((a, b) => {
+                        // Put "Unassigned" at the end
+                        if (a === 'Unassigned') return 1;
+                        if (b === 'Unassigned') return -1;
+                        return a.localeCompare(b);
+                    });
+
+                    // Status order for sorting
+                    const statusOrder = [
+                        'Submitted',
+                        'In Progress',
+                        'On Hold',
+                        'Completed',
+                        'No Status',
+                    ];
+
+                    // Render each group
+                    sortedKeys.forEach((assignedTo) => {
+                        // Create group header
+                        const header = document.createElement('div');
+                        header.className = 'group-header';
+                        header.textContent = assignedTo;
+                        grid.appendChild(header);
+
+                        // Create group container
+                        const groupContainer = document.createElement('div');
+                        groupContainer.className = 'group-container';
+
+                        // Get status subgroups sorted by predefined order
+                        const statusKeys = Object.keys(grouped[assignedTo]).sort(
+                            (a, b) => {
+                                const indexA = statusOrder.indexOf(a);
+                                const indexB = statusOrder.indexOf(b);
+                                const orderA = indexA === -1 ? 999 : indexA;
+                                const orderB = indexB === -1 ? 999 : indexB;
+                                return orderA - orderB;
+                            }
+                        );
+
+                        // Render each status subgroup
+                        statusKeys.forEach((status, index) => {
+                            // Create subgroup header
+                            const subHeader = document.createElement('div');
+                            subHeader.className = 'subgroup-header';
+                            subHeader.textContent = status;
+                            groupContainer.appendChild(subHeader);
+
+                            // Add project cards to status subgroup
+                            grouped[assignedTo][status].forEach((project) => {
+                                const card = createProjectCard(project);
+                                groupContainer.appendChild(card);
+                            });
+                        });
+
+                        grid.appendChild(groupContainer);
+                    });
+                } else {
+                    // Normal rendering without grouping
+                    projects.forEach((project) => {
+                        const card = createProjectCard(project);
+                        grid.appendChild(card);
+                    });
+                }
+            }
+
+            // Update counts
+            document.getElementById('displayedCount').textContent = projects.length;
+            document.getElementById('totalCount').textContent = allProjects.length;
+        }
+
+        // Sort projects based on current sort option
+        function sortProjects(projects) {
+            const sorted = [...projects];
+
+            switch (currentSortBy) {
+                case 'project_name':
+                    sorted.sort((a, b) => {
+                        const nameA = (a.project_name || '').toLowerCase();
+                        const nameB = (b.project_name || '').toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    });
+                    break;
+                case 'assigned_to':
+                    sorted.sort((a, b) => {
+                        const assignedA = (
+                            a.admin_data?.assigned_to || 'ZZZ'
+                        ).toLowerCase();
+                        const assignedB = (
+                            b.admin_data?.assigned_to || 'ZZZ'
+                        ).toLowerCase();
+                        return assignedA.localeCompare(assignedB);
+                    });
+                    break;
+                case 'foundation_team':
+                    sorted.sort((a, b) => {
+                        const teamA = (a.foundation_team || '').toLowerCase();
+                        const teamB = (b.foundation_team || '').toLowerCase();
+                        return teamA.localeCompare(teamB);
+                    });
+                    break;
+                case 'created_at':
+                default:
+                    sorted.sort((a, b) => {
+                        const dateA = new Date(a.created_at || 0);
+                        const dateB = new Date(b.created_at || 0);
+                        return dateB - dateA; // Most recent first
+                    });
+                    break;
+            }
+
+            return sorted;
+        }
+
+        // Handle sort change
+        function handleSortChange() {
+            currentSortBy = document.getElementById('sortBy').value;
+            const sorted = sortProjects(filteredProjects);
+            const projectsGrid = document.querySelector('#projectsGrid');
+            projectsGrid.classList.remove(...projectsGrid.classList);
+            projectsGrid.classList.add(`projects-grid`);
+            projectsGrid.classList.add(`sort-${currentSortBy}`);
+            renderProjects(sorted);
+        }
+
+        // Filter projects based on search query
+        function filterProjects(query) {
+            const searchTerm = query.toLowerCase().trim();
+
+            if (!searchTerm) {
+                filteredProjects = [...allProjects];
+            } else {
+                filteredProjects = allProjects.filter((project) => {
+                    const name = (project.project_name || '').toLowerCase();
+                    const team = (project.foundation_team || '').toLowerCase();
+                    const types = (project.project_types || []).join(' ').toLowerCase();
+
+                    return (
+                        name.includes(searchTerm) ||
+                        team.includes(searchTerm) ||
+                        types.includes(searchTerm)
+                    );
+                });
+            }
+
+            const sorted = sortProjects(filteredProjects);
+            renderProjects(sorted);
+        }
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchBox = document.getElementById('searchBox');
+
+            // Debounce search input
+            let searchTimeout;
+            searchBox.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterProjects(e.target.value);
+                }, 300);
             });
-            break;
-          case 'foundation_team':
-            sorted.sort((a, b) => {
-              const teamA = (a.foundation_team || '').toLowerCase();
-              const teamB = (b.foundation_team || '').toLowerCase();
-              return teamA.localeCompare(teamB);
-            });
-            break;
-          case 'created_at':
-          default:
-            sorted.sort((a, b) => {
-              const dateA = new Date(a.created_at || 0);
-              const dateB = new Date(b.created_at || 0);
-              return dateB - dateA; // Most recent first
-            });
-            break;
         }
 
-        return sorted;
-      }
+        // Check authentication and get user
+        async function checkAuthAndGetUser() {
+            try {
+                const {
+                    data: { session },
+                    error,
+                } = await supabase.auth.getSession();
 
-      // Handle sort change
-      function handleSortChange() {
-        currentSortBy = document.getElementById('sortBy').value;
-        const sorted = sortProjects(filteredProjects);
-        renderProjects(sorted);
-      }
+                if (error) throw error;
 
-      // Filter projects based on search query
-      function filterProjects(query) {
-        const searchTerm = query.toLowerCase().trim();
+                if (!session) {
+                    // Not logged in, redirect to login page
+                    window.location.href =
+                        '/site/SPageNavigator/project_requests/login.html';
+                    return null;
+                }
 
-        if (!searchTerm) {
-          filteredProjects = [...allProjects];
-        } else {
-          filteredProjects = allProjects.filter((project) => {
-            const name = (project.project_name || '').toLowerCase();
-            const team = (project.foundation_team || '').toLowerCase();
-            const types = (project.project_types || []).join(' ').toLowerCase();
+                // Display user email
+                const userEmailElement = document.getElementById('userEmail');
+                if (userEmailElement && session.user) {
+                    userEmailElement.textContent = session.user.email;
+                }
 
-            return (
-              name.includes(searchTerm) ||
-              team.includes(searchTerm) ||
-              types.includes(searchTerm)
-            );
-          });
+                return session.user;
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                window.location.href =
+                    '/site/SPageNavigator/project_requests/login.html';
+                return null;
+            }
         }
 
-        const sorted = sortProjects(filteredProjects);
-        renderProjects(sorted);
-      }
+        // Logout function
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
 
-      // Setup search functionality
-      function setupSearch() {
-        const searchBox = document.getElementById('searchBox');
-
-        // Debounce search input
-        let searchTimeout;
-        searchBox.addEventListener('input', (e) => {
-          clearTimeout(searchTimeout);
-          searchTimeout = setTimeout(() => {
-            filterProjects(e.target.value);
-          }, 300);
-        });
-      }
-
-      // Check authentication and get user
-      async function checkAuthAndGetUser() {
-        try {
-          const {
-            data: { session },
-            error,
-          } = await supabase.auth.getSession();
-
-          if (error) throw error;
-
-          if (!session) {
-            // Not logged in, redirect to login page
-            window.location.href =
-              '/site/SPageNavigator/project_requests/login.html';
-            return null;
-          }
-
-          // Display user email
-          const userEmailElement = document.getElementById('userEmail');
-          if (userEmailElement && session.user) {
-            userEmailElement.textContent = session.user.email;
-          }
-
-          return session.user;
-        } catch (error) {
-          console.error('Error checking authentication:', error);
-          window.location.href =
-            '/site/SPageNavigator/project_requests/login.html';
-          return null;
+                // Redirect to login page
+                window.location.href =
+                    '/site/SPageNavigator/project_requests/login.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+                alert('Failed to log out: ' + error.message);
+            }
         }
-      }
 
-      // Logout function
-      async function logout() {
-        try {
-          const { error } = await supabase.auth.signOut();
-          if (error) throw error;
+        // Initialize page
+        async function init() {
+            try {
+                // Check authentication first
+                const user = await checkAuthAndGetUser();
+                if (!user) return; // Will redirect to login
 
-          // Redirect to login page
-          window.location.href =
-            '/site/SPageNavigator/project_requests/login.html';
-        } catch (error) {
-          console.error('Error logging out:', error);
-          alert('Failed to log out: ' + error.message);
+                allProjects = await fetchProjects();
+                filteredProjects = [...allProjects];
+
+                setupSearch();
+                const sorted = sortProjects(filteredProjects);
+                renderProjects(sorted);
+                showContent();
+            } catch (error) {
+                showError(
+                    'Error loading projects',
+                    error.message || 'Please try again later'
+                );
+            }
         }
-      }
 
-      // Initialize page
-      async function init() {
-        try {
-          // Check authentication first
-          const user = await checkAuthAndGetUser();
-          if (!user) return; // Will redirect to login
-
-          allProjects = await fetchProjects();
-          filteredProjects = [...allProjects];
-
-          setupSearch();
-          const sorted = sortProjects(filteredProjects);
-          renderProjects(sorted);
-          showContent();
-        } catch (error) {
-          showError(
-            'Error loading projects',
-            error.message || 'Please try again later'
-          );
-        }
-      }
-
-      // Run on page load
-      init();
+        // Run on page load
+        init();
     </script>
-  </body>
+</body>
+
 </html>
 
 ]]
