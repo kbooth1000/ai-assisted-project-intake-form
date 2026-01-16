@@ -2034,24 +2034,26 @@
       }
 
       sendEmailNotification = function (formData) {
+
+        console.log('Preparing to send email notification with form data:', formData);
         const emailFormData = {
-          projectName: formData.project_name,
-          teamName: formData.foundation_team,
-          eventDate: formData.event_details.event_date,
-          eventTime: formData.event_details.event_time,
-          goLiveDate: formData.event_details.go_live_date,
-          shutoffDate: formData.event_details.ticket_cutoff_date,
-          eventTitle: formData.project_name,
-          eventDescription: formData.event_details.event_description,
-          reFund: formData.raisers_edge_info.fund,
-          reAppeal: formData.raisers_edge_info.appeal,
-          rePackage: formData.raisers_edge_info.package,
-          confirmationPage: formData.confirmation_content.confirmation_text,
-          confirmationEmail: formData.confirmation_content.confirmation_text,
-          closedContent: formData.confirmation_content.closed_page_text,
+          projectName: formData.project_name || '',
+          teamName: formData.foundation_team || '',
+          eventDate: formData.event_details?.event_date || '',
+          eventTime: formData.event_details?.event_time || '',
+          goLiveDate: formData.event_details?.go_live_date || '',
+          shutoffDate: formData.event_details?.ticket_cutoff_date || '',
+          eventTitle: formData.project_name || '',
+          eventDescription: formData.event_details?.event_description || '',
+          reFund: formData.raisers_edge_info?.fund || '',
+          reAppeal: formData.raisers_edge_info?.appeal || '',
+          rePackage: formData.raisers_edge_info?.package || '',
+          confirmationPage: formData.confirmation_content?.confirmation_text || '',
+          confirmationEmail: formData.confirmation_content?.confirmation_text || '',
+          closedContent: formData.confirmation_content?.closed_page_text || '',
           webAddress: '[need to add short url]',
-          additionalComments: formData.additional_comments,
-          projectTypes: formData.project_types.join(', '),
+          additionalComments: formData.additional_comments || '',
+          projectTypes: formData.project_types?.join(', ') || '',
           reNotApply: '[need to add does re info not apply]',
         };
 
@@ -2087,6 +2089,19 @@
 
           if (isNewProject) {
             // Create new project
+            // Get the current authenticated user
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+              throw new Error('You must be logged in to create a project');
+            }
+
+            // Add user_id to formData for RLS policy compliance
+            // const projectData = {
+            //   ...formData,
+            //   user_id: user.id
+            // };
+
             const result = await supabase
               .from('projects')
               .insert([formData])
