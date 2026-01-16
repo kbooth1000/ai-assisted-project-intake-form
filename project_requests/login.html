@@ -217,7 +217,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
 
         // Show success message
         function showSuccess(message) {
-            successMessage.textContent = message;
+            successMessage.innerHTML = message;
             successMessage.classList.add('show');
             errorMessage.classList.remove('show');
 
@@ -258,7 +258,8 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
                     email: email,
                     options: {
                         // Redirect URL after clicking magic link
-                        emailRedirectTo: window.location.origin + '/site/SPageNavigator/project_requests/auth_landing.html',
+                        // emailRedirectTo: window.location.origin + '/site/SPageNavigator/project_requests/auth_landing.html',
+                        emailRedirectTo: 'https://give.choa.org/site/SPageNavigator/project_requests/auth_landing.html',
                     }
                 });
 
@@ -287,7 +288,7 @@ background-image: linear-gradient(to top, green, #a2dc39, #8BC34A, #4CAF50, #229
 
             if (session) {
                 // User is already logged in, redirect to projects list
-                window.location.href = 'projects_list.html';
+                window.location.href = 'https://give.choa.org/site/SPageNavigator/project_requests/projects_list.html';
             }
         }
 
