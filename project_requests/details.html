@@ -1315,6 +1315,61 @@
         document.getElementById('editStatus').style.display = 'none';
       }
 
+      // Compare two values for equality, handling admin_data specially
+      function valuesAreEqual(key, currentValue, originalValue) {
+        // Special handling for admin_data - compare each property individually
+        if (key === 'admin_data') {
+          // If both are null/undefined, they're equal
+          if (!currentValue && !originalValue) return true;
+          // If only one is null/undefined, they're different
+          if (!currentValue || !originalValue) return false;
+
+          // Compare each property of admin_data
+          const adminKeys = new Set([
+            ...Object.keys(currentValue || {}),
+            ...Object.keys(originalValue || {})
+          ]);
+
+          for (const adminKey of adminKeys) {
+            const curr = currentValue[adminKey];
+            const orig = originalValue[adminKey];
+
+            // Normalize null, undefined, and empty string to null for comparison
+            const normalizedCurr = (curr === '' || curr === undefined) ? null : curr;
+            const normalizedOrig = (orig === '' || orig === undefined) ? null : orig;
+
+            if (JSON.stringify(normalizedCurr) !== JSON.stringify(normalizedOrig)) {
+              return false;
+            }
+          }
+          return true;
+        }
+
+        // For all other fields, use JSON comparison
+        return JSON.stringify(currentValue) === JSON.stringify(originalValue);
+      }
+
+      // Check if form has actual changes from original data
+      function checkForActualChanges() {
+        if (!projectData) {
+          // New project, any data is a change
+          const formData = collectFormData();
+          const hasAnyData = formData.project_name || formData.foundation_team || formData.project_types.length > 0;
+          return hasAnyData;
+        }
+
+        const currentFormData = collectFormData();
+
+        // Check all keys in current form data
+        for (const key in currentFormData) {
+          if (!valuesAreEqual(key, currentFormData[key], projectData[key])) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
       // Get nested value from object
       function getNestedValue(obj, path) {
         return path.split('.').reduce((acc, part) => acc && acc[part], obj);
@@ -1517,6 +1572,9 @@
         document.getElementById('discount_codesSection').style.display =
           showDiscountCodes ? 'block' : 'none';
         // (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
+
+        // Clear unsaved status after rendering (checkbox changes during render trigger markUnsaved)
+        clearUnsavedStatus();
       }
 
       // Render project types
@@ -1558,7 +1616,12 @@
         document.getElementById('discount_codesSection').style.display =
           showDiscountCodes ? 'block' : 'none';
 
-        markUnsaved();
+        // Only mark as unsaved if there are actual changes
+        if (checkForActualChanges()) {
+          markUnsaved();
+        } else {
+          clearUnsavedStatus();
+        }
       }
 
       // Render items table
@@ -1799,7 +1862,13 @@
             display.classList.toggle('empty', !value);
 
             field.classList.remove('editing');
-            markUnsaved();
+
+            // Only mark as unsaved if there are actual changes
+            if (checkForActualChanges()) {
+              markUnsaved();
+            } else {
+              clearUnsavedStatus();
+            }
           });
 
           input.addEventListener('keydown', (e) => {
@@ -1973,46 +2042,72 @@
 
         // Admin Data - collect if admin mode is enabled
         if (isAdminMode()) {
+          // Helper function to normalize empty values
+          const normalizeValue = (value, originalValue) => {
+            // If the value is empty string and original was null/undefined, keep it as null
+            if (value === '' && (originalValue === null || originalValue === undefined)) {
+              return null;
+            }
+            // If the value is 'Select' and original was not 'Select', revert to original
+            if (value === 'Select' && originalValue !== 'Select') {
+              return originalValue;
+            }
+            return value || null;
+          };
+
+          const originalAdmin = projectData?.admin_data || {};
+
           data.admin_data = {
             assigned_to:
-              document.querySelector(
-                '[data-field="admin_data.assigned_to"] select'
-              ).value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.assigned_to"] select').value,
+                originalAdmin.assigned_to
+              ),
             date_assigned:
-              document.querySelector(
-                '[data-field="admin_data.date_assigned"] input'
-              ).value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.date_assigned"] input').value,
+                originalAdmin.date_assigned
+              ),
             status:
-              document.querySelector('[data-field="admin_data.status"] select')
-                .value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.status"] select').value,
+                originalAdmin.status
+              ),
             ds_validated:
               document.getElementById('ds_validated').checked || false,
             contact_form_id:
-              document.querySelector(
-                '[data-field="admin_data.contact_form_id"] input'
-              ).value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.contact_form_id"] input').value,
+                originalAdmin.contact_form_id
+              ),
             event_registration_form_id:
-              document.querySelector(
-                '[data-field="admin_data.event_registration_form_id"] input'
-              ).value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.event_registration_form_id"] input').value,
+                originalAdmin.event_registration_form_id
+              ),
             donation_form_id:
-              document.querySelector(
-                '[data-field="admin_data.donation_form_id"] input'
-              ).value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.donation_form_id"] input').value,
+                originalAdmin.donation_form_id
+              ),
             p2p_id:
-              document.querySelector('[data-field="admin_data.p2p_id"] input')
-                .value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.p2p_id"] input').value,
+                originalAdmin.p2p_id
+              ),
             estore_id:
-              document.querySelector(
-                '[data-field="admin_data.estore_id"] input'
-              ).value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.estore_id"] input').value,
+                originalAdmin.estore_id
+              ),
             admin_comments:
-              document.querySelector(
-                '[data-field="admin_data.admin_comments"] textarea'
-              ).value || '',
+              normalizeValue(
+                document.querySelector('[data-field="admin_data.admin_comments"] textarea').value,
+                originalAdmin.admin_comments
+              ),
           };
         } else {
-          data.admin_data = null;
+          data.admin_data = projectData?.admin_data || null;
         }
 
         return data;
@@ -2257,7 +2352,39 @@
       // Warn before leaving with unsaved changes
       window.addEventListener('beforeunload', (e) => {
         if (hasUnsavedChanges) {
+          let formDifferences = {};
+          // Log current form data and original project data
+          const currentFormData = collectFormData();
+          console.log('=== UNSAVED CHANGES DETECTED ===');
+          console.log('Original project data:', projectData);
+          console.log('Current form data:', currentFormData);
+
+          // Compare and show differences
+          if (projectData) {
+            console.log('=== DIFFERENCES ===');
+            const differences = {};
+
+            // Check all keys in current form data
+            for (const key in currentFormData) {
+              if (!valuesAreEqual(key, currentFormData[key], projectData[key])) {
+                differences[key] = {
+                  original: projectData[key],
+                  current: currentFormData[key]
+                };
+              }
+            }
+
+            formDifferences = differences;
+            console.log('Changed fields:', differences);
+          }
+          
           e.preventDefault();
+          
+          console.log('Form differences:', formDifferences, 'length:', Object.keys(formDifferences).length );
+          if (Object.keys(formDifferences).length === 0 ) {
+            // No differences found, allow unload
+            return;
+          } // Show confirmation dialog
           e.returnValue = '';
         }
       });
