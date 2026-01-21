@@ -44,8 +44,16 @@
       h1 {
         color: #333;
         margin-bottom: 10px;
-        font-size: 28px;
+        font-size: 22px;
       }
+
+div#top-nav-info-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
 
       .subtitle {
         color: #666;
@@ -262,20 +270,20 @@
       }
 
       /* Section Styles */
-      .section {
-        margin-top: 30px;
-        padding: 25px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border-top: 4px solid hsl(133.7deg 61.35% 40.59% / 49%);
-      }
+.section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-top: 4px solid hsl(133.7deg 61.35% 40.59% / 49%);
+}
 
-      .section-title {
-        font-size: 18px;
-        color: #333;
-        margin-bottom: 20px;
-        font-weight: 600;
-      }
+.section-title {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
 
       div#adminSection {
         padding: 1rem;
@@ -589,11 +597,27 @@
   </head>
   <body>
     <div class="container">
+
+<div id="top-nav-info-bar">
       <a
         href="/site/SPageNavigator/project_requests/projects_list.html"
         class="back-link"
         >&#8592; Back to Projects</a
       >
+
+        <div
+          class="user-info"
+          style="
+            display: inline-flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <span class="user-email" id="userEmail">Loading...</span>
+          <button onclick="logout()" class="btn-logout">Log Out</button>
+        </div>
+ </div>
+
 
       <div id="loadingState" class="loading-state">
         <div class="loading-spinner"></div>
@@ -606,24 +630,15 @@
       </div>
 
       <div id="projectContent" style="display: none">
-        <!-- User Info Bar -->
-        <div
-          class="user-info"
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
-          <span class="user-email" id="userEmail">Loading...</span>
-          <button onclick="logout()" class="btn-logout">Log Out</button>
-        </div>
+     
+
+<!-- User Info Bar -->
 
         <h1 id="project_title">Project Details</h1>
         <p class="subtitle" id="subtitle">
           Click on any field to edit.
           <span id="editStatus" class="edit-status" style="display: none"
-            >Unsaved changes</span
+            >No Unsaved changes</span
           >
         </p>
 
@@ -1287,7 +1302,7 @@
       // Show success message
       function showSuccessMessage(message) {
         const el = document.getElementById('successMessage');
-        el.textContent = '&#10003; ' + message;
+        el.innerHTML = '&#10003;  ' + message;
         el.classList.add('show');
         setTimeout(() => el.classList.remove('show'), 5000);
       }
@@ -2132,7 +2147,7 @@
 
         console.log('Preparing to send email notification with form data:', formData);
         const emailFormData = {
-          projectName: formData.project_name || '',
+          projectName: '&#128992;' + formData.project_name || '',
           teamName: formData.foundation_team || '',
           eventDate: formData.event_details?.event_date || '',
           eventTime: formData.event_details?.event_time || '',
