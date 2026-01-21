@@ -1039,6 +1039,24 @@ div#top-nav-info-bar {
           </div>
         </div>
 
+        <!-- Email Details Section -->
+        <div id="emailDetailsSection" class="section">
+          <h3 class="section-title">Email Details</h3>
+          <div class="form-group">
+            <label>Desired email send date:</label>
+            <div
+              class="editable-field"
+              data-field="email_details.desired_send_date"
+              data-type="date"
+            >
+              <div class="field-display"></div>
+              <div class="field-edit">
+                <input type="date" name="desired_send_date" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Items Section -->
         <div id="itemsSection" class="section">
           <h3 class="section-title">Item/Ticket/Sponsorship Levels</h3>
@@ -1435,6 +1453,7 @@ div#top-nav-info-bar {
           raisers_edge_info: null,
           confirmation_content: null,
           event_details: null,
+          email_details: null,
           items: null,
           discount_codes: null,
           additional_comments: '',
@@ -1501,6 +1520,11 @@ div#top-nav-info-bar {
           projectTypes &&
           projectTypes.some((type) => confirmationTypes.includes(type))
         );
+      }
+
+      // Check if project types include Email Details relevant types
+      function shouldShowEmailDetails(projectTypes) {
+        return projectTypes && projectTypes.includes('Email send');
       }
 
       // Render project data
@@ -1570,6 +1594,7 @@ div#top-nav-info-bar {
         const showEventDetails = shouldShowEventDetails(data.project_types);
         const showItems = shouldShowItems(data.project_types);
         const showDiscountCodes = shouldShowDiscountCodes(data.project_types);
+        const showEmailDetails = shouldShowEmailDetails(data.project_types);
 
         document.getElementById('raisersEdgeSection').style.display =
           showRaisersEdge ? 'block' : 'none';
@@ -1579,6 +1604,9 @@ div#top-nav-info-bar {
 
         document.getElementById('event_detailsSection').style.display =
           showEventDetails ? 'block' : 'none';
+
+        document.getElementById('emailDetailsSection').style.display =
+          showEmailDetails ? 'block' : 'none';
 
         document.getElementById('itemsSection').style.display = showItems
           ? 'block'
@@ -1614,6 +1642,7 @@ div#top-nav-info-bar {
         const showEventDetails = shouldShowEventDetails(selectedTypes);
         const showItems = shouldShowItems(selectedTypes);
         const showDiscountCodes = shouldShowDiscountCodes(selectedTypes);
+        const showEmailDetails = shouldShowEmailDetails(selectedTypes);
 
         document.getElementById('raisersEdgeSection').style.display =
           showRaisersEdge ? 'block' : 'none';
@@ -1623,6 +1652,9 @@ div#top-nav-info-bar {
 
         document.getElementById('event_detailsSection').style.display =
           showEventDetails ? 'block' : 'none';
+
+        document.getElementById('emailDetailsSection').style.display =
+          showEmailDetails ? 'block' : 'none';
 
         document.getElementById('itemsSection').style.display = showItems
           ? 'block'
@@ -1991,6 +2023,22 @@ div#top-nav-info-bar {
         } else {
           // Clear Event Details if section is not visible
           data.event_details = null;
+        }
+
+        // Email Details - collect if section is visible
+        const emailDetailsSection = document.getElementById(
+          'emailDetailsSection'
+        );
+        if (emailDetailsSection.style.display !== 'none') {
+          data.email_details = {
+            desired_send_date:
+              document.querySelector(
+                '[data-field="email_details.desired_send_date"] input'
+              ).value || '',
+          };
+        } else {
+          // Clear Email Details if section is not visible
+          data.email_details = null;
         }
 
         // Items - collect if section is visible
