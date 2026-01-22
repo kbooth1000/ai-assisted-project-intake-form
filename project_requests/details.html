@@ -47,13 +47,13 @@
         font-size: 22px;
       }
 
-div#top-nav-info-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 1rem;
-}
+      div#top-nav-info-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1rem;
+      }
 
       .subtitle {
         color: #666;
@@ -270,20 +270,20 @@ div#top-nav-info-bar {
       }
 
       /* Section Styles */
-.section {
-    margin-top: 30px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border-top: 4px solid hsl(133.7deg 61.35% 40.59% / 49%);
-}
+      .section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-top: 4px solid hsl(133.7deg 61.35% 40.59% / 49%);
+      }
 
-.section-title {
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 10px;
-    font-weight: 600;
-}
+      .section-title {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
 
       div#adminSection {
         padding: 1rem;
@@ -597,13 +597,12 @@ div#top-nav-info-bar {
   </head>
   <body>
     <div class="container">
-
-<div id="top-nav-info-bar">
-      <a
-        href="/site/SPageNavigator/project_requests/projects_list.html"
-        class="back-link"
-        >&#8592; Back to Projects</a
-      >
+      <div id="top-nav-info-bar">
+        <a
+          href="/site/SPageNavigator/project_requests/projects_list.html"
+          class="back-link"
+          >&#8592; Back to Projects</a
+        >
 
         <div
           class="user-info"
@@ -616,8 +615,7 @@ div#top-nav-info-bar {
           <span class="user-email" id="userEmail">Loading...</span>
           <button onclick="logout()" class="btn-logout">Log Out</button>
         </div>
- </div>
-
+      </div>
 
       <div id="loadingState" class="loading-state">
         <div class="loading-spinner"></div>
@@ -630,9 +628,7 @@ div#top-nav-info-bar {
       </div>
 
       <div id="projectContent" style="display: none">
-     
-
-<!-- User Info Bar -->
+        <!-- User Info Bar -->
 
         <h1 id="project_title">Project Details</h1>
         <p class="subtitle" id="subtitle">
@@ -1292,19 +1288,18 @@ div#top-nav-info-bar {
           const taContent = ta.value;
           ta.textContent = taContent;
           ta.style.height = '40px'; // Reset height to recalculate
-          console.log('textarea:', ta.textContent, ta.scrollHeight);
+          // console.log('textarea:', ta.textContent, ta.scrollHeight);
           ta.style.height = ta.scrollHeight + 'px'; // Set to scrollHeight
         };
 
         if (textareas.length > 0) {
           textareas.forEach((textarea) => {
             textarea.addEventListener('keyup', () => {
-              console.log('tA-KEYUP');
               resetTextareaHeight(textarea);
             });
 
             textarea.addEventListener('change', () => {
-              console.log('tA-CHANGE');
+              // console.log('tA-CHANGE');
               resetTextareaHeight(textarea);
             });
 
@@ -1360,7 +1355,7 @@ div#top-nav-info-bar {
           // Compare each property of admin_data
           const adminKeys = new Set([
             ...Object.keys(currentValue || {}),
-            ...Object.keys(originalValue || {})
+            ...Object.keys(originalValue || {}),
           ]);
 
           for (const adminKey of adminKeys) {
@@ -1368,10 +1363,14 @@ div#top-nav-info-bar {
             const orig = originalValue[adminKey];
 
             // Normalize null, undefined, and empty string to null for comparison
-            const normalizedCurr = (curr === '' || curr === undefined) ? null : curr;
-            const normalizedOrig = (orig === '' || orig === undefined) ? null : orig;
+            const normalizedCurr =
+              curr === '' || curr === undefined ? null : curr;
+            const normalizedOrig =
+              orig === '' || orig === undefined ? null : orig;
 
-            if (JSON.stringify(normalizedCurr) !== JSON.stringify(normalizedOrig)) {
+            if (
+              JSON.stringify(normalizedCurr) !== JSON.stringify(normalizedOrig)
+            ) {
               return false;
             }
           }
@@ -1387,7 +1386,10 @@ div#top-nav-info-bar {
         if (!projectData) {
           // New project, any data is a change
           const formData = collectFormData();
-          const hasAnyData = formData.project_name || formData.foundation_team || formData.project_types.length > 0;
+          const hasAnyData =
+            formData.project_name ||
+            formData.foundation_team ||
+            formData.project_types.length > 0;
           return hasAnyData;
         }
 
@@ -2108,7 +2110,10 @@ div#top-nav-info-bar {
           // Helper function to normalize empty values
           const normalizeValue = (value, originalValue) => {
             // If the value is empty string and original was null/undefined, keep it as null
-            if (value === '' && (originalValue === null || originalValue === undefined)) {
+            if (
+              value === '' &&
+              (originalValue === null || originalValue === undefined)
+            ) {
               return null;
             }
             // If the value is 'Select' and original was not 'Select', revert to original
@@ -2121,53 +2126,60 @@ div#top-nav-info-bar {
           const originalAdmin = projectData?.admin_data || {};
 
           data.admin_data = {
-            assigned_to:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.assigned_to"] select').value,
-                originalAdmin.assigned_to
-              ),
-            date_assigned:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.date_assigned"] input').value,
-                originalAdmin.date_assigned
-              ),
-            status:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.status"] select').value,
-                originalAdmin.status
-              ),
+            assigned_to: normalizeValue(
+              document.querySelector(
+                '[data-field="admin_data.assigned_to"] select'
+              ).value,
+              originalAdmin.assigned_to
+            ),
+            date_assigned: normalizeValue(
+              document.querySelector(
+                '[data-field="admin_data.date_assigned"] input'
+              ).value,
+              originalAdmin.date_assigned
+            ),
+            status: normalizeValue(
+              document.querySelector('[data-field="admin_data.status"] select')
+                .value,
+              originalAdmin.status
+            ),
             ds_validated:
               document.getElementById('ds_validated').checked || false,
-            contact_form_id:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.contact_form_id"] input').value,
-                originalAdmin.contact_form_id
-              ),
-            event_registration_form_id:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.event_registration_form_id"] input').value,
-                originalAdmin.event_registration_form_id
-              ),
-            donation_form_id:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.donation_form_id"] input').value,
-                originalAdmin.donation_form_id
-              ),
-            p2p_id:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.p2p_id"] input').value,
-                originalAdmin.p2p_id
-              ),
-            estore_id:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.estore_id"] input').value,
-                originalAdmin.estore_id
-              ),
-            admin_comments:
-              normalizeValue(
-                document.querySelector('[data-field="admin_data.admin_comments"] textarea').value,
-                originalAdmin.admin_comments
-              ),
+            contact_form_id: normalizeValue(
+              document.querySelector(
+                '[data-field="admin_data.contact_form_id"] input'
+              ).value,
+              originalAdmin.contact_form_id
+            ),
+            event_registration_form_id: normalizeValue(
+              document.querySelector(
+                '[data-field="admin_data.event_registration_form_id"] input'
+              ).value,
+              originalAdmin.event_registration_form_id
+            ),
+            donation_form_id: normalizeValue(
+              document.querySelector(
+                '[data-field="admin_data.donation_form_id"] input'
+              ).value,
+              originalAdmin.donation_form_id
+            ),
+            p2p_id: normalizeValue(
+              document.querySelector('[data-field="admin_data.p2p_id"] input')
+                .value,
+              originalAdmin.p2p_id
+            ),
+            estore_id: normalizeValue(
+              document.querySelector(
+                '[data-field="admin_data.estore_id"] input'
+              ).value,
+              originalAdmin.estore_id
+            ),
+            admin_comments: normalizeValue(
+              document.querySelector(
+                '[data-field="admin_data.admin_comments"] textarea'
+              ).value,
+              originalAdmin.admin_comments
+            ),
           };
         } else {
           data.admin_data = projectData?.admin_data || null;
@@ -2191,27 +2203,43 @@ div#top-nav-info-bar {
         return errors;
       }
 
-      sendEmailNotification = function (formData) {
+      sendEmailNotification = function (formData, originalData) {
+        console.log(
+          'Preparing to send email notification with form data:',
+          formData
+        );
 
-        console.log('Preparing to send email notification with form data:', formData);
+        // Helper function to add indicator if value changed
+        const addIndicatorIfChanged = (newValue, originalValue) => {
+          const newVal = newValue || '';
+          const origVal = originalValue || '';
+
+          if (newVal !== origVal) {
+            return '🔸' + newVal + '🔸';
+          }
+          return newVal;
+        };
+
+
+        console.log('Project Data for comparison:', {originalData}, {formData});
         const emailFormData = {
-          projectName: '&#128992;' + formData.project_name || '',
-          teamName: formData.foundation_team || '',
-          eventDate: formData.event_details?.event_date || '',
-          eventTime: formData.event_details?.event_time || '',
-          goLiveDate: formData.event_details?.go_live_date || '',
-          shutoffDate: formData.event_details?.ticket_cutoff_date || '',
-          eventTitle: formData.project_name || '',
-          eventDescription: formData.event_details?.event_description || '',
-          reFund: formData.raisers_edge_info?.fund || '',
-          reAppeal: formData.raisers_edge_info?.appeal || '',
-          rePackage: formData.raisers_edge_info?.package || '',
-          confirmationPage: formData.confirmation_content?.confirmation_text || '',
-          confirmationEmail: formData.confirmation_content?.confirmation_text || '',
-          closedContent: formData.confirmation_content?.closed_page_text || '',
+          projectName: addIndicatorIfChanged(formData.project_name, originalData?.project_name),
+          teamName: addIndicatorIfChanged(formData.foundation_team, originalData?.foundation_team),
+          eventDate: addIndicatorIfChanged(formData.event_details?.event_date, originalData?.event_details?.event_date),
+          eventTime: addIndicatorIfChanged(formData.event_details?.event_time, originalData?.event_details?.event_time),
+          goLiveDate: addIndicatorIfChanged(formData.event_details?.go_live_date, originalData?.event_details?.go_live_date),
+          shutoffDate: addIndicatorIfChanged(formData.event_details?.ticket_cutoff_date, originalData?.event_details?.ticket_cutoff_date),
+          eventTitle: addIndicatorIfChanged(formData.project_name, originalData?.project_name),
+          eventDescription: addIndicatorIfChanged(formData.event_details?.event_description, originalData?.event_details?.event_description),
+          reFund: addIndicatorIfChanged(formData.raisers_edge_info?.fund, originalData?.raisers_edge_info?.fund),
+          reAppeal: addIndicatorIfChanged(formData.raisers_edge_info?.appeal, originalData?.raisers_edge_info?.appeal),
+          rePackage: addIndicatorIfChanged(formData.raisers_edge_info?.package, originalData?.raisers_edge_info?.package),
+          confirmationPage: addIndicatorIfChanged(formData.confirmation_content?.confirmation_text, originalData?.confirmation_content?.confirmation_text),
+          confirmationEmail: addIndicatorIfChanged(formData.confirmation_content?.confirmation_text, originalData?.confirmation_content?.confirmation_text),
+          closedContent: addIndicatorIfChanged(formData.confirmation_content?.closed_page_text, originalData?.confirmation_content?.closed_page_text),
           webAddress: '[need to add short url]',
-          additionalComments: formData.additional_comments || '',
-          projectTypes: formData.project_types?.join(', ') || '',
+          additionalComments: addIndicatorIfChanged(formData.additional_comments, originalData?.additional_comments),
+          projectTypes: addIndicatorIfChanged(formData.project_types?.join(', '), originalData?.project_types?.join(', ')),
           reNotApply: '[need to add does re info not apply]',
         };
 
@@ -2229,13 +2257,18 @@ div#top-nav-info-bar {
       async function saveProject() {
         const formData = collectFormData();
         console.log('Form Data to save:', formData);
-        sendEmailNotification(formData);
+
+        // Capture original data before it gets updated
+        const originalData = projectData ? JSON.parse(JSON.stringify(projectData)) : null;
+
         // Validate
         const errors = validateFormData(formData);
         if (errors.length > 0) {
           showErrorMessage('Validation errors: ' + errors.join(', '));
           return;
         }
+
+        // sendEmailNotification(formData);
 
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.disabled = true;
@@ -2248,7 +2281,9 @@ div#top-nav-info-bar {
           if (isNewProject) {
             // Create new project
             // Get the current authenticated user
-            const { data: { user } } = await supabase.auth.getUser();
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
 
             if (!user) {
               throw new Error('You must be logged in to create a project');
@@ -2311,6 +2346,7 @@ div#top-nav-info-bar {
             showSuccessMessage('Project updated successfully!');
           }
 
+          sendEmailNotification(formData, originalData);
           clearUnsavedStatus();
 
           // Update page title if project name changed
@@ -2429,10 +2465,12 @@ div#top-nav-info-bar {
 
             // Check all keys in current form data
             for (const key in currentFormData) {
-              if (!valuesAreEqual(key, currentFormData[key], projectData[key])) {
+              if (
+                !valuesAreEqual(key, currentFormData[key], projectData[key])
+              ) {
                 differences[key] = {
                   original: projectData[key],
-                  current: currentFormData[key]
+                  current: currentFormData[key],
                 };
               }
             }
@@ -2440,11 +2478,16 @@ div#top-nav-info-bar {
             formDifferences = differences;
             console.log('Changed fields:', differences);
           }
-          
+
           e.preventDefault();
-          
-          console.log('Form differences:', formDifferences, 'length:', Object.keys(formDifferences).length );
-          if (Object.keys(formDifferences).length === 0 ) {
+
+          console.log(
+            'Form differences:',
+            formDifferences,
+            'length:',
+            Object.keys(formDifferences).length
+          );
+          if (Object.keys(formDifferences).length === 0) {
             // No differences found, allow unload
             return;
           } // Show confirmation dialog
