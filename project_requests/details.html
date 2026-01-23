@@ -2243,8 +2243,22 @@
           reNotApply: '[need to add does re info not apply]',
         };
 
+const rowify = (str) => {
+  return str.replaceAll('"', '')
+         .replaceAll('[{', ' -')
+         .replaceAll('}]', '')
+         .replaceAll(',', ', ')
+         .replaceAll(':', ': ').replaceAll('}, {', '\n  -');
+};
+
+        let emailFormData_F = {...emailFormData, eventItems:
+        addIndicatorIfChanged(rowify(JSON.stringify(formData?.items)), rowify(JSON.stringify(originalData?.items)))
+        };
+
+         
+
         emailjs
-          .send('service_cxg4jsj', 'template_bv7hxpe', emailFormData)
+          .send('service_cxg4jsj', 'template_bv7hxpe', emailFormData_F)
           .then(function (response) {
             console.log('EMAIL SUCCESS!', response.status, response.text);
           }),
