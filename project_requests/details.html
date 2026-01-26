@@ -2252,7 +2252,10 @@
         return errors;
       }
 
-      sendEmailNotification = function (formData, originalData) {
+
+
+
+      sendEmailNotification = function (formData, originalData, emailTemplate='template_bv7hxpe') {
         console.log(
           'Preparing to send email notification with form data:',
           formData
@@ -2275,6 +2278,12 @@
           { formData }
         );
         const emailFormData = {
+          projectFormURL: window.location.href,
+          requesterName: addIndicatorIfChanged(
+            formData.admin_data?.requested_by,
+            originalData?.admin_data?.requested_by
+          ),
+          requesterEmail: formData.admin_data?.requester_email,
           projectName: addIndicatorIfChanged(
             formData.project_name,
             originalData?.project_name
@@ -2360,9 +2369,9 @@
             rowify(JSON.stringify(originalData?.items))
           ),
         };
-
+console.log('Final email form data:', {emailFormData_F});
         emailjs
-          .send('service_cxg4jsj', 'template_bv7hxpe', emailFormData_F)
+          .send('service_cxg4jsj', emailTemplate, emailFormData_F)
           .then(function (response) {
             console.log('EMAIL SUCCESS!', response.status, response.text);
           }),
@@ -2466,7 +2475,13 @@
             showSuccessMessage('Project updated successfully!');
           }
 
-          sendEmailNotification(formData, originalData);
+          sendEmailNotification(formData, originalData, 'template_bv7hxpe');
+
+          if(projectData?.admin_data?.status === 'Testing') {
+            console.log('Project is in Testing status, sending test email notification.', {projectData});
+                      sendEmailNotification(formData, originalData, 'template_83wszpl');
+          }
+
           clearUnsavedStatus();
 
           // Update page title if project name changed
