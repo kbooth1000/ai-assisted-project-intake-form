@@ -109,10 +109,19 @@
         margin-bottom: 10px;
       }
 
-      div#raisersEdgeSection .form-group {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
+      div#raisersEdgeSection {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        column-gap: 20px;
+        justify-items: flex-start;
+        align-items: start;
+        justify-content: center;
+        align-content: space-evenly;
+        row-gap: 8px;
+      }
+
+      div#raisersEdgeSection .section-title {
+        grid-column: 1/-1;
       }
 
       label {
@@ -138,6 +147,15 @@
         min-width: 15px;
       }
 
+      input[type='text'],
+      input[type='number'],
+      input[type='date'],
+      input[type='time'],
+      textarea,
+      select {
+        background: #f0fafa;
+      }
+
       select#assigned_to {
         width: 100px;
       }
@@ -159,6 +177,7 @@
         min-height: 10px;
         padding: 10px 0 0;
         vertical-align: middle;
+        color: #333 !important;
       }
 
       textarea:focus,
@@ -271,8 +290,8 @@
 
       /* Section Styles */
       .section {
-        margin-top: 30px;
-        padding: 20px;
+        margin-top: 25px;
+        padding: 20px 20px 10px;
         background: #f8f9fa;
         border-radius: 6px;
         border-top: 4px solid hsl(133.7deg 61.35% 40.59% / 49%);
@@ -446,10 +465,15 @@
       .success-message,
       .error-message {
         display: none;
-        padding: 15px;
         border-radius: 6px;
         margin-bottom: 20px;
         animation: slideIn 0.3s ease;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        padding: 2rem;
       }
 
       .success-message {
@@ -492,10 +516,35 @@
         width: auto;
       }
 
+      input.discount-code {
+        min-width: 90px;
+      }
+
       .discount-type-container {
         display: flex;
         flex-direction: column;
         gap: 8px;
+      }
+
+      .discount-type-container .radio-group {
+        display: flex;
+        width: 150px;
+        min-width: 0;
+        max-width: 150px;
+        gap: 1px;
+      }
+
+      .discount-type-container label {
+        font-weight: 100;
+        font-size: 12px;
+      }
+
+      tbody#discount_codesTableBody td {
+        vertical-align: bottom;
+      }
+
+      tbody#discount_codesTableBody td:last-child {
+        padding-bottom: 1.1rem !important;
       }
 
       .checkbox-list {
@@ -690,6 +739,82 @@
                 </div>
               </div>
             </div>
+
+            <div class="form-group">
+              <label>Project Type(s)</label>
+              <div class="checkbox-group">
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type1"
+                    name="project_type"
+                    value="Contact form/survey"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type1">Contact form/survey</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type2"
+                    name="project_type"
+                    value="Donation form"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type2">Donation form</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type3"
+                    name="project_type"
+                    value="Event registration/ticket form"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type3">Event registration/ticket form</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type4"
+                    name="project_type"
+                    value="P2P site"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type4">P2P site</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type5"
+                    name="project_type"
+                    value="Email send"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type5">Email send</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type6"
+                    name="project_type"
+                    value="E-store"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type6">E-store</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type7"
+                    name="project_type"
+                    value="Web edit (on choa.org)"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type7">Web edit (on choa.org)</label>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Right Column: Admin Section -->
@@ -844,82 +969,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Project Type(s)</label>
-          <div class="checkbox-group">
-            <div class="checkbox-item">
-              <input
-                type="checkbox"
-                id="type1"
-                name="project_type"
-                value="Contact form/survey"
-                onchange="handleProjectTypeChange()"
-              />
-              <label for="type1">Contact form/survey</label>
-            </div>
-            <div class="checkbox-item">
-              <input
-                type="checkbox"
-                id="type2"
-                name="project_type"
-                value="Donation form"
-                onchange="handleProjectTypeChange()"
-              />
-              <label for="type2">Donation form</label>
-            </div>
-            <div class="checkbox-item">
-              <input
-                type="checkbox"
-                id="type3"
-                name="project_type"
-                value="Event registration/ticket form"
-                onchange="handleProjectTypeChange()"
-              />
-              <label for="type3">Event registration/ticket form</label>
-            </div>
-            <div class="checkbox-item">
-              <input
-                type="checkbox"
-                id="type4"
-                name="project_type"
-                value="P2P site"
-                onchange="handleProjectTypeChange()"
-              />
-              <label for="type4">P2P site</label>
-            </div>
-            <div class="checkbox-item">
-              <input
-                type="checkbox"
-                id="type5"
-                name="project_type"
-                value="Email send"
-                onchange="handleProjectTypeChange()"
-              />
-              <label for="type5">Email send</label>
-            </div>
-            <div class="checkbox-item">
-              <input
-                type="checkbox"
-                id="type6"
-                name="project_type"
-                value="E-store"
-                onchange="handleProjectTypeChange()"
-              />
-              <label for="type6">E-store</label>
-            </div>
-            <div class="checkbox-item">
-              <input
-                type="checkbox"
-                id="type7"
-                name="project_type"
-                value="Web edit (on choa.org)"
-                onchange="handleProjectTypeChange()"
-              />
-              <label for="type7">Web edit (on choa.org)</label>
             </div>
           </div>
         </div>
@@ -1599,7 +1648,7 @@
         const showEmailDetails = shouldShowEmailDetails(data.project_types);
 
         document.getElementById('raisersEdgeSection').style.display =
-          showRaisersEdge ? 'block' : 'none';
+          showRaisersEdge ? 'grid' : 'none';
 
         document.getElementById('confirmationSection').style.display =
           showConfirmation ? 'block' : 'none';
@@ -1647,7 +1696,7 @@
         const showEmailDetails = shouldShowEmailDetails(selectedTypes);
 
         document.getElementById('raisersEdgeSection').style.display =
-          showRaisersEdge ? 'block' : 'none';
+          showRaisersEdge ? 'grid' : 'none';
 
         document.getElementById('confirmationSection').style.display =
           showConfirmation ? 'block' : 'none';
@@ -2220,42 +2269,97 @@
           return newVal;
         };
 
-
-        console.log('Project Data for comparison:', {originalData}, {formData});
+        console.log(
+          'Project Data for comparison:',
+          { originalData },
+          { formData }
+        );
         const emailFormData = {
-          projectName: addIndicatorIfChanged(formData.project_name, originalData?.project_name),
-          teamName: addIndicatorIfChanged(formData.foundation_team, originalData?.foundation_team),
-          eventDate: addIndicatorIfChanged(formData.event_details?.event_date, originalData?.event_details?.event_date),
-          eventTime: addIndicatorIfChanged(formData.event_details?.event_time, originalData?.event_details?.event_time),
-          goLiveDate: addIndicatorIfChanged(formData.event_details?.go_live_date, originalData?.event_details?.go_live_date),
-          shutoffDate: addIndicatorIfChanged(formData.event_details?.ticket_cutoff_date, originalData?.event_details?.ticket_cutoff_date),
-          eventTitle: addIndicatorIfChanged(formData.project_name, originalData?.project_name),
-          eventDescription: addIndicatorIfChanged(formData.event_details?.event_description, originalData?.event_details?.event_description),
-          reFund: addIndicatorIfChanged(formData.raisers_edge_info?.fund, originalData?.raisers_edge_info?.fund),
-          reAppeal: addIndicatorIfChanged(formData.raisers_edge_info?.appeal, originalData?.raisers_edge_info?.appeal),
-          rePackage: addIndicatorIfChanged(formData.raisers_edge_info?.package, originalData?.raisers_edge_info?.package),
-          confirmationPage: addIndicatorIfChanged(formData.confirmation_content?.confirmation_text, originalData?.confirmation_content?.confirmation_text),
-          confirmationEmail: addIndicatorIfChanged(formData.confirmation_content?.confirmation_text, originalData?.confirmation_content?.confirmation_text),
-          closedContent: addIndicatorIfChanged(formData.confirmation_content?.closed_page_text, originalData?.confirmation_content?.closed_page_text),
+          projectName: addIndicatorIfChanged(
+            formData.project_name,
+            originalData?.project_name
+          ),
+          teamName: addIndicatorIfChanged(
+            formData.foundation_team,
+            originalData?.foundation_team
+          ),
+          eventDate: addIndicatorIfChanged(
+            formData.event_details?.event_date,
+            originalData?.event_details?.event_date
+          ),
+          eventTime: addIndicatorIfChanged(
+            formData.event_details?.event_time,
+            originalData?.event_details?.event_time
+          ),
+          goLiveDate: addIndicatorIfChanged(
+            formData.event_details?.go_live_date,
+            originalData?.event_details?.go_live_date
+          ),
+          shutoffDate: addIndicatorIfChanged(
+            formData.event_details?.ticket_cutoff_date,
+            originalData?.event_details?.ticket_cutoff_date
+          ),
+          eventTitle: addIndicatorIfChanged(
+            formData.project_name,
+            originalData?.project_name
+          ),
+          eventDescription: addIndicatorIfChanged(
+            formData.event_details?.event_description,
+            originalData?.event_details?.event_description
+          ),
+          reFund: addIndicatorIfChanged(
+            formData.raisers_edge_info?.fund,
+            originalData?.raisers_edge_info?.fund
+          ),
+          reAppeal: addIndicatorIfChanged(
+            formData.raisers_edge_info?.appeal,
+            originalData?.raisers_edge_info?.appeal
+          ),
+          rePackage: addIndicatorIfChanged(
+            formData.raisers_edge_info?.package,
+            originalData?.raisers_edge_info?.package
+          ),
+          confirmationPage: addIndicatorIfChanged(
+            formData.confirmation_content?.confirmation_text,
+            originalData?.confirmation_content?.confirmation_text
+          ),
+          confirmationEmail: addIndicatorIfChanged(
+            formData.confirmation_content?.confirmation_text,
+            originalData?.confirmation_content?.confirmation_text
+          ),
+          closedContent: addIndicatorIfChanged(
+            formData.confirmation_content?.closed_page_text,
+            originalData?.confirmation_content?.closed_page_text
+          ),
           webAddress: '[need to add short url]',
-          additionalComments: addIndicatorIfChanged(formData.additional_comments, originalData?.additional_comments),
-          projectTypes: addIndicatorIfChanged(formData.project_types?.join(', '), originalData?.project_types?.join(', ')),
+          additionalComments: addIndicatorIfChanged(
+            formData.additional_comments,
+            originalData?.additional_comments
+          ),
+          projectTypes: addIndicatorIfChanged(
+            formData.project_types?.join(', '),
+            originalData?.project_types?.join(', ')
+          ),
           reNotApply: '[need to add does re info not apply]',
         };
 
-const rowify = (str) => {
-  return str.replaceAll('"', '')
-         .replaceAll('[{', ' -')
-         .replaceAll('}]', '')
-         .replaceAll(',', ', ')
-         .replaceAll(':', ': ').replaceAll('}, {', '\n  -');
-};
-
-        let emailFormData_F = {...emailFormData, eventItems:
-        addIndicatorIfChanged(rowify(JSON.stringify(formData?.items)), rowify(JSON.stringify(originalData?.items)))
+        const rowify = (str) => {
+          return str
+            .replaceAll('"', '')
+            .replaceAll('[{', ' -')
+            .replaceAll('}]', '')
+            .replaceAll(',', ', ')
+            .replaceAll(':', ': ')
+            .replaceAll('}, {', '\n  -');
         };
 
-         
+        let emailFormData_F = {
+          ...emailFormData,
+          eventItems: addIndicatorIfChanged(
+            rowify(JSON.stringify(formData?.items)),
+            rowify(JSON.stringify(originalData?.items))
+          ),
+        };
 
         emailjs
           .send('service_cxg4jsj', 'template_bv7hxpe', emailFormData_F)
@@ -2273,7 +2377,9 @@ const rowify = (str) => {
         console.log('Form Data to save:', formData);
 
         // Capture original data before it gets updated
-        const originalData = projectData ? JSON.parse(JSON.stringify(projectData)) : null;
+        const originalData = projectData
+          ? JSON.parse(JSON.stringify(projectData))
+          : null;
 
         // Validate
         const errors = validateFormData(formData);
