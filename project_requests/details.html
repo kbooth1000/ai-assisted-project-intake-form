@@ -14,6 +14,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        white-space: normal !important;
       }
 
       body {
@@ -130,6 +131,7 @@
         color: #333;
         font-weight: 600;
         font-size: 14px;
+        width: 100%;
       }
 
       input[type='text'],
@@ -154,6 +156,11 @@
       textarea,
       select {
         background: #f0fafa;
+      }
+
+      [data-type='date'] .field-display,
+      [data-type='time'] .field-display {
+        max-width: 11rem !important;
       }
 
       select#assigned_to {
@@ -188,6 +195,10 @@
       /* Editable Field Styles */
       .editable-field {
         position: relative;
+      }
+
+      div#adminSection .form-group .editable-field {
+        width: 100%;
       }
 
       .field-display {
@@ -225,6 +236,17 @@
       .field-display.empty {
         color: #999;
         font-style: italic;
+      }
+
+      div#event_detailsSection {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        column-gap: 1rem;
+        row-gap: 1rem;
+
+        .form-group {
+          max-width: 30% !important;
+        }
       }
 
       .field-edit {
@@ -295,6 +317,10 @@
         background: #f8f9fa;
         border-radius: 6px;
         border-top: 4px solid hsl(133.7deg 61.35% 40.59% / 49%);
+
+        /* display: flex !important; */
+        justify-content: space-between !important;
+        flex-wrap: wrap;
       }
 
       .section-title {
@@ -302,6 +328,11 @@
         color: #333;
         margin-bottom: 10px;
         font-weight: 600;
+        min-width: 100%;
+      }
+
+      .form-group:has([data-type='textarea']) {
+        min-width: 100% !important;
       }
 
       div#adminSection {
@@ -742,7 +773,16 @@
 
             <div class="form-group">
               <label>Requested by</label>
-              <div id="requested_by_display" style="padding: 12px; background: #f8f9fa; border-radius: 6px; font-size: 14px; color: #666;">
+              <div
+                id="requested_by_display"
+                style="
+                  padding: 12px;
+                  background: #f8f9fa;
+                  border-radius: 6px;
+                  font-size: 14px;
+                  color: #666;
+                "
+              >
                 Loading...
               </div>
             </div>
@@ -1107,6 +1147,18 @@
               </div>
             </div>
           </div>
+
+<div class="form-group" style="max-width: 60%;">
+            <span style="
+    font-size: 14px;
+    font-style: italic;
+    color: #333;
+">The person assigned will contact you regarding email content and audience.</span>
+          </div>
+
+
+
+
         </div>
 
         <!-- Items Section -->
@@ -1480,7 +1532,7 @@
       // Fetch requester name from org_members table
       async function fetchRequesterInfo(requestedByUuid) {
         if (!requestedByUuid) {
-          return 'Unknown';
+          return ['Unknown', 'Unknown'];
         }
 
         try {
@@ -1492,17 +1544,17 @@
 
           if (error) {
             console.log('Error fetching requester:', error);
-            return ['Unknown','Unknown'];
+            return ['Unknown', 'Unknown'];
           }
 
           if (data && data.first_name && data.last_name) {
-            return [  data.first_name + ' ' + data.last_name, data.user_email ];
+            return [data.first_name + ' ' + data.last_name, data.user_email];
           }
 
-          return ['Unknown','Unknown'];
+          return ['Unknown', 'Unknown'];
         } catch (error) {
           console.error('Error fetching requester name:', error);
-          return ['Unknown','Unknown'];
+          return ['Unknown', 'Unknown'];
         }
       }
 
@@ -1537,7 +1589,9 @@
         // Get current user to set as requester
         let currentUserId = null;
         try {
-          const { data: { user } } = await supabase.auth.getUser();
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
           if (user && user.email) {
             // Look up user_id from org_members table using email
             const { data: orgMember, error } = await supabase
@@ -1644,7 +1698,9 @@
         document.title = (data.project_name || 'Project') + ' - Details';
 
         // Fetch and display requester name
-        const requesterDisplay = document.getElementById('requested_by_display');
+        const requesterDisplay = document.getElementById(
+          'requested_by_display'
+        );
         if (data.requested_by) {
           const requesterInfo = await fetchRequesterInfo(data.requested_by);
           const requesterName = requesterInfo[0];
@@ -1719,13 +1775,13 @@
           showRaisersEdge ? 'grid' : 'none';
 
         document.getElementById('confirmationSection').style.display =
-          showConfirmation ? 'block' : 'none';
+          showConfirmation ? 'flex' : 'none';
 
         document.getElementById('event_detailsSection').style.display =
-          showEventDetails ? 'block' : 'none';
+          showEventDetails ? 'flex' : 'none';
 
         document.getElementById('emailDetailsSection').style.display =
-          showEmailDetails ? 'block' : 'none';
+          showEmailDetails ? 'flex' : 'none';
 
         document.getElementById('itemsSection').style.display = showItems
           ? 'block'
@@ -1767,13 +1823,13 @@
           showRaisersEdge ? 'grid' : 'none';
 
         document.getElementById('confirmationSection').style.display =
-          showConfirmation ? 'block' : 'none';
+          showConfirmation ? 'flex' : 'none';
 
         document.getElementById('event_detailsSection').style.display =
-          showEventDetails ? 'block' : 'none';
+          showEventDetails ? 'flex' : 'none';
 
         document.getElementById('emailDetailsSection').style.display =
-          showEmailDetails ? 'block' : 'none';
+          showEmailDetails ? 'flex' : 'none';
 
         document.getElementById('itemsSection').style.display = showItems
           ? 'block'
@@ -2326,10 +2382,11 @@
         return errors;
       }
 
-
-
-
-      sendEmailNotification = async function (formData, originalData, emailTemplate='template_bv7hxpe') {
+      sendEmailNotification = async function (
+        formData,
+        originalData,
+        emailTemplate = 'template_bv7hxpe'
+      ) {
         console.log(
           'Preparing to send email notification with form data:',
           formData
@@ -2341,7 +2398,7 @@
           const origVal = originalValue || '';
 
           if (newVal !== origVal) {
-            return '🔸' + newVal + '🔸';
+            return '&#128312;' + newVal + '&#128312;';
           }
           return newVal;
         };
@@ -2444,7 +2501,7 @@
             rowify(JSON.stringify(originalData?.items))
           ),
         };
-console.log('Final email form data:', {emailFormData_F});
+        console.log('Final email form data:', { emailFormData_F });
         emailjs
           .send('service_cxg4jsj', emailTemplate, emailFormData_F)
           .then(function (response) {
@@ -2471,7 +2528,6 @@ console.log('Final email form data:', {emailFormData_F});
           showErrorMessage('Validation errors: ' + errors.join(', '));
           return;
         }
-
 
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.disabled = true;
@@ -2549,11 +2605,22 @@ console.log('Final email form data:', {emailFormData_F});
             showSuccessMessage('Project updated successfully!');
           }
 
-          await sendEmailNotification(formData, originalData, 'template_bv7hxpe');
+          await sendEmailNotification(
+            formData,
+            originalData,
+            'template_bv7hxpe'
+          );
 
-          if(projectData?.admin_data?.status === 'Testing') {
-            console.log('Project is in Testing status, sending test email notification.', {projectData});
-                      await sendEmailNotification(formData, originalData, 'template_83wszpl');
+          if (projectData?.admin_data?.status === 'Testing') {
+            console.log(
+              'Project is in Testing status, sending test email notification.',
+              { projectData }
+            );
+            await sendEmailNotification(
+              formData,
+              originalData,
+              'template_83wszpl'
+            );
           }
 
           clearUnsavedStatus();
@@ -2749,7 +2816,6 @@ console.log('Final email form data:', {emailFormData_F});
                 opt.textContent = fullName;
                 assignedToSelect.appendChild(opt);
               });
-              
             }
           } catch (error) {
             console.error('Error loading org members:', error);
