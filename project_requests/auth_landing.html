@@ -1,73 +1,243 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <title>Sign in...</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-</head>
-<body>
-      <!-- Status & button -->
-<div id="magic-container" style="max-width:600px;margin:24px auto;padding:16px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;">
-  <p id="magic-message">Click the button below to complete sign in.</p>
-  <button id="magic-button" style="background:#2563eb;color:#fff;padding:10px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer;">
-    Complete sign in
-  </button>
-</div>
-
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-    // Replace these with your project values
-    const SUPABASE_URL = 'https://svzlfpqdarhwfyznrhyg.supabase.co';
-    const SUPABASE_ANON_KEY = 
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w';
-
-
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  // Helpers
-  const params = new URLSearchParams(window.location.search);
-  const token_hash = params.get('token_hash');
-  const type = params.get('type') || 'email';
-  const redirect_to = params.get('redirect_to') || '/';
-
-  const messageEl = document.getElementById('magic-message');
-  const buttonEl = document.getElementById('magic-button');
-
-  if (!token_hash) {
-    if (messageEl) messageEl.textContent = 'No token found in the URL. Please open the link from your email.';
-    if (buttonEl) buttonEl.disabled = true;
-  }
-
-  buttonEl?.addEventListener('click', async (e) => {
-    if (!token_hash) return;
-    buttonEl.disabled = true;
-    if (messageEl) messageEl.textContent = 'Verifying...';
-
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        token_hash,
-        type, // usually 'email'
-      });
-
-      if (error) {
-        console.error('verifyOtp error', error);
-        if (messageEl) messageEl.textContent = `Verification failed: ${error.message}`;
-        buttonEl.disabled = false;
-        return;
+  <head>
+    <meta charset="utf-8" />
+    <title>Sign in...</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
 
-      // Success: session is set by supabase-js (localStorage). Redirect user.
-      if (messageEl) messageEl.textContent = 'Sign-in successful. Redirecting&#8230;';
-      // Small delay for UX so user sees the success message
-      setTimeout(() => {
-        window.location.href = redirect_to;
-      }, 600);
-    } catch (err) {
-      console.error('Unexpected error', err);
-      if (messageEl) messageEl.textContent = 'Unexpected error during verification.';
-      buttonEl.disabled = false;
-    }
-  });
-</script>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-image: linear-gradient(
+          to top,
+          green,
+          #a2dc39,
+          #8bc34a,
+          #4caf50,
+          #22962c
+        );
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      #login-container {
+        max-width: 400px;
+        width: 100%;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 28px;
+        text-align: center;
+      }
+
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-primary:disabled {
+        background: #aaa;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .message {
+        display: none;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        animation: slideIn 0.3s ease;
+      }
+
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .message.show {
+        display: block;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .info-text {
+        color: #666;
+        font-size: 13px;
+        margin-top: 15px;
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      .icon {
+        font-size: 48px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .login-container {
+          padding: 30px 20px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Status & button -->
+    <div id="login-container">
+      <h1>Click the button below</h1>
+      <span>to complete sign in</span>
+      <button
+        id="magic-button"
+        style="
+          background: #2563eb;
+          color: #fff;
+          padding: 10px 16px;
+          border-radius: 8px;
+          border: none;
+          font-weight: 600;
+          cursor: pointer;
+        "
+      >
+        <h2>Click here</h2>
+        to complete sign in
+      </button>
+    </div>
+
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+      const SUPABASE_URL = 'https://svzlfpqdarhwfyznrhyg.supabase.co';
+      const SUPABASE_ANON_KEY =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w';
+
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // Helpers
+      const params = new URLSearchParams(window.location.search);
+      const token_hash = params.get('token_hash');
+      const type = params.get('type') || 'email';
+      const redirect_to = params.get('redirect_to') || '/';
+
+      const messageEl = document.getElementById('magic-message');
+      const buttonEl = document.getElementById('magic-button');
+
+      if (!token_hash) {
+        if (messageEl)
+          messageEl.textContent =
+            'No token found in the URL. Please open the link from your email.';
+        if (buttonEl) buttonEl.disabled = true;
+      }
+
+      buttonEl?.addEventListener('click', async (e) => {
+        if (!token_hash) return;
+        buttonEl.disabled = true;
+        if (messageEl) messageEl.textContent = 'Verifying...';
+
+        try {
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash,
+            type, // usually 'email'
+          });
+
+          if (error) {
+            console.error('verifyOtp error', error);
+            if (messageEl)
+              messageEl.textContent = `Verification failed: ${error.message}`;
+            buttonEl.disabled = false;
+            return;
+          }
+
+          // Success: session is set by supabase-js (localStorage). Redirect user.
+          if (messageEl)
+            messageEl.textContent = 'Sign-in successful. Redirecting&#8230;';
+          // Small delay for UX so user sees the success message
+          setTimeout(() => {
+            window.location.href = redirect_to;
+          }, 600);
+        } catch (err) {
+          console.error('Unexpected error', err);
+          if (messageEl)
+            messageEl.textContent = 'Unexpected error during verification.';
+          buttonEl.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
