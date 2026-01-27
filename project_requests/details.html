@@ -741,6 +741,13 @@
             </div>
 
             <div class="form-group">
+              <label>Requested by</label>
+              <div id="requested_by_display" style="padding: 12px; background: #f8f9fa; border-radius: 6px; font-size: 14px; color: #666;">
+                Loading...
+              </div>
+            </div>
+
+            <div class="form-group">
               <label>Project Type(s)</label>
               <div class="checkbox-group">
                 <div class="checkbox-item">
@@ -1470,6 +1477,35 @@
         target[last] = value;
       }
 
+      // Fetch requester name from org_members table
+      async function fetchRequesterName(requestedByUuid) {
+        if (!requestedByUuid) {
+          return 'Unknown';
+        }
+
+        try {
+          const { data, error } = await supabase
+            .from('org_members')
+            .select('first_name, last_name')
+            .eq('user_id', requestedByUuid)
+            .single();
+
+          if (error) {
+            console.log('Error fetching requester:', error);
+            return 'Unknown';
+          }
+
+          if (data && data.first_name && data.last_name) {
+            return `${data.first_name} ${data.last_name}`;
+          }
+
+          return 'Unknown';
+        } catch (error) {
+          console.error('Error fetching requester name:', error);
+          return 'Unknown';
+        }
+      }
+
       // Fetch project from Supabase
       async function fetchProject(id) {
         console.log('Supabase URL:', supabaseConfig.url);
@@ -1486,7 +1522,7 @@
           if (!data) throw new Error('Project not found');
 
           projectData = data;
-          renderProject(data);
+          await renderProject(data);
           showContent();
         } catch (error) {
           console.error('Error fetching project:', error);
@@ -1495,8 +1531,29 @@
       }
 
       // Initialize new project
-      function initNewProject() {
+      async function initNewProject() {
         isNewProject = true;
+
+        // Get current user to set as requester
+        let currentUserId = null;
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user && user.email) {
+            // Look up user_id from org_members table using email
+            const { data: orgMember, error } = await supabase
+              .from('org_members')
+              .select('user_id')
+              .eq('user_email', user.email)
+              .single();
+
+            if (!error && orgMember) {
+              currentUserId = orgMember.user_id;
+            }
+          }
+        } catch (error) {
+          console.error('Error getting current user for requester:', error);
+        }
+
         projectData = {
           project_name: '',
           foundation_team: '',
@@ -1509,6 +1566,7 @@
           discount_codes: null,
           additional_comments: '',
           admin_data: null,
+          requested_by: currentUserId,
         };
 
         document.getElementById('project_title').textContent =
@@ -1518,7 +1576,7 @@
         document.getElementById('saveBtn').textContent = 'Create Project';
         document.getElementById('discardBtn').textContent = 'Cancel';
 
-        renderProject(projectData);
+        await renderProject(projectData);
         showContent();
       }
 
@@ -1579,11 +1637,20 @@
       }
 
       // Render project data
-      function renderProject(data) {
+      async function renderProject(data) {
         // Set page title
         document.getElementById('project_title').textContent =
           data.project_name || 'Project Details';
         document.title = (data.project_name || 'Project') + ' - Details';
+
+        // Fetch and display requester name
+        const requesterDisplay = document.getElementById('requested_by_display');
+        if (data.requested_by) {
+          const requesterName = await fetchRequesterName(data.requested_by);
+          requesterDisplay.textContent = requesterName;
+        } else {
+          requesterDisplay.textContent = 'Unknown';
+        }
 
         // Show/hide admin section based on URL parameter
         if (isAdminMode()) {
@@ -2234,6 +2301,11 @@
           data.admin_data = projectData?.admin_data || null;
         }
 
+        // Only include requested_by when creating new projects
+        if (isNewProject && projectData?.requested_by) {
+          data.requested_by = projectData.requested_by;
+        }
+
         return data;
       }
 
@@ -2280,8 +2352,8 @@
         const emailFormData = {
           projectFormURL: window.location.href,
           requesterName: addIndicatorIfChanged(
-            formData.admin_data?.requested_by,
-            originalData?.admin_data?.requested_by
+            formData.requested_by,
+            originalData?.requested_by
           ),
           requesterEmail: formData.admin_data?.requester_email,
           projectName: addIndicatorIfChanged(
@@ -2642,10 +2714,10 @@ console.log('Final email form data:', {emailFormData_F});
 
         if (!projectId || projectId === 'new') {
           // Create new project mode
-          initNewProject();
+          await initNewProject();
         } else {
           // Edit existing project mode
-          fetchProject(projectId);
+          await fetchProject(projectId);
         }
 
         // Fetch organization members from Supabase
@@ -2653,7 +2725,7 @@ console.log('Final email form data:', {emailFormData_F});
           try {
             const { data, error } = await supabase
               .from('org_members')
-              .select('first_name, last_name, role')
+              .select('first_name, last_name, role, user_email, user_id')
               .order('last_name', { ascending: true });
 
             if (error) {
@@ -2675,6 +2747,7 @@ console.log('Final email form data:', {emailFormData_F});
                 opt.textContent = fullName;
                 assignedToSelect.appendChild(opt);
               });
+              
             }
           } catch (error) {
             console.error('Error loading org members:', error);
