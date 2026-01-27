@@ -1478,7 +1478,7 @@
       }
 
       // Fetch requester name from org_members table
-      async function fetchRequesterName(requestedByUuid) {
+      async function fetchRequesterInfo(requestedByUuid) {
         if (!requestedByUuid) {
           return 'Unknown';
         }
@@ -1486,23 +1486,23 @@
         try {
           const { data, error } = await supabase
             .from('org_members')
-            .select('first_name, last_name')
+            .select('first_name, last_name, user_email')
             .eq('user_id', requestedByUuid)
             .single();
 
           if (error) {
             console.log('Error fetching requester:', error);
-            return 'Unknown';
+            return ['Unknown','Unknown'];
           }
 
           if (data && data.first_name && data.last_name) {
-            return `${data.first_name} ${data.last_name}`;
+            return [  data.first_name + ' ' + data.last_name, data.user_email ];
           }
 
-          return 'Unknown';
+          return ['Unknown','Unknown'];
         } catch (error) {
           console.error('Error fetching requester name:', error);
-          return 'Unknown';
+          return ['Unknown','Unknown'];
         }
       }
 
@@ -1646,7 +1646,8 @@
         // Fetch and display requester name
         const requesterDisplay = document.getElementById('requested_by_display');
         if (data.requested_by) {
-          const requesterName = await fetchRequesterName(data.requested_by);
+          const requesterInfo = await fetchRequesterInfo(data.requested_by);
+          const requesterName = requesterInfo[0];
           requesterDisplay.textContent = requesterName;
         } else {
           requesterDisplay.textContent = 'Unknown';
@@ -2059,6 +2060,7 @@
           foundation_team: document.querySelector(
             '[data-field="foundation_team"] select'
           ).value,
+          requested_by: projectData.requested_by || null,
           project_types: Array.from(
             document.querySelectorAll('input[name="project_type"]:checked')
           ).map((cb) => cb.value),
@@ -2327,7 +2329,7 @@
 
 
 
-      sendEmailNotification = function (formData, originalData, emailTemplate='template_bv7hxpe') {
+      sendEmailNotification = async function (formData, originalData, emailTemplate='template_bv7hxpe') {
         console.log(
           'Preparing to send email notification with form data:',
           formData
@@ -2349,13 +2351,14 @@
           { originalData },
           { formData }
         );
+
+        // Fetch the requester's full name from org_members table
+        const requesterInfo = await fetchRequesterInfo(formData.requested_by);
+
         const emailFormData = {
           projectFormURL: window.location.href,
-          requesterName: addIndicatorIfChanged(
-            formData.requested_by,
-            originalData?.requested_by
-          ),
-          requesterEmail: formData.admin_data?.requester_email,
+          requesterName: requesterInfo[0] || 'Unknown',
+          requesterEmail: requesterInfo[1] || 'Unknown',
           projectName: addIndicatorIfChanged(
             formData.project_name,
             originalData?.project_name
@@ -2469,7 +2472,6 @@ console.log('Final email form data:', {emailFormData_F});
           return;
         }
 
-        // sendEmailNotification(formData);
 
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.disabled = true;
@@ -2547,11 +2549,11 @@ console.log('Final email form data:', {emailFormData_F});
             showSuccessMessage('Project updated successfully!');
           }
 
-          sendEmailNotification(formData, originalData, 'template_bv7hxpe');
+          await sendEmailNotification(formData, originalData, 'template_bv7hxpe');
 
           if(projectData?.admin_data?.status === 'Testing') {
             console.log('Project is in Testing status, sending test email notification.', {projectData});
-                      sendEmailNotification(formData, originalData, 'template_83wszpl');
+                      await sendEmailNotification(formData, originalData, 'template_83wszpl');
           }
 
           clearUnsavedStatus();
