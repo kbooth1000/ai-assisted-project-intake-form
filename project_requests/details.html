@@ -296,6 +296,11 @@
         cursor: pointer;
       }
 
+      .checkbox-item label[for='type8'] {
+        width: auto;
+        margin-right: 1rem;
+      }
+
       /* Tags Display */
       .tags-display {
         display: flex;
@@ -902,6 +907,23 @@
                     onchange="handleProjectTypeChange()"
                   />
                   <label for="type7">Web edit (on choa.org)</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type8"
+                    name="project_type"
+                    value="Other"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type8">Content page/other</label>
+                  <input
+                    type="text"
+                    id="other_project_type_description"
+                    placeholder="brief description..."
+                    style="width: 100%;padding: 6px 8px;font-size: 13px;margin-left: 8px;display: none;"
+                    onchange="markUnsaved()"
+                  />
                 </div>
               </div>
             </div>
@@ -1657,6 +1679,7 @@
           items: null,
           discount_codes: null,
           additional_comments: '',
+          other_project_type_description: null,
           admin_data: null,
           requested_by: currentUserId,
         };
@@ -1800,6 +1823,14 @@
         // Render project types
         renderproject_types(data.project_types || []);
 
+        // Populate "Other" description field
+        const otherDescField = document.getElementById(
+          'other_project_type_description',
+        );
+        if (otherDescField && data.other_project_type_description) {
+          otherDescField.value = data.other_project_type_description;
+        }
+
         // Render items
         renderItems(data.items || []);
 
@@ -1846,6 +1877,20 @@
           .forEach((cb) => {
             cb.checked = types.includes(cb.value);
           });
+
+        // Show/hide "Other" description field
+        const otherCheckbox = document.getElementById('type8');
+        const otherDesc = document.getElementById(
+          'other_project_type_description',
+        );
+        if (otherCheckbox && otherDesc) {
+          otherDesc.style.display = otherCheckbox.checked
+            ? 'inline-block'
+            : 'none';
+            otherDesc.style.background = otherCheckbox.checked
+            ? '#fff'
+            : '#e9ecef';
+        }
       }
 
       // Handle project type change
@@ -1853,6 +1898,19 @@
         const selectedTypes = Array.from(
           document.querySelectorAll('input[name="project_type"]:checked'),
         ).map((cb) => cb.value);
+
+        // Show/hide "Other" description field
+        const otherDesc = document.getElementById(
+          'other_project_type_description',
+        );
+        if (otherDesc) {
+          if (selectedTypes.includes('Other')) {
+            otherDesc.style.display = 'inline-block';
+          } else {
+            otherDesc.style.display = 'none';
+            otherDesc.value = '';
+          }
+        }
 
         // Show/hide sections based on selected types
         const showRaisersEdge = shouldShowRaisersEdge(selectedTypes);
@@ -2179,6 +2237,11 @@
           project_types: Array.from(
             document.querySelectorAll('input[name="project_type"]:checked'),
           ).map((cb) => cb.value),
+          other_project_type_description: document.getElementById('type8')
+            ?.checked
+            ? document.getElementById('other_project_type_description')
+                ?.value || ''
+            : null,
         };
 
         // Raiser's Edge Info - collect if section is visible
@@ -2537,8 +2600,14 @@
             originalData?.additional_comments,
           ),
           projectTypes: addIndicatorIfChanged(
-            formData.project_types?.join(', '),
-            originalData?.project_types?.join(', '),
+            formData.project_types?.join(', ') +
+              (formData.other_project_type_description
+                ? ' (' + formData.other_project_type_description + ')'
+                : ''),
+            originalData?.project_types?.join(', ') +
+              (originalData?.other_project_type_description
+                ? ' (' + originalData.other_project_type_description + ')'
+                : ''),
           ),
           projectStatus: addIndicatorIfChanged(
             formData.admin_data?.status,
@@ -2704,7 +2773,8 @@
             showSuccessMessage('Project updated successfully!');
           }
 
-          const isTestMode = new URLSearchParams(window.location.search).get('test') === 'test';
+          const isTestMode =
+            new URLSearchParams(window.location.search).get('test') === 'test';
 
           if (isTestMode) {
             console.log('Test mode enabled — skipping email notifications.');
@@ -2733,7 +2803,9 @@
                 { originalData },
                 { projectData },
               );
-              document.querySelector('[data-field="admin_data.status"] .field-display').style.color='#d9534f';
+              document.querySelector(
+                '[data-field="admin_data.status"] .field-display',
+              ).style.color = '#d9534f';
 
               await sendEmailNotification(
                 formData,
