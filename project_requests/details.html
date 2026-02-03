@@ -1678,6 +1678,7 @@
           'P2P site',
           'Event registration/ticket form',
           'Donation form',
+          'E-store',
         ];
         return (
           projectTypes && projectTypes.some((type) => reTypes.includes(type))
@@ -2695,36 +2696,42 @@
             showSuccessMessage('Project updated successfully!');
           }
 
-          await sendEmailNotification(
-            formData,
-            originalData,
-            'template_bv7hxpe',
-          );
+          const isTestMode = new URLSearchParams(window.location.search).get('test') === 'test';
 
-          if (
-            projectData?.admin_data?.status === 'Development' &&
-            originalData?.admin_data?.status !== 'Development' &&
-            (projectData.project_types.includes('Donation form') ||
-              projectData.project_types.includes(
-                'Event registration/ticket form',
-              ) ||
-              projectData.project_types.includes('P2P site') ||
-              projectData.project_types.includes('E-store'))
-          ) {
-            console.log(
-              'Project has moved to Development status with ' +
-                projectData.project_types +
-                ', sending test email notification.',
-              { formData },
-              { originalData },
-              { projectData },
-            );
-
+          if (isTestMode) {
+            console.log('Test mode enabled — skipping email notifications.');
+          } else {
             await sendEmailNotification(
               formData,
               originalData,
-              'template_83wszpl',
+              'template_bv7hxpe',
             );
+
+            if (
+              projectData?.admin_data?.status === 'Development' &&
+              originalData?.admin_data?.status !== 'Development' &&
+              (projectData.project_types.includes('Donation form') ||
+                projectData.project_types.includes(
+                  'Event registration/ticket form',
+                ) ||
+                projectData.project_types.includes('P2P site') ||
+                projectData.project_types.includes('E-store'))
+            ) {
+              console.log(
+                'Project has moved to Development status with ' +
+                  projectData.project_types +
+                  ', sending test email notification.',
+                { formData },
+                { originalData },
+                { projectData },
+              );
+
+              await sendEmailNotification(
+                formData,
+                originalData,
+                'template_83wszpl',
+              );
+            }
           }
 
           clearUnsavedStatus();
