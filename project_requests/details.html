@@ -296,6 +296,11 @@
         cursor: pointer;
       }
 
+      .checkbox-item label[for='type8'] {
+        width: auto;
+        margin-right: 1rem;
+      }
+
       /* Tags Display */
       .tags-display {
         display: flex;
@@ -903,6 +908,23 @@
                   />
                   <label for="type7">Web edit (on choa.org)</label>
                 </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="type8"
+                    name="project_type"
+                    value="Other"
+                    onchange="handleProjectTypeChange()"
+                  />
+                  <label for="type8">Content page/other</label>
+                  <input
+                    type="text"
+                    id="other_project_type_description"
+                    placeholder="brief description..."
+                    style="width: 100%;padding: 6px 8px;font-size: 13px;margin-left: 8px;display: none;"
+                    onchange="markUnsaved()"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1282,7 +1304,22 @@
 
         <!-- Additional Comments Section -->
         <div id="additionalCommentsSection" class="section">
-          <h3 class="section-title">Additional Comments</h3>
+          <h3 class="section-title">Additional Information</h3>
+          <div class="form-group" id="shortUrlGroup">
+            <label>Desired Short URL:</label>
+            <div
+              class="editable-field"
+              data-field="desired_short_url"
+            >
+              <div class="field-display"></div>
+              <div class="field-edit">
+                <div style="display: flex; align-items: center; gap: 0;">
+                  <span style="font-size: 14px; white-space: nowrap; color: #555;">https://give.choa.org/</span>
+                  <input type="text" name="desired_short_url" style="flex: 1; min-width: 120px;" placeholder="your-short-url" />
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="form-group">
             <label>List any additional needs or comments here:</label>
             <div
@@ -1657,6 +1694,7 @@
           items: null,
           discount_codes: null,
           additional_comments: '',
+          other_project_type_description: null,
           admin_data: null,
           requested_by: currentUserId,
         };
@@ -1678,6 +1716,7 @@
           'P2P site',
           'Event registration/ticket form',
           'Donation form',
+          'E-store',
         ];
         return (
           projectTypes && projectTypes.some((type) => reTypes.includes(type))
@@ -1728,6 +1767,16 @@
         return projectTypes && projectTypes.includes('Email send');
       }
 
+      // Check if short URL field should be shown (hide for Email send and Web edit only)
+      function shouldShowShortUrl(projectTypes) {
+        const excludedTypes = ['Email send', 'Web edit (on choa.org)'];
+        return (
+          projectTypes &&
+          projectTypes.length > 0 &&
+          projectTypes.some((type) => !excludedTypes.includes(type))
+        );
+      }
+
       // Render project data
       async function renderProject(data) {
         // Set page title
@@ -1768,12 +1817,18 @@
             displayValue = formatTime(value);
           } else if (fieldType === 'select' && value) {
             displayValue = value;
+          } else if (fieldName === 'desired_short_url' && value) {
+            displayValue = 'https://give.choa.org/' + value;
           }
 
           display.textContent = displayValue;
           display.classList.toggle('empty', !value);
           if (!value) {
             display.textContent = 'Click to edit';
+          }
+
+          if (fieldName === 'admin_data.status' && value === 'Development') {
+            display.style.color = '#d9534f';
           }
 
           // Set input value
@@ -1795,6 +1850,14 @@
         // Render project types
         renderproject_types(data.project_types || []);
 
+        // Populate "Other" description field
+        const otherDescField = document.getElementById(
+          'other_project_type_description',
+        );
+        if (otherDescField && data.other_project_type_description) {
+          otherDescField.value = data.other_project_type_description;
+        }
+
         // Render items
         renderItems(data.items || []);
 
@@ -1808,6 +1871,7 @@
         const showItems = shouldShowItems(data.project_types);
         const showDiscountCodes = shouldShowDiscountCodes(data.project_types);
         const showEmailDetails = shouldShowEmailDetails(data.project_types);
+        const showShortUrl = shouldShowShortUrl(data.project_types);
 
         document.getElementById('raisersEdgeSection').style.display =
           showRaisersEdge ? 'grid' : 'none';
@@ -1829,6 +1893,9 @@
           showDiscountCodes ? 'block' : 'none';
         // (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
 
+        document.getElementById('shortUrlGroup').style.display =
+          showShortUrl ? '' : 'none';
+
         // Clear unsaved status after rendering (checkbox changes during render trigger markUnsaved)
         clearUnsavedStatus();
       }
@@ -1841,6 +1908,20 @@
           .forEach((cb) => {
             cb.checked = types.includes(cb.value);
           });
+
+        // Show/hide "Other" description field
+        const otherCheckbox = document.getElementById('type8');
+        const otherDesc = document.getElementById(
+          'other_project_type_description',
+        );
+        if (otherCheckbox && otherDesc) {
+          otherDesc.style.display = otherCheckbox.checked
+            ? 'inline-block'
+            : 'none';
+            otherDesc.style.background = otherCheckbox.checked
+            ? '#fff'
+            : '#e9ecef';
+        }
       }
 
       // Handle project type change
@@ -1849,6 +1930,19 @@
           document.querySelectorAll('input[name="project_type"]:checked'),
         ).map((cb) => cb.value);
 
+        // Show/hide "Other" description field
+        const otherDesc = document.getElementById(
+          'other_project_type_description',
+        );
+        if (otherDesc) {
+          if (selectedTypes.includes('Other')) {
+            otherDesc.style.display = 'inline-block';
+          } else {
+            otherDesc.style.display = 'none';
+            otherDesc.value = '';
+          }
+        }
+
         // Show/hide sections based on selected types
         const showRaisersEdge = shouldShowRaisersEdge(selectedTypes);
         const showConfirmation = shouldShowConfirmation(selectedTypes);
@@ -1856,6 +1950,7 @@
         const showItems = shouldShowItems(selectedTypes);
         const showDiscountCodes = shouldShowDiscountCodes(selectedTypes);
         const showEmailDetails = shouldShowEmailDetails(selectedTypes);
+        const showShortUrl = shouldShowShortUrl(selectedTypes);
 
         document.getElementById('raisersEdgeSection').style.display =
           showRaisersEdge ? 'grid' : 'none';
@@ -1875,6 +1970,9 @@
 
         document.getElementById('discount_codesSection').style.display =
           showDiscountCodes ? 'block' : 'none';
+
+        document.getElementById('shortUrlGroup').style.display =
+          showShortUrl ? '' : 'none';
 
         // Only mark as unsaved if there are actual changes
         if (checkForActualChanges()) {
@@ -2128,10 +2226,16 @@
               displayValue = formatDate(value);
             } else if (fieldType === 'time' && value) {
               displayValue = formatTime(value);
+            } else if (fieldName === 'desired_short_url' && value) {
+              displayValue = 'https://give.choa.org/' + value;
             }
 
             display.textContent = displayValue || 'Click to edit';
             display.classList.toggle('empty', !value);
+
+            if (fieldName === 'admin_data.status') {
+              display.style.color = value === 'Development' ? '#d9534f' : '';
+            }
 
             field.classList.remove('editing');
 
@@ -2170,6 +2274,11 @@
           project_types: Array.from(
             document.querySelectorAll('input[name="project_type"]:checked'),
           ).map((cb) => cb.value),
+          other_project_type_description: document.getElementById('type8')
+            ?.checked
+            ? document.getElementById('other_project_type_description')
+                ?.value || ''
+            : null,
         };
 
         // Raiser's Edge Info - collect if section is visible
@@ -2322,6 +2431,14 @@
                 });
               }
             });
+        }
+
+        // Desired Short URL - collect if visible
+        const shortUrlGroup = document.getElementById('shortUrlGroup');
+        if (shortUrlGroup.style.display !== 'none') {
+          data.desired_short_url =
+            document.querySelector('[data-field="desired_short_url"] input')
+              ?.value || '';
         }
 
         // Additional Comments - always collect
@@ -2522,14 +2639,23 @@
             formData.confirmation_content?.closed_page_text,
             originalData?.confirmation_content?.closed_page_text,
           ),
-          webAddress: '[need to add short url]',
+          shortURL: addIndicatorIfChanged(
+            formData.desired_short_url,
+            originalData?.desired_short_url,
+          ),
           additionalComments: addIndicatorIfChanged(
             formData.additional_comments,
             originalData?.additional_comments,
           ),
           projectTypes: addIndicatorIfChanged(
-            formData.project_types?.join(', '),
-            originalData?.project_types?.join(', '),
+            formData.project_types?.join(', ') +
+              (formData.other_project_type_description
+                ? ' (' + formData.other_project_type_description + ')'
+                : ''),
+            originalData?.project_types?.join(', ') +
+              (originalData?.other_project_type_description
+                ? ' (' + originalData.other_project_type_description + ')'
+                : ''),
           ),
           projectStatus: addIndicatorIfChanged(
             formData.admin_data?.status,
@@ -2695,36 +2821,46 @@
             showSuccessMessage('Project updated successfully!');
           }
 
-          await sendEmailNotification(
-            formData,
-            originalData,
-            'template_bv7hxpe',
-          );
+          const isTestMode =
+            new URLSearchParams(window.location.search).get('test') === 'test';
 
-          if (
-            projectData?.admin_data?.status === 'Development' &&
-            originalData?.admin_data?.status !== 'Development' &&
-            (projectData.project_types.includes('Donation form') ||
-              projectData.project_types.includes(
-                'Event registration/ticket form',
-              ) ||
-              projectData.project_types.includes('P2P site') ||
-              projectData.project_types.includes('E-store'))
-          ) {
-            console.log(
-              'Project has moved to Development status with ' +
-                projectData.project_types +
-                ', sending test email notification.',
-              { formData },
-              { originalData },
-              { projectData },
-            );
-
+          if (isTestMode) {
+            console.log('Test mode enabled — skipping email notifications.');
+          } else {
             await sendEmailNotification(
               formData,
               originalData,
-              'template_83wszpl',
+              'template_bv7hxpe',
             );
+
+            if (
+              projectData?.admin_data?.status === 'Development' &&
+              originalData?.admin_data?.status !== 'Development' &&
+              (projectData.project_types.includes('Donation form') ||
+                projectData.project_types.includes(
+                  'Event registration/ticket form',
+                ) ||
+                projectData.project_types.includes('P2P site') ||
+                projectData.project_types.includes('E-store'))
+            ) {
+              console.log(
+                'Project has moved to Development status with ' +
+                  projectData.project_types +
+                  ', sending test email notification.',
+                { formData },
+                { originalData },
+                { projectData },
+              );
+              document.querySelector(
+                '[data-field="admin_data.status"] .field-display',
+              ).style.color = '#d9534f';
+
+              await sendEmailNotification(
+                formData,
+                originalData,
+                'template_83wszpl',
+              );
+            }
           }
 
           clearUnsavedStatus();
