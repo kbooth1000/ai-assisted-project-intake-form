@@ -1777,6 +1777,10 @@
             display.textContent = 'Click to edit';
           }
 
+          if (fieldName === 'admin_data.status' && value === 'Development') {
+            display.style.color = '#d9534f';
+          }
+
           // Set input value
           if (input) {
             if (input.tagName === 'SELECT') {
@@ -2133,6 +2137,10 @@
 
             display.textContent = displayValue || 'Click to edit';
             display.classList.toggle('empty', !value);
+
+            if (fieldName === 'admin_data.status') {
+              display.style.color = value === 'Development' ? '#d9534f' : '';
+            }
 
             field.classList.remove('editing');
 
@@ -2725,6 +2733,7 @@
                 { originalData },
                 { projectData },
               );
+              document.querySelector('[data-field="admin_data.status"] .field-display').style.color='#d9534f';
 
               await sendEmailNotification(
                 formData,
