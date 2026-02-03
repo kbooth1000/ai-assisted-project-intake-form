@@ -1304,7 +1304,22 @@
 
         <!-- Additional Comments Section -->
         <div id="additionalCommentsSection" class="section">
-          <h3 class="section-title">Additional Comments</h3>
+          <h3 class="section-title">Additional Information</h3>
+          <div class="form-group" id="shortUrlGroup">
+            <label>Desired Short URL:</label>
+            <div
+              class="editable-field"
+              data-field="desired_short_url"
+            >
+              <div class="field-display"></div>
+              <div class="field-edit">
+                <div style="display: flex; align-items: center; gap: 0;">
+                  <span style="font-size: 14px; white-space: nowrap; color: #555;">https://give.choa.org/</span>
+                  <input type="text" name="desired_short_url" style="flex: 1; min-width: 120px;" placeholder="your-short-url" />
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="form-group">
             <label>List any additional needs or comments here:</label>
             <div
@@ -1752,6 +1767,16 @@
         return projectTypes && projectTypes.includes('Email send');
       }
 
+      // Check if short URL field should be shown (hide for Email send and Web edit only)
+      function shouldShowShortUrl(projectTypes) {
+        const excludedTypes = ['Email send', 'Web edit (on choa.org)'];
+        return (
+          projectTypes &&
+          projectTypes.length > 0 &&
+          projectTypes.some((type) => !excludedTypes.includes(type))
+        );
+      }
+
       // Render project data
       async function renderProject(data) {
         // Set page title
@@ -1792,6 +1817,8 @@
             displayValue = formatTime(value);
           } else if (fieldType === 'select' && value) {
             displayValue = value;
+          } else if (fieldName === 'desired_short_url' && value) {
+            displayValue = 'https://give.choa.org/' + value;
           }
 
           display.textContent = displayValue;
@@ -1844,6 +1871,7 @@
         const showItems = shouldShowItems(data.project_types);
         const showDiscountCodes = shouldShowDiscountCodes(data.project_types);
         const showEmailDetails = shouldShowEmailDetails(data.project_types);
+        const showShortUrl = shouldShowShortUrl(data.project_types);
 
         document.getElementById('raisersEdgeSection').style.display =
           showRaisersEdge ? 'grid' : 'none';
@@ -1864,6 +1892,9 @@
         document.getElementById('discount_codesSection').style.display =
           showDiscountCodes ? 'block' : 'none';
         // (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
+
+        document.getElementById('shortUrlGroup').style.display =
+          showShortUrl ? '' : 'none';
 
         // Clear unsaved status after rendering (checkbox changes during render trigger markUnsaved)
         clearUnsavedStatus();
@@ -1919,6 +1950,7 @@
         const showItems = shouldShowItems(selectedTypes);
         const showDiscountCodes = shouldShowDiscountCodes(selectedTypes);
         const showEmailDetails = shouldShowEmailDetails(selectedTypes);
+        const showShortUrl = shouldShowShortUrl(selectedTypes);
 
         document.getElementById('raisersEdgeSection').style.display =
           showRaisersEdge ? 'grid' : 'none';
@@ -1938,6 +1970,9 @@
 
         document.getElementById('discount_codesSection').style.display =
           showDiscountCodes ? 'block' : 'none';
+
+        document.getElementById('shortUrlGroup').style.display =
+          showShortUrl ? '' : 'none';
 
         // Only mark as unsaved if there are actual changes
         if (checkForActualChanges()) {
@@ -2191,6 +2226,8 @@
               displayValue = formatDate(value);
             } else if (fieldType === 'time' && value) {
               displayValue = formatTime(value);
+            } else if (fieldName === 'desired_short_url' && value) {
+              displayValue = 'https://give.choa.org/' + value;
             }
 
             display.textContent = displayValue || 'Click to edit';
@@ -2396,6 +2433,14 @@
             });
         }
 
+        // Desired Short URL - collect if visible
+        const shortUrlGroup = document.getElementById('shortUrlGroup');
+        if (shortUrlGroup.style.display !== 'none') {
+          data.desired_short_url =
+            document.querySelector('[data-field="desired_short_url"] input')
+              ?.value || '';
+        }
+
         // Additional Comments - always collect
         data.additional_comments =
           document.querySelector('[data-field="additional_comments"] textarea')
@@ -2594,7 +2639,10 @@
             formData.confirmation_content?.closed_page_text,
             originalData?.confirmation_content?.closed_page_text,
           ),
-          webAddress: '[need to add short url]',
+          shortURL: addIndicatorIfChanged(
+            formData.desired_short_url,
+            originalData?.desired_short_url,
+          ),
           additionalComments: addIndicatorIfChanged(
             formData.additional_comments,
             originalData?.additional_comments,
