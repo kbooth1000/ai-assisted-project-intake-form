@@ -2533,7 +2533,7 @@
           originalData?.admin_data?.assigned_to,
         ),
     //    assignedEmail: adminsInSelectList[document.querySelector('select#assigned_to').selectedIndex].user_email,
-    assignedEmail: adminsInSelectList.find(item => `${item.first_name} ${item.last_name}` === formData.admin_data?.assigned_to).user_email,
+    assignedEmail: formData.admin_data?.assigned_to ?  adminsInSelectList.find(item => `${item.first_name} ${item.last_name}` === formData.admin_data?.assigned_to).user_email : '',
         contactFormID: addIndicatorIfChanged(
           formData.admin_data?.contact_form_id,
           originalData?.admin_data?.contact_form_id,
