@@ -2,3071 +2,2948 @@
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Details</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        white-space: normal !important;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Details</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-      body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-          Cantarell, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        background-image: linear-gradient(
-          to top,
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      white-space: normal !important;
+    }
+
+    body {
+      font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+        Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-image: linear-gradient(to top,
           green,
           #a2dc39,
           #8bc34a,
           #4caf50,
-          #22962c
-        );
-        min-height: 100vh;
-        padding: 20px;
-      }
+          #22962c);
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-      .container {
-        max-width: 900px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        padding: 40px;
-      }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+    }
 
-      h1 {
-        color: #333;
-        margin-bottom: 10px;
-        font-size: 22px;
-      }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
 
-      div#top-nav-info-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        margin-bottom: 1rem;
-      }
+    div#top-nav-info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
 
-      .subtitle {
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 14px;
-      }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
 
-      .back-link {
-        display: inline-block;
-        margin-bottom: 20px;
-        color: #667eea;
-        text-decoration: none;
-        font-size: 14px;
-      }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+    }
 
-      .back-link:hover {
-        text-decoration: underline;
-      }
+    .back-link:hover {
+      text-decoration: underline;
+    }
 
-      /* Loading and Error States */
-      .loading-state,
-      .error-state {
-        text-align: center;
-        padding: 60px 20px;
-      }
+    /* Loading and Error States */
+    .loading-state,
+    .error-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
 
-      .loading-spinner {
-        width: 50px;
-        height: 50px;
-        border: 4px solid #e0e0e0;
-        border-top-color: #667eea;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-      }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e0e0e0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
 
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
       }
+    }
 
-      .error-state {
-        color: #dc3545;
-      }
+    .error-state {
+      color: #dc3545;
+    }
 
-      .error-state h2 {
-        margin-bottom: 10px;
-      }
+    .error-state h2 {
+      margin-bottom: 10px;
+    }
 
-      /* Form Styles */
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    div#raisersEdgeSection {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      column-gap: 20px;
+      justify-items: flex-start;
+      align-items: start;
+      justify-content: center;
+      align-content: space-evenly;
+      row-gap: 8px;
+    }
+
+    div#raisersEdgeSection .section-title {
+      grid-column: 1/-1;
+    }
+
+    label {
+      display: block;
+      margin: 5px;
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    input[type='text'],
+    input[type='number'],
+    input[type='date'],
+    input[type='time'],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+      min-width: 15px;
+    }
+
+    input[type='text'],
+    input[type='number'],
+    input[type='date'],
+    input[type='time'],
+    textarea,
+    select {
+      background: #f0fafa;
+    }
+
+    [data-type='date'] .field-display,
+    [data-type='time'] .field-display {
+      max-width: 11rem !important;
+    }
+
+    select#assigned_to {
+      width: 100px;
+    }
+
+    input[type='text']:focus,
+    input[type='number']:focus,
+    input[type='date']:focus,
+    input[type='time']:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      border: 2px solid #e0e0e0;
+      min-height: 40px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 10px;
+      padding: 10px 0 0;
+      vertical-align: middle;
+      color: #333 !important;
+    }
+
+    textarea:focus,
+    #adminSection textarea:focus {
+      padding: 6px !important;
+    }
+
+    /* Editable Field Styles */
+    .editable-field {
+      position: relative;
+    }
+
+    div#adminSection .form-group .editable-field {
+      width: 100%;
+    }
+
+    .field-display {
+      padding: 4px 12px;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      font-size: 14px;
+      min-height: 26px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f8f9fa;
+    }
+
+    .field-display:hover {
+      border-color: #667eea;
+      background: #fff;
+    }
+
+    .field-display::after {
+      content: '\270E';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .field-display:hover::after {
+      opacity: 1;
+    }
+
+    .field-display.empty {
+      color: #999;
+      font-style: italic;
+    }
+
+    div#event_detailsSection {
+      flex-wrap: wrap;
+      justify-content: space-between;
+      column-gap: 1rem;
+      row-gap: 1rem;
+
       .form-group {
-        margin-bottom: 10px;
+        max-width: 30% !important;
       }
 
-      div#raisersEdgeSection {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        column-gap: 20px;
-        justify-items: flex-start;
-        align-items: start;
-        justify-content: center;
-        align-content: space-evenly;
-        row-gap: 8px;
-      }
-
-      div#raisersEdgeSection .section-title {
-        grid-column: 1/-1;
-      }
-
-      label {
-        display: block;
-        margin: 5px;
-        color: #333;
-        font-weight: 600;
-        font-size: 14px;
-        width: 100%;
-      }
-
-      input[type='text'],
-      input[type='number'],
-      input[type='date'],
-      input[type='time'],
-      textarea,
-      select {
-        width: 100%;
-        padding: 12px;
-        border: 0;
-        border-radius: 6px;
-        font-size: 14px;
-        transition: border-color 0.3s;
-        min-width: 15px;
-      }
-
-      input[type='text'],
-      input[type='number'],
-      input[type='date'],
-      input[type='time'],
-      textarea,
-      select {
-        background: #f0fafa;
-      }
-
-      [data-type='date'] .field-display,
-      [data-type='time'] .field-display {
-        max-width: 11rem !important;
-      }
-
-      select#assigned_to {
-        width: 100px;
-      }
-
-      input[type='text']:focus,
-      input[type='number']:focus,
-      input[type='date']:focus,
-      input[type='time']:focus,
-      textarea:focus,
-      select:focus {
-        outline: none;
-        border-color: #667eea;
-        border: 2px solid #e0e0e0;
-        min-height: 40px;
-      }
-
-      textarea {
-        resize: vertical;
-        min-height: 10px;
-        padding: 10px 0 0;
-        vertical-align: middle;
-        color: #333 !important;
-      }
-
-      textarea:focus,
-      #adminSection textarea:focus {
-        padding: 6px !important;
-      }
-
-      /* Editable Field Styles */
-      .editable-field {
-        position: relative;
-      }
-
-      div#adminSection .form-group .editable-field {
-        width: 100%;
-      }
-
-      .field-display {
-        padding: 4px 12px;
-        border: 2px solid transparent;
-        border-radius: 6px;
-        font-size: 14px;
-        min-height: 26px;
-        cursor: pointer;
-        transition: all 0.2s;
-        background: #f8f9fa;
-      }
-
-      .field-display:hover {
-        border-color: #667eea;
-        background: #fff;
-      }
-
-      .field-display::after {
-        content: '\270E';
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #999;
-        font-size: 14px;
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-
-      .field-display:hover::after {
-        opacity: 1;
-      }
-
-      .field-display.empty {
-        color: #999;
-        font-style: italic;
-      }
-
-      div#event_detailsSection {
-        flex-wrap: wrap;
-        justify-content: space-between;
-        column-gap: 1rem;
-        row-gap: 1rem;
-
-        .form-group {
-          max-width: 30% !important;
-        }
-
-        .form-group:has([data-field='event_details.location']) {
-          min-width: 100% !important;
-        }
-      }
-
-      .field-edit {
-        display: none;
-      }
-
-      .editable-field.editing .field-display {
-        display: none;
-      }
-
-      .editable-field.editing .field-edit {
-        display: block;
-      }
-
-      .editable-field.editing input {
-        height: 12px;
-      }
-
-      /* Checkbox Group */
-      .checkbox-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 10px;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 6px;
-      }
-
-      .checkbox-item {
-        display: flex;
-        align-items: center;
-      }
-
-      .checkbox-item input[type='checkbox'] {
-        width: auto;
-        margin-right: 8px;
-      }
-
-      .checkbox-item label {
-        margin: 0;
-        font-weight: normal;
-        cursor: pointer;
-      }
-
-      .checkbox-item label[for='type8'] {
-        width: auto;
-        margin-right: 1rem;
-      }
-
-      /* Tags Display */
-      .tags-display {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 12px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        min-height: 46px;
-      }
-
-      .tag {
-        background: #667eea;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-      }
-
-      /* Section Styles */
-      .section {
-        margin-top: 25px;
-        padding: 20px 20px 10px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        border-top: 4px solid hsl(133.7deg 61.35% 40.59% / 49%);
-
-        /* display: flex !important; */
-        justify-content: space-between !important;
-        flex-wrap: wrap;
-      }
-
-      .section-title {
-        font-size: 16px;
-        color: #333;
-        margin-bottom: 10px;
-        font-weight: 600;
-        min-width: 100%;
-      }
-
-      .form-group:has([data-type='textarea']),
       .form-group:has([data-field='event_details.location']) {
         min-width: 100% !important;
       }
+    }
+
+    .field-edit {
+      display: none;
+    }
+
+    .editable-field.editing .field-display {
+      display: none;
+    }
+
+    .editable-field.editing .field-edit {
+      display: block;
+    }
+
+    .editable-field.editing input {
+      height: 12px;
+    }
+
+    /* Checkbox Group */
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .checkbox-item input[type='checkbox'] {
+      width: auto;
+      margin-right: 8px;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    .checkbox-item label[for='type8'] {
+      width: auto;
+      margin-right: 1rem;
+    }
+
+    .checkbox-group> :last-child:has(:checked) {
+      grid-column: 1 / -1;
+      /* span full width of the grid */
+    }
+
+    /* Tags Display */
+    .tags-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      min-height: 46px;
+    }
+
+    .tag {
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    /* Section Styles */
+    .section {
+      margin-top: 25px;
+      padding: 20px 20px 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border-top: 4px solid hsl(133.7deg 61.35% 40.59% / 49%);
+
+      /* display: flex !important; */
+      justify-content: space-between !important;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 600;
+      min-width: 100%;
+    }
+
+    .form-group:has([data-type='textarea']),
+    .form-group:has([data-field='event_details.location']) {
+      min-width: 100% !important;
+    }
+
+    div#adminSection {
+      padding: 1rem;
+      background: #f8f8f8;
+      max-width: 270px;
+    }
+
+    #grp-01 {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 580px) {
+      #grp-01 {
+        display: flex;
+        flex-wrap: wrap;
+      }
 
       div#adminSection {
-        padding: 1rem;
-        background: #f8f8f8;
-        max-width: 270px;
+        width: 100% !important;
+        max-width: 90%;
+        margin: 0 auto 2rem;
+      }
+    }
+
+    #adminSection h3.section-title {
+      font-size: 16px;
+      padding: 0 0 0.5rem !important;
+    }
+
+    #adminSection * {
+      padding: 0 !important;
+      margin: 0 0 0.2rem !important;
+      min-height: 24px;
+    }
+
+    div#adminSection .form-group {
+      display: flex;
+      align-items: center;
+      margin: 0;
+    }
+
+    #adminSection .field-display.empty {
+      margin: -2px 4px 0 0 !important;
+    }
+
+    div#adminSection .form-group .editable-field {}
+
+    .field-display.empty {
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    div#adminSection .form-group label {
+      font-size: 12px;
+    }
+
+    #adminSection label:has(#ds_validated:checked) {
+      background: #dfd;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: white;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th {
+      background: #666;
+      color: white;
+      padding: 4px 12px !important;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    td input,
+    td textarea {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    /* Button Styles */
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      margin-left: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-add {
+      background: #28a745;
+      color: white;
+      margin-top: 10px;
+      font-size: 13px;
+      padding: 8px 16px;
+    }
+
+    .btn-add:hover {
+      background: #218838;
+    }
+
+    .btn-remove {
+      background: #dc3545;
+      color: white;
+      font-size: 12px;
+      padding: 6px 12px;
+    }
+
+    .btn-remove:hover {
+      background: #c82333;
+    }
+
+    .form-actions {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px solid #e0e0e0;
+      text-align: center;
+    }
+
+    /* Message Styles */
+    .success-message,
+    .error-message {
+      display: none;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      animation: slideIn 0.3s ease;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      padding: 2rem;
+    }
+
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .success-message.show,
+    .error-message.show {
+      display: block;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
       }
 
-      #grp-01 {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 20px;
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Radio Group */
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .radio-group input[type='radio'] {
+      width: auto;
+    }
+
+    input.discount-code {
+      min-width: 90px;
+    }
+
+    .discount-type-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .discount-type-container .radio-group {
+      display: flex;
+      width: 150px;
+      min-width: 0;
+      max-width: 150px;
+      gap: 1px;
+      margin: 0;
+    }
+
+    .discount-type-container label {
+      font-size: 11px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 5px;
+      align-items: center;
+      font-weight: 100;
+    }
+
+    .discount-value-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .discount-value-wrapper .prefix,
+    .discount-value-wrapper .suffix {
+      font-weight: 300;
+      font-size: 14px;
+      color: #333;
+      display: none;
+    }
+
+    .discount-value-wrapper[data-type='fixed'] .prefix {
+      display: inline;
+    }
+
+    .discount-value-wrapper[data-type='percentage'] .suffix {
+      display: inline;
+    }
+
+    .checkbox-list.ticket-levels-checkboxes {
+      padding: 2px;
+    }
+
+    .checkbox-list.ticket-levels-checkboxes label {
+      font-size: 11.5px;
+    }
+
+    tbody#discount_codesTableBody td {
+      vertical-align: bottom;
+    }
+
+    tbody#discount_codesTableBody td:last-child {
+      padding-bottom: 1.1rem !important;
+    }
+
+    .checkbox-list {
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      padding: 10px;
+      border-radius: 4px;
+      background: white;
+    }
+
+    .checkbox-list label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: normal;
+    }
+
+    /* Validation Styles */
+    .field-error {
+      border-color: #dc3545 !important;
+    }
+
+    .error-text {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* Status indicator */
+    .edit-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+
+    .edit-status.unsaved {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 10px 15px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+
+    .user-email {
+      color: #333;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .btn-logout {
+      padding: 8px 16px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-logout:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
       }
 
-      @media (max-width: 580px) {
-        #grp-01 {
-          display: flex;
-          flex-wrap: wrap;
-        }
-
-        div#adminSection {
-          width: 100% !important;
-          max-width: 90%;
-          margin: 0 auto 2rem;
-        }
+      h1 {
+        font-size: 24px;
       }
 
-      #adminSection h3.section-title {
-        font-size: 16px;
-        padding: 0 0 0.5rem !important;
+      .checkbox-group {
+        grid-template-columns: 1fr;
       }
 
-      #adminSection * {
-        padding: 0 !important;
-        margin: 0 0 0.2rem !important;
-        min-height: 24px;
-      }
-
-      div#adminSection .form-group {
-        display: flex;
-        align-items: center;
-        margin: 0;
-      }
-
-      #adminSection .field-display.empty {
-        margin: -2px 4px 0 0 !important;
-      }
-
-      div#adminSection .form-group .editable-field {
-      }
-
-      .field-display.empty {
-        padding: 10px;
-        font-size: 12px;
-      }
-
-      div#adminSection .form-group label {
-        font-size: 12px;
-      }
-
-      /* Table Styles */
       table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-        background: white;
-        border-radius: 6px;
-        overflow: hidden;
+        font-size: 12px;
       }
 
-      th {
-        background: #666;
-        color: white;
-        padding: 4px 12px !important;
-        text-align: left;
-        font-weight: 600;
-        font-size: 13px;
-      }
-
+      th,
       td {
-        padding: 10px;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 8px;
       }
+    }
+  </style>
+</head>
 
-      td input,
-      td textarea {
-        margin: 0;
-        font-size: 13px;
-      }
+<body>
+  <div class="container">
+    <div id="top-nav-info-bar">
+      <a href="/site/SPageNavigator/project_requests/projects_list.html" class="back-link">&#8592; Back to Projects</a>
 
-      /* Button Styles */
-      .btn {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s;
-      }
-
-      .btn-primary {
-        background: #667eea;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #5568d3;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-      }
-
-      .btn-primary:disabled {
-        background: #aaa;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-      }
-
-      .btn-secondary {
-        background: #6c757d;
-        color: white;
-        margin-left: 10px;
-      }
-
-      .btn-secondary:hover {
-        background: #5a6268;
-      }
-
-      .btn-add {
-        background: #28a745;
-        color: white;
-        margin-top: 10px;
-        font-size: 13px;
-        padding: 8px 16px;
-      }
-
-      .btn-add:hover {
-        background: #218838;
-      }
-
-      .btn-remove {
-        background: #dc3545;
-        color: white;
-        font-size: 12px;
-        padding: 6px 12px;
-      }
-
-      .btn-remove:hover {
-        background: #c82333;
-      }
-
-      .form-actions {
-        margin-top: 30px;
-        padding-top: 30px;
-        border-top: 2px solid #e0e0e0;
-        text-align: center;
-      }
-
-      /* Message Styles */
-      .success-message,
-      .error-message {
-        display: none;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        animation: slideIn 0.3s ease;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1000;
-        padding: 2rem;
-      }
-
-      .success-message {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-      }
-
-      .error-message {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-      }
-
-      .success-message.show,
-      .error-message.show {
-        display: block;
-      }
-
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* Radio Group */
-      .radio-group {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-        margin-bottom: 5px;
-      }
-
-      .radio-group input[type='radio'] {
-        width: auto;
-      }
-
-      input.discount-code {
-        min-width: 90px;
-      }
-
-      .discount-type-container {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .discount-type-container .radio-group {
-        display: flex;
-        width: 150px;
-        min-width: 0;
-        max-width: 150px;
-        gap: 1px;
-        margin: 0;
-      }
-
-      .discount-type-container label {
-        font-size: 11px;
-        display: flex;
-        flex-direction: column-reverse;
-        gap: 5px;
-        align-items: center;
-        font-weight: 100;
-      }
-
-      .discount-value-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 2px;
-      }
-
-      .discount-value-wrapper .prefix,
-      .discount-value-wrapper .suffix {
-        font-weight: 300;
-        font-size: 14px;
-        color: #333;
-        display: none;
-      }
-
-      .discount-value-wrapper[data-type='fixed'] .prefix {
-        display: inline;
-      }
-
-      .discount-value-wrapper[data-type='percentage'] .suffix {
-        display: inline;
-      }
-
-      .checkbox-list.ticket-levels-checkboxes {
-        padding: 2px;
-      }
-
-      .checkbox-list.ticket-levels-checkboxes label {
-        font-size: 11.5px;
-      }
-
-      tbody#discount_codesTableBody td {
-        vertical-align: bottom;
-      }
-
-      tbody#discount_codesTableBody td:last-child {
-        padding-bottom: 1.1rem !important;
-      }
-
-      .checkbox-list {
-        max-height: 150px;
-        overflow-y: auto;
-        border: 1px solid #e0e0e0;
-        padding: 10px;
-        border-radius: 4px;
-        background: white;
-      }
-
-      .checkbox-list label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: normal;
-      }
-
-      /* Validation Styles */
-      .field-error {
-        border-color: #dc3545 !important;
-      }
-
-      .error-text {
-        color: #dc3545;
-        font-size: 12px;
-        margin-top: 4px;
-      }
-
-      /* Status indicator */
-      .edit-status {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        margin-left: 10px;
-      }
-
-      .edit-status.unsaved {
-        background: #fff3cd;
-        color: #856404;
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 10px 15px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        margin-bottom: 20px;
-      }
-
-      .user-email {
-        color: #333;
-        font-size: 14px;
-        font-weight: 500;
-      }
-
-      .btn-logout {
-        padding: 8px 16px;
-        background: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-
-      .btn-logout:hover {
-        background: #c82333;
-        transform: translateY(-1px);
-      }
-
-      @media (max-width: 768px) {
-        .container {
-          padding: 20px;
-        }
-
-        h1 {
-          font-size: 24px;
-        }
-
-        .checkbox-group {
-          grid-template-columns: 1fr;
-        }
-
-        table {
-          font-size: 12px;
-        }
-
-        th,
-        td {
-          padding: 8px;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <div id="top-nav-info-bar">
-        <a
-          href="/site/SPageNavigator/project_requests/projects_list.html"
-          class="back-link"
-          >&#8592; Back to Projects</a
-        >
-
-        <div
-          class="user-info"
-          style="
+      <div class="user-info" style="
             display: inline-flex;
             justify-content: space-between;
             align-items: center;
-          "
-        >
-          <span class="user-email" id="userEmail">Loading...</span>
-          <button onclick="logout()" class="btn-logout">Log Out</button>
-        </div>
+          ">
+        <span class="user-email" id="userEmail">Loading...</span>
+        <button onclick="logout()" class="btn-logout">Log Out</button>
+      </div>
+    </div>
+
+    <div id="loadingState" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading project details...</p>
+    </div>
+
+    <div id="errorState" class="error-state" style="display: none">
+      <h2>&#9888;&#65039; Project Not Found</h2>
+      <p id="errorMessage">The requested project could not be found.</p>
+    </div>
+
+    <div id="projectContent" style="display: none">
+      <!-- User Info Bar -->
+
+      <h1 id="project_title">Project Details</h1>
+      <p class="subtitle" id="subtitle">
+        Click on any field to edit.
+        <span id="editStatus" class="edit-status" style="display: none">No Unsaved changes</span>
+      </p>
+
+      <div id="successMessage" class="success-message">
+        &#10003; Project updated successfully!
       </div>
 
-      <div id="loadingState" class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>Loading project details...</p>
+      <div id="errorMessageBox" class="error-message">
+        &#10007; <span id="errorMessageText">Error updating project.</span>
       </div>
 
-      <div id="errorState" class="error-state" style="display: none">
-        <h2>&#9888;&#65039; Project Not Found</h2>
-        <p id="errorMessage">The requested project could not be found.</p>
-      </div>
-
-      <div id="projectContent" style="display: none">
-        <!-- User Info Bar -->
-
-        <h1 id="project_title">Project Details</h1>
-        <p class="subtitle" id="subtitle">
-          Click on any field to edit.
-          <span id="editStatus" class="edit-status" style="display: none"
-            >No Unsaved changes</span
-          >
-        </p>
-
-        <div id="successMessage" class="success-message">
-          &#10003; Project updated successfully!
-        </div>
-
-        <div id="errorMessageBox" class="error-message">
-          &#10007; <span id="errorMessageText">Error updating project.</span>
-        </div>
-
-        <!-- Basic Fields and Admin Section Container -->
-        <div id="grp-01">
-          <!-- Left Column: Basic Fields -->
-          <div style="min-width: 320px">
-            <div class="form-group">
-              <label>Project Name *</label>
-              <div
-                class="editable-field"
-                data-field="project_name"
-                data-required="true"
-              >
-                <div class="field-display"></div>
-                <div class="field-edit">
-                  <input type="text" required />
-                </div>
+      <!-- Basic Fields and Admin Section Container -->
+      <div id="grp-01">
+        <!-- Left Column: Basic Fields -->
+        <div style="min-width: 320px">
+          <div class="form-group">
+            <label>Project Name *</label>
+            <div class="editable-field" data-field="project_name" data-required="true">
+              <div class="field-display"></div>
+              <div class="field-edit">
+                <input type="text" required />
               </div>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label>Foundation Team *</label>
-              <div
-                class="editable-field"
-                data-field="foundation_team"
-                data-required="true"
-                data-type="select"
-              >
-                <div class="field-display"></div>
-                <div class="field-edit">
-                  <select required id="foundation_team" name="foundation_team">
-                    <option value="">Select team...</option>
-                    <option value="Aflac">Aflac</option>
-                    <option value="Annual Events">Annual Events</option>
-                    <option value="Cause Marketing">Cause Marketing</option>
-                    <option value="CMN">CMN</option>
-                    <option value="Corporate">Corporate</option>
-                    <option value="E-Phil">E-Phil</option>
-                    <option value="Events">Events</option>
-                    <option value="Grateful Patients">Grateful Patients</option>
-                    <option value="Legacy">Legacy</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
+          <div class="form-group">
+            <label>Foundation Team *</label>
+            <div class="editable-field" data-field="foundation_team" data-required="true" data-type="select">
+              <div class="field-display"></div>
+              <div class="field-edit">
+                <select required id="foundation_team" name="foundation_team">
+                  <option value="">Select team...</option>
+                  <option value="Aflac">Aflac</option>
+                  <option value="Annual Events">Annual Events</option>
+                  <option value="Cause Marketing">Cause Marketing</option>
+                  <option value="CMN">CMN</option>
+                  <option value="Corporate">Corporate</option>
+                  <option value="E-Phil">E-Phil</option>
+                  <option value="Events">Events</option>
+                  <option value="Grateful Patients">Grateful Patients</option>
+                  <option value="Legacy">Legacy</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label>Requested by</label>
-              <div
-                id="requested_by_display"
-                style="
+          <div class="form-group">
+            <label>Requested by</label>
+            <div id="requested_by_display" style="
                   padding: 12px;
                   background: #f8f9fa;
                   border-radius: 6px;
                   font-size: 14px;
                   color: #666;
-                "
-              >
-                Loading...
+                ">
+              Loading...
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Project Type(s)</label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="type1" name="project_type" value="Contact form/survey"
+                  onchange="handleProjectTypeChange()" />
+                <label for="type1">Contact form/survey</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="type2" name="project_type" value="Donation form"
+                  onchange="handleProjectTypeChange()" />
+                <label for="type2">Donation form</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="type3" name="project_type" value="Event registration/ticket form"
+                  onchange="handleProjectTypeChange()" />
+                <label for="type3">Event registration/ticket form</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="type4" name="project_type" value="P2P site"
+                  onchange="handleProjectTypeChange()" />
+                <label for="type4">P2P site</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="type5" name="project_type" value="Email send"
+                  onchange="handleProjectTypeChange()" />
+                <label for="type5">Email send</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="type6" name="project_type" value="E-store"
+                  onchange="handleProjectTypeChange()" />
+                <label for="type6">E-store</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="type7" name="project_type" value="Web edit (on choa.org)"
+                  onchange="handleProjectTypeChange()" />
+                <label for="type7">Web edit (on choa.org)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="type8" name="project_type" value="Other"
+                  onchange="handleProjectTypeChange()" />
+                <label for="type8">Content page/other</label>
+                <input type="text" id="other_project_type_description" placeholder="brief description..."
+                  style="width: 100%;padding: 6px 8px;font-size: 13px;margin-left: 8px;display: none;"
+                  onchange="markUnsaved()" />
               </div>
             </div>
+          </div>
+        </div>
 
+        <!-- Right Column: Admin Section -->
+        <div id="adminSection" style="display: none">
+          <h3 class="section-title" style="margin-top: 0">Admin</h3>
+
+          <!-- Group A -->
+          <div style="
+                padding: 15px;
+                background: #f8f9fa;
+                border-radius: 6px;
+                margin-bottom: 15px;
+              ">
             <div class="form-group">
-              <label>Project Type(s)</label>
-              <div class="checkbox-group">
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="type1"
-                    name="project_type"
-                    value="Contact form/survey"
-                    onchange="handleProjectTypeChange()"
-                  />
-                  <label for="type1">Contact form/survey</label>
+              <label for="assigned_to">Assigned to:</label>
+              <div class="editable-field" data-field="admin_data.assigned_to">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <!-- <input type="text" /> -->
+                  <select name="assigned_to" id="assigned_to">
+                    <option value="Select">Select</option>
+                  </select>
                 </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="type2"
-                    name="project_type"
-                    value="Donation form"
-                    onchange="handleProjectTypeChange()"
-                  />
-                  <label for="type2">Donation form</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Date assigned:</label>
+              <div class="editable-field" data-field="admin_data.date_assigned" data-type="date">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <input type="date" />
                 </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="type3"
-                    name="project_type"
-                    value="Event registration/ticket form"
-                    onchange="handleProjectTypeChange()"
-                  />
-                  <label for="type3">Event registration/ticket form</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="type4"
-                    name="project_type"
-                    value="P2P site"
-                    onchange="handleProjectTypeChange()"
-                  />
-                  <label for="type4">P2P site</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="type5"
-                    name="project_type"
-                    value="Email send"
-                    onchange="handleProjectTypeChange()"
-                  />
-                  <label for="type5">Email send</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="type6"
-                    name="project_type"
-                    value="E-store"
-                    onchange="handleProjectTypeChange()"
-                  />
-                  <label for="type6">E-store</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="type7"
-                    name="project_type"
-                    value="Web edit (on choa.org)"
-                    onchange="handleProjectTypeChange()"
-                  />
-                  <label for="type7">Web edit (on choa.org)</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="type8"
-                    name="project_type"
-                    value="Other"
-                    onchange="handleProjectTypeChange()"
-                  />
-                  <label for="type8">Content page/other</label>
-                  <input
-                    type="text"
-                    id="other_project_type_description"
-                    placeholder="brief description..."
-                    style="width: 100%;padding: 6px 8px;font-size: 13px;margin-left: 8px;display: none;"
-                    onchange="markUnsaved()"
-                  />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="project_status">Status:</label>
+              <div class="editable-field" data-field="admin_data.status" data-type="select">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <select id="project_status">
+                    <option value="">Select status...</option>
+                    <option value="Assigned">Assigned</option>
+                    <option value="Development">Development</option>
+                    <option value="Testing">Testing</option>
+                    <option value="Live">Live</option>
+                    <option value="Closed">Closed</option>
+                  </select>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: Admin Section -->
-          <div id="adminSection" style="display: none">
-            <h3 class="section-title" style="margin-top: 0">Admin</h3>
-
-            <!-- Group A -->
-            <div
-              style="
+          <!-- Group B -->
+          <div style="
                 padding: 15px;
                 background: #f8f9fa;
                 border-radius: 6px;
                 margin-bottom: 15px;
-              "
-            >
-              <div class="form-group">
-                <label for="assigned_to">Assigned to:</label>
-                <div class="editable-field" data-field="admin_data.assigned_to">
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <!-- <input type="text" /> -->
-                    <select name="assigned_to" id="assigned_to">
-                      <option value="Select">Select</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Date assigned:</label>
-                <div
-                  class="editable-field"
-                  data-field="admin_data.date_assigned"
-                  data-type="date"
-                >
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <input type="date" />
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="project_status">Status:</label>
-                <div
-                  class="editable-field"
-                  data-field="admin_data.status"
-                  data-type="select"
-                >
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <select id="project_status">
-                      <option value="">Select status...</option>
-                      <option value="Assigned">Assigned</option>
-                      <option value="Development">Development</option>
-                      <option value="Testing">Testing</option>
-                      <option value="Live">Live</option>
-                      <option value="Closed">Closed</option>
-                    </select>
-                  </div>
+              ">
+            <div class="form-group">
+              <label style="display: flex; align-items: center; gap: 8px">
+                <input type="checkbox" id="ds_validated" data-field="admin_data.ds_validated"
+                  style="width: auto; margin: 0" onchange="markUnsaved()" />
+                DS validated:
+              </label>
+            </div>
+            <div class="form-group">
+              <label>Contact form ID:</label>
+              <div class="editable-field" data-field="admin_data.contact_form_id">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <input type="text" maxlength="20" />
                 </div>
               </div>
             </div>
-
-            <!-- Group B -->
-            <div
-              style="
-                padding: 15px;
-                background: #f8f9fa;
-                border-radius: 6px;
-                margin-bottom: 15px;
-              "
-            >
-              <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 8px">
-                  <input
-                    type="checkbox"
-                    id="ds_validated"
-                    data-field="admin_data.ds_validated"
-                    style="width: auto; margin: 0"
-                    onchange="markUnsaved()"
-                  />
-                  DS validated:
-                </label>
-              </div>
-              <div class="form-group">
-                <label>Contact form ID:</label>
-                <div
-                  class="editable-field"
-                  data-field="admin_data.contact_form_id"
-                >
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <input type="text" maxlength="20" />
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Event registration form ID:</label>
-                <div
-                  class="editable-field"
-                  data-field="admin_data.event_registration_form_id"
-                >
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <input type="text" maxlength="20" />
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Donation form ID:</label>
-                <div
-                  class="editable-field"
-                  data-field="admin_data.donation_form_id"
-                >
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <input type="text" maxlength="20" />
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>P2P ID:</label>
-                <div class="editable-field" data-field="admin_data.p2p_id">
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <input type="text" maxlength="20" />
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>E-store ID:</label>
-                <div class="editable-field" data-field="admin_data.estore_id">
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <input type="text" maxlength="20" />
-                  </div>
+            <div class="form-group">
+              <label>Event registration form ID:</label>
+              <div class="editable-field" data-field="admin_data.event_registration_form_id">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <input type="text" maxlength="20" />
                 </div>
               </div>
             </div>
-
-            <!-- Group C -->
-            <div style="padding: 15px; background: #f8f9fa; border-radius: 6px">
-              <div class="form-group">
-                <label>Admin comments:</label>
-                <div
-                  class="editable-field"
-                  data-field="admin_data.admin_comments"
-                  data-type="textarea"
-                >
-                  <div class="field-display"></div>
-                  <div class="field-edit">
-                    <textarea rows="3"></textarea>
-                  </div>
+            <div class="form-group">
+              <label>Donation form ID:</label>
+              <div class="editable-field" data-field="admin_data.donation_form_id">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <input type="text" maxlength="20" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>P2P ID:</label>
+              <div class="editable-field" data-field="admin_data.p2p_id">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <input type="text" maxlength="20" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>E-store ID:</label>
+              <div class="editable-field" data-field="admin_data.estore_id">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <input type="text" maxlength="20" />
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Raiser's Edge Info Section -->
-        <div id="raisersEdgeSection" class="section">
-          <h3 class="section-title">Raiser's Edge Info</h3>
-          <div class="form-group">
-            <label>RE Fund</label>
-            <div class="editable-field" data-field="raisers_edge_info.fund">
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="text" />
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>RE Appeal</label>
-            <div class="editable-field" data-field="raisers_edge_info.appeal">
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="text" />
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>RE Package</label>
-            <div class="editable-field" data-field="raisers_edge_info.package">
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="text" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Event Details Section -->
-        <div id="event_detailsSection" class="section">
-          <h3 class="section-title">Event Details</h3>
-          <div class="form-group">
-            <label>Project Go-Live Date</label>
-            <div
-              class="editable-field"
-              data-field="event_details.go_live_date"
-              data-type="date"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="date" name="go_live_date" />
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Event Date</label>
-            <div
-              class="editable-field"
-              data-field="event_details.event_date"
-              data-type="date"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="date" name="event_date" />
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Event Time</label>
-            <div
-              class="editable-field"
-              data-field="event_details.event_time"
-              data-type="time"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="time" name="event_time" />
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Ticket Cut-Off Date</label>
-            <div
-              class="editable-field"
-              data-field="event_details.ticket_cutoff_date"
-              data-type="date"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="date" name="ticket_cutoff_date" />
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Event Description</label>
-            <div
-              class="editable-field"
-              data-field="event_details.event_description"
-              data-type="textarea"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <textarea rows="4" name="event_description"></textarea>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Event Location</label>
-            <div class="editable-field" data-field="event_details.location">
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="text" name="location" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Email Details Section -->
-        <div id="emailDetailsSection" class="section">
-          <h3 class="section-title">Email Details</h3>
-          <div class="form-group">
-            <label>Desired email send date:</label>
-            <div
-              class="editable-field"
-              data-field="email_details.desired_send_date"
-              data-type="date"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <input type="date" name="desired_send_date" />
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group" style="max-width: 60%">
-            <span style="font-size: 14px; font-style: italic; color: #333"
-              >The person assigned will contact you regarding email content and
-              audience.</span
-            >
-          </div>
-        </div>
-
-        <!-- Items Section -->
-        <div id="itemsSection" class="section">
-          <h3 class="section-title">Item/Ticket/Sponsorship Levels</h3>
-          <table id="itemsTable">
-            <thead>
-              <tr>
-                <th>Level Name</th>
-                <th>Description</th>
-                <th>Price ($)</th>
-                <th>Fair Market Value ($)</th>
-                <th>Qty Available</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="itemsTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-          <button type="button" class="btn btn-add" onclick="addItemRow()">
-            + Add Item
-          </button>
-        </div>
-
-        <!-- Discount Codes Section -->
-        <div id="discount_codesSection" class="section">
-          <h3 class="section-title">Discount Codes</h3>
-          <table id="discount_codesTable">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Type & Value</th>
-                <th>Ticket Levels</th>
-                <th>Qty Available</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="discount_codesTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-          <button type="button" class="btn btn-add" onclick="addDiscountRow()">
-            + Add Discount Code
-          </button>
-        </div>
-
-        <!-- Confirmation and Closed Page Content Section -->
-        <div id="confirmationSection" class="section">
-          <h3 class="section-title">Confirmation and Closed Page Content</h3>
-          <div class="form-group">
-            <label
-              >Enter confirmation/acknowledgement and email autoresponder
-              text</label
-            >
-            <div
-              class="editable-field"
-              data-field="confirmation_content.confirmation_text"
-              data-type="textarea"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <textarea rows="4" name="confirmation_text"></textarea>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label
-              >Once closed, what should display on the site landing page?</label
-            >
-            <div
-              class="editable-field"
-              data-field="confirmation_content.closed_page_text"
-              data-type="textarea"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <textarea rows="4" name="closed_page_text"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Additional Comments Section -->
-        <div id="additionalCommentsSection" class="section">
-          <h3 class="section-title">Additional Information</h3>
-          <div class="form-group" id="shortUrlGroup">
-            <label>Desired Short URL:</label>
-            <div
-              class="editable-field"
-              data-field="desired_short_url"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <div style="display: flex; align-items: center; gap: 0;">
-                  <span style="font-size: 14px; white-space: nowrap; color: #555;">https://give.choa.org/</span>
-                  <input type="text" name="desired_short_url" style="flex: 1; min-width: 120px;" placeholder="your-short-url" />
+          <!-- Group C -->
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 6px">
+            <div class="form-group">
+              <label>Admin comments:</label>
+              <div class="editable-field" data-field="admin_data.admin_comments" data-type="textarea">
+                <div class="field-display"></div>
+                <div class="field-edit">
+                  <textarea rows="3"></textarea>
                 </div>
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <label>List any additional needs or comments here:</label>
-            <div
-              class="editable-field"
-              data-field="additional_comments"
-              data-type="textarea"
-            >
-              <div class="field-display"></div>
-              <div class="field-edit">
-                <textarea rows="4" name="additional_comments"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="form-actions">
-          <button
-            type="button"
-            class="btn btn-primary"
-            id="saveBtn"
-            onclick="saveProject()"
-          >
-            Save Changes
-          </button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            id="discardBtn"
-            onclick="reloadProject()"
-          >
-            Discard Changes
-          </button>
         </div>
       </div>
+
+      <!-- Raiser's Edge Info Section -->
+      <div id="raisersEdgeSection" class="section">
+        <h3 class="section-title">Raiser's Edge Info</h3>
+        <div class="form-group">
+          <label>RE Fund</label>
+          <div class="editable-field" data-field="raisers_edge_info.fund">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="text" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>RE Appeal</label>
+          <div class="editable-field" data-field="raisers_edge_info.appeal">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="text" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>RE Package</label>
+          <div class="editable-field" data-field="raisers_edge_info.package">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="text" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Details Section -->
+      <div id="event_detailsSection" class="section">
+        <h3 class="section-title">Event Details</h3>
+        <div class="form-group">
+          <label>Project Go-Live Date</label>
+          <div class="editable-field" data-field="event_details.go_live_date" data-type="date">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="date" name="go_live_date" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Event Date</label>
+          <div class="editable-field" data-field="event_details.event_date" data-type="date">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="date" name="event_date" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Event Time</label>
+          <div class="editable-field" data-field="event_details.event_time" data-type="time">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="time" name="event_time" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Ticket Cut-Off Date</label>
+          <div class="editable-field" data-field="event_details.ticket_cutoff_date" data-type="date">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="date" name="ticket_cutoff_date" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Event Description</label>
+          <div class="editable-field" data-field="event_details.event_description" data-type="textarea">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <textarea rows="4" name="event_description"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Event Location</label>
+          <div class="editable-field" data-field="event_details.location">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="text" name="location" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Details Section -->
+      <div id="emailDetailsSection" class="section">
+        <h3 class="section-title">Email Details</h3>
+        <div class="form-group">
+          <label>Desired email send date:</label>
+          <div class="editable-field" data-field="email_details.desired_send_date" data-type="date">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <input type="date" name="desired_send_date" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="max-width: 60%">
+          <span style="font-size: 14px; font-style: italic; color: #333">The person assigned will contact you regarding
+            email content and
+            audience.</span>
+        </div>
+      </div>
+
+      <!-- Items Section -->
+      <div id="itemsSection" class="section">
+        <h3 class="section-title">Item/Ticket/Sponsorship Levels</h3>
+        <table id="itemsTable">
+          <thead>
+            <tr>
+              <th>Level Name</th>
+              <th>Description</th>
+              <th>Price ($)</th>
+              <th>Fair Market Value ($)</th>
+              <th>Qty Available</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+        <button type="button" class="btn btn-add" onclick="addItemRow()">
+          + Add Item
+        </button>
+      </div>
+
+      <!-- Discount Codes Section -->
+      <div id="discount_codesSection" class="section">
+        <h3 class="section-title">Discount Codes</h3>
+        <table id="discount_codesTable">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Type & Value</th>
+              <th>Ticket Levels</th>
+              <th>Qty Available</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="discount_codesTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+        <button type="button" class="btn btn-add" onclick="addDiscountRow()">
+          + Add Discount Code
+        </button>
+      </div>
+
+      <!-- Confirmation and Closed Page Content Section -->
+      <div id="confirmationSection" class="section">
+        <h3 class="section-title">Confirmation and Closed Page Content</h3>
+        <div class="form-group">
+          <label>Enter confirmation/acknowledgement and email autoresponder
+            text</label>
+          <div class="editable-field" data-field="confirmation_content.confirmation_text" data-type="textarea">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <textarea rows="4" name="confirmation_text"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Once closed, what should display on the site landing page?</label>
+          <div class="editable-field" data-field="confirmation_content.closed_page_text" data-type="textarea">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <textarea rows="4" name="closed_page_text"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Comments Section -->
+      <div id="additionalCommentsSection" class="section">
+        <h3 class="section-title">Additional Information</h3>
+        <div class="form-group" id="shortUrlGroup">
+          <label>Desired Short URL:</label>
+          <div class="editable-field" data-field="desired_short_url">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <div style="display: flex; align-items: center; gap: 0;">
+                <span style="font-size: 14px; white-space: nowrap; color: #555;">https://give.choa.org/</span>
+                <input type="text" name="desired_short_url" style="flex: 1; min-width: 120px;"
+                  placeholder="your-short-url" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>List any additional needs or comments here:</label>
+          <div class="editable-field" data-field="additional_comments" data-type="textarea">
+            <div class="field-display"></div>
+            <div class="field-edit">
+              <textarea rows="4" name="additional_comments"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" id="saveBtn" onclick="saveProject()">
+          Save Changes
+        </button>
+        <button type="button" class="btn btn-secondary" id="discardBtn" onclick="reloadProject()">
+          Discard Changes
+        </button>
+      </div>
     </div>
+  </div>
 
-    <script>
-      // Supabase Configuration
-      const supabaseConfig = {
-        url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
-        anonKey:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w',
-      };
-      // Initialize EmailJS
-      emailjs.init('4SEqU8EI2kp_Xbs7Z');
+  <script>
+    let adminsInSelectList = [];
 
-      // Initialize Supabase client
-      var supabase = window.supabase.createClient(
-        supabaseConfig.url,
-        supabaseConfig.anonKey,
-      );
+    // Supabase Configuration
+    const supabaseConfig = {
+      url: 'https://svzlfpqdarhwfyznrhyg.supabase.co',
+      anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2emxmcHFkYXJod2Z5em5yaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDgzMDUsImV4cCI6MjA3OTMyNDMwNX0.oMEgRkPnoE21HCN4ETNdkyjljawJe_dSYKppJnLnL6w',
+    };
+    // Initialize EmailJS
+    emailjs.init('4SEqU8EI2kp_Xbs7Z');
 
-      // Global state
-      let projectId = null;
-      let projectData = null;
-      let hasUnsavedChanges = false;
-      let discountRowCounter = 0;
-      let isNewProject = false;
-      let userIsAdmin = false;
+    // Initialize Supabase client
+    var supabase = window.supabase.createClient(
+      supabaseConfig.url,
+      supabaseConfig.anonKey,
+    );
 
-      // Get project ID from URL
-      function getProjectIdFromUrl() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('id');
-      }
+    // Global state
+    let projectId = null;
+    let projectData = null;
+    let hasUnsavedChanges = false;
+    let discountRowCounter = 0;
+    let isNewProject = false;
+    let userIsAdmin = false;
 
-      // Check if admin mode is enabled
-      function isAdminMode() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('r') === 'admin' || userIsAdmin;
-      }
+    // Get project ID from URL
+    function getProjectIdFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('id');
+    }
 
-      // Check if user has admin role in org_members table
-      async function checkUserAdminRole(userEmail) {
-        try {
-          const { data, error } = await supabase
-            .from('org_members')
-            .select('role')
-            .eq('user_email', userEmail)
-            .single();
+    // Check if admin mode is enabled
+    function isAdminMode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('r') === 'admin' || userIsAdmin;
+    }
 
-          if (error) {
-            console.log('Error checking admin role:', error);
-            return false;
-          }
+    // Check if user has admin role in org_members table
+    async function checkUserAdminRole(userEmail) {
+      try {
+        const { data, error } = await supabase
+          .from('org_members')
+          .select('role')
+          .eq('user_email', userEmail)
+          .single();
 
-          return data && data.role === 'admin';
-        } catch (error) {
-          console.error('Error checking user admin role:', error);
+        if (error) {
+          console.log('Error checking admin role:', error);
           return false;
         }
-      }
 
-      // Format date for display
-      function formatDate(dateStr) {
-        if (!dateStr) return '';
-        const date = new Date(dateStr + 'T00:00:00');
-        return date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        });
-      }
-
-      // Format time for display
-      function formatTime(timeStr) {
-        if (!timeStr) return '';
-        const [hours, minutes] = timeStr.split(':');
-        const date = new Date();
-        date.setHours(parseInt(hours), parseInt(minutes));
-        return date.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-        });
-      }
-
-      // Format currency
-      function formatCurrency(value) {
-        if (value === null || value === undefined || value === '') return '';
-        return '$' + parseFloat(value).toFixed(2);
-      }
-
-      // Show loading state
-      function showLoading() {
-        document.getElementById('loadingState').style.display = 'block';
-        document.getElementById('errorState').style.display = 'none';
-        document.getElementById('projectContent').style.display = 'none';
-      }
-
-      // Show error state
-      function showError(message) {
-        document.getElementById('loadingState').style.display = 'none';
-        document.getElementById('errorState').style.display = 'block';
-        document.getElementById('errorMessage').textContent = message;
-        document.getElementById('projectContent').style.display = 'none';
-      }
-
-      // Show project content
-      function showContent() {
-        document.getElementById('loadingState').style.display = 'none';
-        document.getElementById('errorState').style.display = 'none';
-        document.getElementById('projectContent').style.display = 'block';
-
-        const textareas = document.querySelectorAll('textarea');
-
-        const resetTextareaHeight = (ta) => {
-          const taContent = ta.value;
-          ta.textContent = taContent;
-          ta.style.height = '40px'; // Reset height to recalculate
-          // console.log('textarea:', ta.textContent, ta.scrollHeight);
-          ta.style.height = ta.scrollHeight + 'px'; // Set to scrollHeight
-        };
-
-        if (textareas.length > 0) {
-          textareas.forEach((textarea) => {
-            textarea.addEventListener('keyup', () => {
-              resetTextareaHeight(textarea);
-            });
-
-            textarea.addEventListener('change', () => {
-              // console.log('tA-CHANGE');
-              resetTextareaHeight(textarea);
-            });
-
-            const fEvent = new Event('focus', { bubbles: true });
-            const bEvent = new Event('blur', { bubbles: true });
-            textarea.dispatchEvent(fEvent);
-            textarea.dispatchEvent(bEvent);
-            resetTextareaHeight(textarea);
-          });
-        }
-      }
-
-      // Show success message
-      function showSuccessMessage(message) {
-        const el = document.getElementById('successMessage');
-        el.innerHTML = '&#10003;  ' + message;
-        el.classList.add('show');
-        setTimeout(() => el.classList.remove('show'), 5000);
-      }
-
-      // Show error message
-      function showErrorMessage(message) {
-        const el = document.getElementById('errorMessageBox');
-        document.getElementById('errorMessageText').textContent = message;
-        el.classList.add('show');
-        setTimeout(() => el.classList.remove('show'), 5000);
-      }
-
-      // Mark changes as unsaved
-      function markUnsaved() {
-        hasUnsavedChanges = true;
-        const status = document.getElementById('editStatus');
-        status.textContent = 'Unsaved changes';
-        status.classList.add('unsaved');
-        status.style.display = 'inline-block';
-      }
-
-      // Clear unsaved status
-      function clearUnsavedStatus() {
-        hasUnsavedChanges = false;
-        document.getElementById('editStatus').style.display = 'none';
-      }
-
-      // Compare two values for equality, handling admin_data specially
-      function valuesAreEqual(key, currentValue, originalValue) {
-        // Special handling for admin_data - compare each property individually
-        if (key === 'admin_data') {
-          // If both are null/undefined, they're equal
-          if (!currentValue && !originalValue) return true;
-          // If only one is null/undefined, they're different
-          if (!currentValue || !originalValue) return false;
-
-          // Compare each property of admin_data
-          const adminKeys = new Set([
-            ...Object.keys(currentValue || {}),
-            ...Object.keys(originalValue || {}),
-          ]);
-
-          for (const adminKey of adminKeys) {
-            const curr = currentValue[adminKey];
-            const orig = originalValue[adminKey];
-
-            // Normalize null, undefined, and empty string to null for comparison
-            const normalizedCurr =
-              curr === '' || curr === undefined ? null : curr;
-            const normalizedOrig =
-              orig === '' || orig === undefined ? null : orig;
-
-            if (
-              JSON.stringify(normalizedCurr) !== JSON.stringify(normalizedOrig)
-            ) {
-              return false;
-            }
-          }
-          return true;
-        }
-
-        // For all other fields, use JSON comparison
-        return JSON.stringify(currentValue) === JSON.stringify(originalValue);
-      }
-
-      // Check if form has actual changes from original data
-      function checkForActualChanges() {
-        if (!projectData) {
-          // New project, any data is a change
-          const formData = collectFormData();
-          const hasAnyData =
-            formData.project_name ||
-            formData.foundation_team ||
-            formData.project_types.length > 0;
-          return hasAnyData;
-        }
-
-        const currentFormData = collectFormData();
-
-        // Check all keys in current form data
-        for (const key in currentFormData) {
-          if (!valuesAreEqual(key, currentFormData[key], projectData[key])) {
-            return true;
-          }
-        }
-
+        return data && data.role === 'admin';
+      } catch (error) {
+        console.error('Error checking user admin role:', error);
         return false;
       }
+    }
 
-      // Get nested value from object
-      function getNestedValue(obj, path) {
-        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-      }
+    // Format date for display
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr + 'T00:00:00');
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    }
 
-      // Set nested value in object
-      function setNestedValue(obj, path, value) {
-        const parts = path.split('.');
-        const last = parts.pop();
-        const target = parts.reduce((acc, part) => {
-          if (!acc[part]) acc[part] = {};
-          return acc[part];
-        }, obj);
-        target[last] = value;
-      }
+    // Format time for display
+    function formatTime(timeStr) {
+      if (!timeStr) return '';
+      const [hours, minutes] = timeStr.split(':');
+      const date = new Date();
+      date.setHours(parseInt(hours), parseInt(minutes));
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    }
 
-      // Fetch requester name from org_members table
-      async function fetchRequesterInfo(requestedByUuid) {
-        if (!requestedByUuid) {
-          return ['Unknown', 'Unknown'];
-        }
+    // Format currency
+    function formatCurrency(value) {
+      if (value === null || value === undefined || value === '') return '';
+      return '$' + parseFloat(value).toFixed(2);
+    }
 
-        try {
-          const { data, error } = await supabase
-            .from('org_members')
-            .select('first_name, last_name, user_email')
-            .eq('user_id', requestedByUuid)
-            .single();
+    // Show loading state
+    function showLoading() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('errorState').style.display = 'none';
+      document.getElementById('projectContent').style.display = 'none';
+    }
 
-          if (error) {
-            console.log('Error fetching requester:', error);
-            return ['Unknown', 'Unknown'];
-          }
+    // Show error state
+    function showError(message) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+      document.getElementById('errorMessage').textContent = message;
+      document.getElementById('projectContent').style.display = 'none';
+    }
 
-          if (data && data.first_name && data.last_name) {
-            return [data.first_name + ' ' + data.last_name, data.user_email];
-          }
+    // Show project content
+    function showContent() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'none';
+      document.getElementById('projectContent').style.display = 'block';
 
-          return ['Unknown', 'Unknown'];
-        } catch (error) {
-          console.error('Error fetching requester name:', error);
-          return ['Unknown', 'Unknown'];
-        }
-      }
+      const textareas = document.querySelectorAll('textarea');
 
-      // Fetch project from Supabase
-      async function fetchProject(id) {
-        console.log('Supabase URL:', supabaseConfig.url);
-        showLoading();
+      const resetTextareaHeight = (ta) => {
+        const taContent = ta.value;
+        ta.textContent = taContent;
+        ta.style.height = '40px'; // Reset height to recalculate
+        // console.log('textarea:', ta.textContent, ta.scrollHeight);
+        ta.style.height = ta.scrollHeight + 'px'; // Set to scrollHeight
+      };
 
-        try {
-          const { data, error } = await supabase
-            .from('projects')
-            .select('*')
-            .eq('id', id)
-            .single();
+      if (textareas.length > 0) {
+        textareas.forEach((textarea) => {
+          textarea.addEventListener('keyup', () => {
+            resetTextareaHeight(textarea);
+          });
 
-          if (error) throw error;
-          if (!data) throw new Error('Project not found');
+          textarea.addEventListener('change', () => {
+            // console.log('tA-CHANGE');
+            resetTextareaHeight(textarea);
+          });
 
-          projectData = data;
-          await renderProject(data);
-          showContent();
-        } catch (error) {
-          console.error('Error fetching project:', error);
-          showError(error.message || 'Failed to load project');
-        }
-      }
-
-      // Initialize new project
-      async function initNewProject() {
-        isNewProject = true;
-
-        // Get current user to set as requester
-        let currentUserId = null;
-        try {
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
-          if (user && user.email) {
-            // Look up user_id from org_members table using email
-            const { data: orgMember, error } = await supabase
-              .from('org_members')
-              .select('user_id')
-              .eq('user_email', user.email)
-              .single();
-
-            if (!error && orgMember) {
-              currentUserId = orgMember.user_id;
-            }
-          }
-        } catch (error) {
-          console.error('Error getting current user for requester:', error);
-        }
-
-        projectData = {
-          project_name: '',
-          foundation_team: '',
-          project_types: [],
-          raisers_edge_info: null,
-          confirmation_content: null,
-          event_details: null,
-          email_details: null,
-          items: null,
-          discount_codes: null,
-          additional_comments: '',
-          other_project_type_description: null,
-          admin_data: null,
-          requested_by: currentUserId,
-        };
-
-        document.getElementById('project_title').textContent =
-          'Create New Project';
-        document.getElementById('subtitle').innerHTML =
-          'Fill out the form to create a new project. <span id="editStatus" class="edit-status" style="display: none;">Unsaved changes</span>';
-        document.getElementById('saveBtn').textContent = 'Create Project';
-        document.getElementById('discardBtn').textContent = 'Cancel';
-
-        await renderProject(projectData);
-        showContent();
-      }
-
-      // Check if project types include Raiser's Edge relevant types
-      function shouldShowRaisersEdge(projectTypes) {
-        const reTypes = [
-          'P2P site',
-          'Event registration/ticket form',
-          'Donation form',
-          'E-store',
-        ];
-        return (
-          projectTypes && projectTypes.some((type) => reTypes.includes(type))
-        );
-      }
-
-      // Check if project types include Event Details relevant types
-      function shouldShowEventDetails(projectTypes) {
-        const eventTypes = ['P2P site', 'Event registration/ticket form'];
-        return (
-          projectTypes && projectTypes.some((type) => eventTypes.includes(type))
-        );
-      }
-
-      // Check if project types include Items/Tickets relevant types
-      function shouldShowItems(projectTypes) {
-        const itemTypes = ['P2P site', 'Event registration/ticket form'];
-        return (
-          projectTypes && projectTypes.some((type) => itemTypes.includes(type))
-        );
-      }
-
-      // Check if project types include P2P relevant types
-      function shouldShowDiscountCodes(projectTypes) {
-        const itemTypes = ['P2P site'];
-        return (
-          projectTypes && projectTypes.some((type) => itemTypes.includes(type))
-        );
-      }
-
-      // Check if project types include Confirmation Content relevant types
-      function shouldShowConfirmation(projectTypes) {
-        const confirmationTypes = [
-          'Contact form/survey',
-          'Donation form',
-          'Event registration/ticket form',
-          'P2P site',
-          'E-store',
-        ];
-        return (
-          projectTypes &&
-          projectTypes.some((type) => confirmationTypes.includes(type))
-        );
-      }
-
-      // Check if project types include Email Details relevant types
-      function shouldShowEmailDetails(projectTypes) {
-        return projectTypes && projectTypes.includes('Email send');
-      }
-
-      // Check if short URL field should be shown (hide for Email send and Web edit only)
-      function shouldShowShortUrl(projectTypes) {
-        const excludedTypes = ['Email send', 'Web edit (on choa.org)'];
-        return (
-          projectTypes &&
-          projectTypes.length > 0 &&
-          projectTypes.some((type) => !excludedTypes.includes(type))
-        );
-      }
-
-      // Render project data
-      async function renderProject(data) {
-        // Set page title
-        document.getElementById('project_title').textContent =
-          data.project_name || 'Project Details';
-        document.title = (data.project_name || 'Project') + ' - Details';
-
-        // Fetch and display requester name
-        const requesterDisplay = document.getElementById(
-          'requested_by_display',
-        );
-        if (data.requested_by) {
-          const requesterInfo = await fetchRequesterInfo(data.requested_by);
-          const requesterName = requesterInfo[0];
-          requesterDisplay.textContent = requesterName;
-        } else {
-          requesterDisplay.textContent = 'Unknown';
-        }
-
-        // Show/hide admin section based on URL parameter
-        if (isAdminMode()) {
-          document.getElementById('adminSection').style.display = 'block';
-        }
-
-        // Render simple editable fields
-        document.querySelectorAll('.editable-field').forEach((field) => {
-          const fieldName = field.dataset.field;
-          const value = getNestedValue(data, fieldName);
-          const display = field.querySelector('.field-display');
-          const input = field.querySelector('input, textarea, select');
-          const fieldType = field.dataset.type;
-
-          // Set display value
-          let displayValue = value || '';
-          if (fieldType === 'date' && value) {
-            displayValue = formatDate(value);
-          } else if (fieldType === 'time' && value) {
-            displayValue = formatTime(value);
-          } else if (fieldType === 'select' && value) {
-            displayValue = value;
-          } else if (fieldName === 'desired_short_url' && value) {
-            displayValue = 'https://give.choa.org/' + value;
-          }
-
-          display.textContent = displayValue;
-          display.classList.toggle('empty', !value);
-          if (!value) {
-            display.textContent = 'Click to edit';
-          }
-
-          if (fieldName === 'admin_data.status' && value === 'Development') {
-            display.style.color = '#d9534f';
-          }
-
-          // Set input value
-          if (input) {
-            if (input.tagName === 'SELECT') {
-              input.value = value || '';
-            } else {
-              input.value = value || '';
-            }
-          }
+          const fEvent = new Event('focus', { bubbles: true });
+          const bEvent = new Event('blur', { bubbles: true });
+          textarea.dispatchEvent(fEvent);
+          textarea.dispatchEvent(bEvent);
+          resetTextareaHeight(textarea);
         });
+      }
+    }
 
-        // Handle checkbox for DS validated
-        const dsValidatedCheckbox = document.getElementById('ds_validated');
-        if (dsValidatedCheckbox && data.admin_data) {
-          dsValidatedCheckbox.checked = data.admin_data.ds_validated || false;
+    // Show success message
+    function showSuccessMessage(message) {
+      const el = document.getElementById('successMessage');
+      el.innerHTML = '&#10003;  ' + message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 5000);
+    }
+
+    // Show error message
+    function showErrorMessage(message) {
+      const el = document.getElementById('errorMessageBox');
+      document.getElementById('errorMessageText').textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 5000);
+    }
+
+    // Mark changes as unsaved
+    function markUnsaved() {
+      hasUnsavedChanges = true;
+      const status = document.getElementById('editStatus');
+      status.textContent = 'Unsaved changes';
+      status.classList.add('unsaved');
+      status.style.display = 'inline-block';
+    }
+
+    // Clear unsaved status
+    function clearUnsavedStatus() {
+      hasUnsavedChanges = false;
+      document.getElementById('editStatus').style.display = 'none';
+    }
+
+    // Compare two values for equality, handling admin_data specially
+    function valuesAreEqual(key, currentValue, originalValue) {
+      // Special handling for admin_data - compare each property individually
+      if (key === 'admin_data') {
+        // If both are null/undefined, they're equal
+        if (!currentValue && !originalValue) return true;
+        // If only one is null/undefined, they're different
+        if (!currentValue || !originalValue) return false;
+
+        // Compare each property of admin_data
+        const adminKeys = new Set([
+          ...Object.keys(currentValue || {}),
+          ...Object.keys(originalValue || {}),
+        ]);
+
+        for (const adminKey of adminKeys) {
+          const curr = currentValue[adminKey];
+          const orig = originalValue[adminKey];
+
+          // Normalize null, undefined, and empty string to null for comparison
+          const normalizedCurr =
+            curr === '' || curr === undefined ? null : curr;
+          const normalizedOrig =
+            orig === '' || orig === undefined ? null : orig;
+
+          if (
+            JSON.stringify(normalizedCurr) !== JSON.stringify(normalizedOrig)
+          ) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      // For all other fields, use JSON comparison
+      return JSON.stringify(currentValue) === JSON.stringify(originalValue);
+    }
+
+    // Check if form has actual changes from original data
+    function checkForActualChanges() {
+      if (!projectData) {
+        // New project, any data is a change
+        const formData = collectFormData();
+        const hasAnyData =
+          formData.project_name ||
+          formData.foundation_team ||
+          formData.project_types.length > 0;
+        return hasAnyData;
+      }
+
+      const currentFormData = collectFormData();
+
+      // Check all keys in current form data
+      for (const key in currentFormData) {
+        if (!valuesAreEqual(key, currentFormData[key], projectData[key])) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    // Get nested value from object
+    function getNestedValue(obj, path) {
+      return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    }
+
+    // Set nested value in object
+    function setNestedValue(obj, path, value) {
+      const parts = path.split('.');
+      const last = parts.pop();
+      const target = parts.reduce((acc, part) => {
+        if (!acc[part]) acc[part] = {};
+        return acc[part];
+      }, obj);
+      target[last] = value;
+    }
+
+    // Fetch requester name from org_members table
+    async function fetchRequesterInfo(requestedByUuid) {
+      if (!requestedByUuid) {
+        return ['Unknown', 'Unknown'];
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('org_members')
+          .select('first_name, last_name, user_email')
+          .eq('user_id', requestedByUuid)
+          .single();
+
+        if (error) {
+          console.log('Error fetching requester:', error);
+          return ['Unknown', 'Unknown'];
         }
 
-        // Render project types
-        renderproject_types(data.project_types || []);
-
-        // Populate "Other" description field
-        const otherDescField = document.getElementById(
-          'other_project_type_description',
-        );
-        if (otherDescField && data.other_project_type_description) {
-          otherDescField.value = data.other_project_type_description;
+        if (data && data.first_name && data.last_name) {
+          return [data.first_name + ' ' + data.last_name, data.user_email];
         }
 
-        // Render items
-        renderItems(data.items || []);
+        return ['Unknown', 'Unknown'];
+      } catch (error) {
+        console.error('Error fetching requester name:', error);
+        return ['Unknown', 'Unknown'];
+      }
+    }
 
-        // Render discount codes
-        renderdiscount_codes(data.discount_codes || []);
+    // Fetch project from Supabase
+    async function fetchProject(id) {
+      console.log('Supabase URL:', supabaseConfig.url);
+      showLoading();
 
-        // Show/hide sections based on project type
-        const showRaisersEdge = shouldShowRaisersEdge(data.project_types);
-        const showConfirmation = shouldShowConfirmation(data.project_types);
-        const showEventDetails = shouldShowEventDetails(data.project_types);
-        const showItems = shouldShowItems(data.project_types);
-        const showDiscountCodes = shouldShowDiscountCodes(data.project_types);
-        const showEmailDetails = shouldShowEmailDetails(data.project_types);
-        const showShortUrl = shouldShowShortUrl(data.project_types);
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', id)
+          .single();
 
-        document.getElementById('raisersEdgeSection').style.display =
-          showRaisersEdge ? 'grid' : 'none';
+        if (error) throw error;
+        if (!data) throw new Error('Project not found');
 
-        document.getElementById('confirmationSection').style.display =
-          showConfirmation ? 'flex' : 'none';
+        projectData = data;
+        await renderProject(data);
+        showContent();
+      } catch (error) {
+        console.error('Error fetching project:', error);
+        showError(error.message || 'Failed to load project');
+      }
+    }
 
-        document.getElementById('event_detailsSection').style.display =
-          showEventDetails ? 'flex' : 'none';
+    // Initialize new project
+    async function initNewProject() {
+      isNewProject = true;
 
-        document.getElementById('emailDetailsSection').style.display =
-          showEmailDetails ? 'flex' : 'none';
+      // Get current user to set as requester
+      let currentUserId = null;
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user && user.email) {
+          // Look up user_id from org_members table using email
+          const { data: orgMember, error } = await supabase
+            .from('org_members')
+            .select('user_id')
+            .eq('user_email', user.email)
+            .single();
 
-        document.getElementById('itemsSection').style.display = showItems
-          ? 'block'
-          : 'none';
+          if (!error && orgMember) {
+            currentUserId = orgMember.user_id;
+          }
+        }
+      } catch (error) {
+        console.error('Error getting current user for requester:', error);
+      }
 
-        document.getElementById('discount_codesSection').style.display =
-          showDiscountCodes ? 'block' : 'none';
-        // (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
+      projectData = {
+        project_name: '',
+        foundation_team: '',
+        project_types: [],
+        raisers_edge_info: null,
+        confirmation_content: null,
+        event_details: null,
+        email_details: null,
+        items: null,
+        discount_codes: null,
+        additional_comments: '',
+        other_project_type_description: null,
+        admin_data: null,
+        requested_by: currentUserId,
+      };
 
-        document.getElementById('shortUrlGroup').style.display =
-          showShortUrl ? '' : 'none';
+      document.getElementById('project_title').textContent =
+        'Create New Project';
+      document.getElementById('subtitle').innerHTML =
+        'Fill out the form to create a new project. <span id="editStatus" class="edit-status" style="display: none;">Unsaved changes</span>';
+      document.getElementById('saveBtn').textContent = 'Create Project';
+      document.getElementById('discardBtn').textContent = 'Cancel';
 
-        // Clear unsaved status after rendering (checkbox changes during render trigger markUnsaved)
-        clearUnsavedStatus();
+      await renderProject(projectData);
+      showContent();
+    }
+
+    // Check if project types include Raiser's Edge relevant types
+    function shouldShowRaisersEdge(projectTypes) {
+      const reTypes = [
+        'P2P site',
+        'Event registration/ticket form',
+        'Donation form',
+        'E-store',
+      ];
+      return (
+        projectTypes && projectTypes.some((type) => reTypes.includes(type))
+      );
+    }
+
+    // Check if project types include Event Details relevant types
+    function shouldShowEventDetails(projectTypes) {
+      const eventTypes = ['P2P site', 'Event registration/ticket form'];
+      return (
+        projectTypes && projectTypes.some((type) => eventTypes.includes(type))
+      );
+    }
+
+    // Check if project types include Items/Tickets relevant types
+    function shouldShowItems(projectTypes) {
+      const itemTypes = ['P2P site', 'Event registration/ticket form'];
+      return (
+        projectTypes && projectTypes.some((type) => itemTypes.includes(type))
+      );
+    }
+
+    // Check if project types include P2P relevant types
+    function shouldShowDiscountCodes(projectTypes) {
+      const itemTypes = ['P2P site'];
+      return (
+        projectTypes && projectTypes.some((type) => itemTypes.includes(type))
+      );
+    }
+
+    // Check if project types include Confirmation Content relevant types
+    function shouldShowConfirmation(projectTypes) {
+      const confirmationTypes = [
+        'Contact form/survey',
+        'Donation form',
+        'Event registration/ticket form',
+        'P2P site',
+        'E-store',
+      ];
+      return (
+        projectTypes &&
+        projectTypes.some((type) => confirmationTypes.includes(type))
+      );
+    }
+
+    // Check if project types include Email Details relevant types
+    function shouldShowEmailDetails(projectTypes) {
+      return projectTypes && projectTypes.includes('Email send');
+    }
+
+    // Check if short URL field should be shown (hide for Email send and Web edit only)
+    function shouldShowShortUrl(projectTypes) {
+      const excludedTypes = ['Email send', 'Web edit (on choa.org)'];
+      return (
+        projectTypes &&
+        projectTypes.length > 0 &&
+        projectTypes.some((type) => !excludedTypes.includes(type))
+      );
+    }
+
+    // Render project data
+    async function renderProject(data) {
+      // Set page title
+      document.getElementById('project_title').textContent =
+        data.project_name || 'Project Details';
+      document.title = (data.project_name || 'Project') + ' - Details';
+
+      // Fetch and display requester name
+      const requesterDisplay = document.getElementById(
+        'requested_by_display',
+      );
+      if (data.requested_by) {
+        const requesterInfo = await fetchRequesterInfo(data.requested_by);
+        const requesterName = requesterInfo[0];
+        requesterDisplay.textContent = requesterName;
+      } else {
+        requesterDisplay.textContent = 'Unknown';
+      }
+
+      // Show/hide admin section based on URL parameter
+      if (isAdminMode()) {
+        document.getElementById('adminSection').style.display = 'block';
+      }
+
+      // Render simple editable fields
+      document.querySelectorAll('.editable-field').forEach((field) => {
+        const fieldName = field.dataset.field;
+        const value = getNestedValue(data, fieldName);
+        const display = field.querySelector('.field-display');
+        const input = field.querySelector('input, textarea, select');
+        const fieldType = field.dataset.type;
+
+        // Set display value
+        let displayValue = value || '';
+        if (fieldType === 'date' && value) {
+          displayValue = formatDate(value);
+        } else if (fieldType === 'time' && value) {
+          displayValue = formatTime(value);
+        } else if (fieldType === 'select' && value) {
+          displayValue = value;
+        } else if (fieldName === 'desired_short_url' && value) {
+          displayValue = 'https://give.choa.org/' + value;
+        }
+
+        display.textContent = displayValue;
+        display.classList.toggle('empty', !value);
+        if (!value) {
+          display.textContent = 'Click to edit';
+        }
+
+        if (fieldName === 'admin_data.status' && value === 'Development') {
+          display.style.color = '#d9534f';
+        }
+
+        // Set input value
+        if (input) {
+          if (input.tagName === 'SELECT') {
+            input.value = value || '';
+          } else {
+            input.value = value || '';
+          }
+        }
+      });
+
+      // Handle checkbox for DS validated
+      const dsValidatedCheckbox = document.getElementById('ds_validated');
+      if (dsValidatedCheckbox && data.admin_data) {
+        dsValidatedCheckbox.checked = data.admin_data.ds_validated || false;
       }
 
       // Render project types
-      function renderproject_types(types) {
-        // Update checkboxes
-        document
-          .querySelectorAll('input[name="project_type"]')
-          .forEach((cb) => {
-            cb.checked = types.includes(cb.value);
-          });
+      renderproject_types(data.project_types || []);
 
-        // Show/hide "Other" description field
-        const otherCheckbox = document.getElementById('type8');
-        const otherDesc = document.getElementById(
-          'other_project_type_description',
-        );
-        if (otherCheckbox && otherDesc) {
-          otherDesc.style.display = otherCheckbox.checked
-            ? 'inline-block'
-            : 'none';
-            otherDesc.style.background = otherCheckbox.checked
-            ? '#fff'
-            : '#e9ecef';
-        }
+      // Populate "Other" description field
+      const otherDescField = document.getElementById(
+        'other_project_type_description',
+      );
+      if (otherDescField && data.other_project_type_description) {
+        otherDescField.value = data.other_project_type_description;
       }
 
-      // Handle project type change
-      function handleProjectTypeChange() {
-        const selectedTypes = Array.from(
-          document.querySelectorAll('input[name="project_type"]:checked'),
-        ).map((cb) => cb.value);
+      // Render items
+      renderItems(data.items || []);
 
-        // Show/hide "Other" description field
-        const otherDesc = document.getElementById(
-          'other_project_type_description',
-        );
-        if (otherDesc) {
-          if (selectedTypes.includes('Other')) {
-            otherDesc.style.display = 'inline-block';
-          } else {
-            otherDesc.style.display = 'none';
-            otherDesc.value = '';
-          }
-        }
+      // Render discount codes
+      renderdiscount_codes(data.discount_codes || []);
 
-        // Show/hide sections based on selected types
-        const showRaisersEdge = shouldShowRaisersEdge(selectedTypes);
-        const showConfirmation = shouldShowConfirmation(selectedTypes);
-        const showEventDetails = shouldShowEventDetails(selectedTypes);
-        const showItems = shouldShowItems(selectedTypes);
-        const showDiscountCodes = shouldShowDiscountCodes(selectedTypes);
-        const showEmailDetails = shouldShowEmailDetails(selectedTypes);
-        const showShortUrl = shouldShowShortUrl(selectedTypes);
+      // Show/hide sections based on project type
+      const showRaisersEdge = shouldShowRaisersEdge(data.project_types);
+      const showConfirmation = shouldShowConfirmation(data.project_types);
+      const showEventDetails = shouldShowEventDetails(data.project_types);
+      const showItems = shouldShowItems(data.project_types);
+      const showDiscountCodes = shouldShowDiscountCodes(data.project_types);
+      const showEmailDetails = shouldShowEmailDetails(data.project_types);
+      const showShortUrl = shouldShowShortUrl(data.project_types);
 
-        document.getElementById('raisersEdgeSection').style.display =
-          showRaisersEdge ? 'grid' : 'none';
+      document.getElementById('raisersEdgeSection').style.display =
+        showRaisersEdge ? 'grid' : 'none';
 
-        document.getElementById('confirmationSection').style.display =
-          showConfirmation ? 'flex' : 'none';
+      document.getElementById('confirmationSection').style.display =
+        showConfirmation ? 'flex' : 'none';
 
-        document.getElementById('event_detailsSection').style.display =
-          showEventDetails ? 'flex' : 'none';
+      document.getElementById('event_detailsSection').style.display =
+        showEventDetails ? 'flex' : 'none';
 
-        document.getElementById('emailDetailsSection').style.display =
-          showEmailDetails ? 'flex' : 'none';
+      document.getElementById('emailDetailsSection').style.display =
+        showEmailDetails ? 'flex' : 'none';
 
-        document.getElementById('itemsSection').style.display = showItems
-          ? 'block'
+      document.getElementById('itemsSection').style.display = showItems
+        ? 'block'
+        : 'none';
+
+      document.getElementById('discount_codesSection').style.display =
+        showDiscountCodes ? 'block' : 'none';
+      // (data.discount_codes && data.discount_codes.length > 0) ? 'block' : 'none';
+
+      document.getElementById('shortUrlGroup').style.display =
+        showShortUrl ? '' : 'none';
+
+      // Clear unsaved status after rendering (checkbox changes during render trigger markUnsaved)
+      clearUnsavedStatus();
+    }
+
+    // Render project types
+    function renderproject_types(types) {
+      // Update checkboxes
+      document
+        .querySelectorAll('input[name="project_type"]')
+        .forEach((cb) => {
+          cb.checked = types.includes(cb.value);
+        });
+
+      // Show/hide "Other" description field
+      const otherCheckbox = document.getElementById('type8');
+      const otherDesc = document.getElementById(
+        'other_project_type_description',
+      );
+      if (otherCheckbox && otherDesc) {
+        otherDesc.style.display = otherCheckbox.checked
+          ? 'inline-block'
           : 'none';
+        otherDesc.style.background = otherCheckbox.checked
+          ? '#fff'
+          : '#e9ecef';
+      }
+    }
 
-        document.getElementById('discount_codesSection').style.display =
-          showDiscountCodes ? 'block' : 'none';
+    // Handle project type change
+    function handleProjectTypeChange() {
+      const selectedTypes = Array.from(
+        document.querySelectorAll('input[name="project_type"]:checked'),
+      ).map((cb) => cb.value);
 
-        document.getElementById('shortUrlGroup').style.display =
-          showShortUrl ? '' : 'none';
-
-        // Only mark as unsaved if there are actual changes
-        if (checkForActualChanges()) {
-          markUnsaved();
+      // Show/hide "Other" description field
+      const otherDesc = document.getElementById(
+        'other_project_type_description',
+      );
+      if (otherDesc) {
+        if (selectedTypes.includes('Other')) {
+          otherDesc.style.display = 'inline-block';
         } else {
-          clearUnsavedStatus();
+          otherDesc.style.display = 'none';
+          otherDesc.value = '';
         }
       }
 
-      // Render items table
-      function renderItems(items) {
-        const tbody = document.getElementById('itemsTableBody');
-        tbody.innerHTML = '';
+      // Show/hide sections based on selected types
+      const showRaisersEdge = shouldShowRaisersEdge(selectedTypes);
+      const showConfirmation = shouldShowConfirmation(selectedTypes);
+      const showEventDetails = shouldShowEventDetails(selectedTypes);
+      const showItems = shouldShowItems(selectedTypes);
+      const showDiscountCodes = shouldShowDiscountCodes(selectedTypes);
+      const showEmailDetails = shouldShowEmailDetails(selectedTypes);
+      const showShortUrl = shouldShowShortUrl(selectedTypes);
 
-        if (!items || items.length === 0) {
-          // Add empty row
-          const row = createItemRow();
-          tbody.appendChild(row);
-        } else {
-          items.forEach((item, index) => {
-            const row = createItemRow(item, index);
-            tbody.appendChild(row);
-          });
-        }
+      document.getElementById('raisersEdgeSection').style.display =
+        showRaisersEdge ? 'grid' : 'none';
+
+      document.getElementById('confirmationSection').style.display =
+        showConfirmation ? 'flex' : 'none';
+
+      document.getElementById('event_detailsSection').style.display =
+        showEventDetails ? 'flex' : 'none';
+
+      document.getElementById('emailDetailsSection').style.display =
+        showEmailDetails ? 'flex' : 'none';
+
+      document.getElementById('itemsSection').style.display = showItems
+        ? 'block'
+        : 'none';
+
+      document.getElementById('discount_codesSection').style.display =
+        showDiscountCodes ? 'block' : 'none';
+
+      document.getElementById('shortUrlGroup').style.display =
+        showShortUrl ? '' : 'none';
+
+      // Only mark as unsaved if there are actual changes
+      if (checkForActualChanges()) {
+        markUnsaved();
+      } else {
+        clearUnsavedStatus();
       }
+    }
 
-      // Create item row
-      function createItemRow(item = {}, index = 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-                            <td><input type="text" class="item-name" value="${escapeHtml(
-                              item.name || '',
-                            )}" onchange="markUnsaved()"></td>
-                            <td><textarea class="item-description" rows="2" onchange="markUnsaved()">${escapeHtml(
-                              item.description || '',
-                            )}</textarea></td>
-                            <td><input type="number" class="item-price" step="0.01" min="0" value="${
-                              item.price || ''
-                            }" onchange="markUnsaved()"></td>
-                            <td><input type="number" class="item-fmv" step="0.01" min="0" value="${
-                              item.fairMarketValue || ''
-                            }" onchange="markUnsaved()"></td>
-                            <td><input type="number" class="item-quantity" min="0" value="${
-                              item.quantityAvailable || ''
-                            }" onchange="markUnsaved()"></td>
-                            <td><button type="button" class="btn btn-remove" onclick="removeItemRow(this)">Remove</button></td>
-                        `;
-        return row;
-      }
+    // Render items table
+    function renderItems(items) {
+      const tbody = document.getElementById('itemsTableBody');
+      tbody.innerHTML = '';
 
-      // Add item row
-      function addItemRow() {
-        const tbody = document.getElementById('itemsTableBody');
+      if (!items || items.length === 0) {
+        // Add empty row
         const row = createItemRow();
         tbody.appendChild(row);
-        markUnsaved();
+      } else {
+        items.forEach((item, index) => {
+          const row = createItemRow(item, index);
+          tbody.appendChild(row);
+        });
+      }
+    }
 
-        // Show items section if hidden
-        document.getElementById('itemsSection').style.display = 'block';
+    // Create item row
+    function createItemRow(item = {}, index = 0) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+                            <td><input type="text" class="item-name" value="${escapeHtml(
+        item.name || '',
+      )}" onchange="markUnsaved()"></td>
+                            <td><textarea class="item-description" rows="2" onchange="markUnsaved()">${escapeHtml(
+        item.description || '',
+      )}</textarea></td>
+                            <td><input type="number" class="item-price" step="0.01" min="0" value="${item.price || ''
+        }" onchange="markUnsaved()"></td>
+                            <td><input type="number" class="item-fmv" step="0.01" min="0" value="${item.fairMarketValue || ''
+        }" onchange="markUnsaved()"></td>
+                            <td><input type="number" class="item-quantity" min="0" value="${item.quantityAvailable || ''
+        }" onchange="markUnsaved()"></td>
+                            <td><button type="button" class="btn btn-remove" onclick="removeItemRow(this)">Remove</button></td>
+                        `;
+      return row;
+    }
+
+    // Add item row
+    function addItemRow() {
+      const tbody = document.getElementById('itemsTableBody');
+      const row = createItemRow();
+      tbody.appendChild(row);
+      markUnsaved();
+
+      // Show items section if hidden
+      document.getElementById('itemsSection').style.display = 'block';
+    }
+
+    // Remove item row
+    function removeItemRow(button) {
+      const tbody = document.getElementById('itemsTableBody');
+      button.closest('tr').remove();
+      markUnsaved();
+
+      // Update ticket level checkboxes in discount codes
+      updateTicketLevelCheckboxes();
+    }
+
+    // Render discount codes table
+    function renderdiscount_codes(discounts) {
+      const tbody = document.getElementById('discount_codesTableBody');
+      tbody.innerHTML = '';
+      discountRowCounter = 0;
+
+      if (discounts.length === 0) {
+        addDiscountRow();
+      } else {
+        discounts.forEach((discount, index) => {
+          const row = createDiscountRow(discount, discountRowCounter++);
+          tbody.appendChild(row);
+        });
       }
 
-      // Remove item row
-      function removeItemRow(button) {
-        const tbody = document.getElementById('itemsTableBody');
-        button.closest('tr').remove();
-        markUnsaved();
+      // Update ticket level checkboxes
+      setTimeout(updateTicketLevelCheckboxes, 0);
+    }
 
-        // Update ticket level checkboxes in discount codes
-        updateTicketLevelCheckboxes();
-      }
+    // Create discount row
+    function createDiscountRow(discount = {}, index = 0) {
+      const row = document.createElement('tr');
+      const isFixed = discount.type !== 'percentage';
 
-      // Render discount codes table
-      function renderdiscount_codes(discounts) {
-        const tbody = document.getElementById('discount_codesTableBody');
-        tbody.innerHTML = '';
-        discountRowCounter = 0;
-
-        if (discounts.length === 0) {
-          addDiscountRow();
-        } else {
-          discounts.forEach((discount, index) => {
-            const row = createDiscountRow(discount, discountRowCounter++);
-            tbody.appendChild(row);
-          });
-        }
-
-        // Update ticket level checkboxes
-        setTimeout(updateTicketLevelCheckboxes, 0);
-      }
-
-      // Create discount row
-      function createDiscountRow(discount = {}, index = 0) {
-        const row = document.createElement('tr');
-        const isFixed = discount.type !== 'percentage';
-
-        row.innerHTML = `
+      row.innerHTML = `
                             <td><input type="text" class="discount-code" value="${escapeHtml(
-                              discount.code || '',
-                            )}" onchange="markUnsaved()"></td>
+        discount.code || '',
+      )}" onchange="markUnsaved()"></td>
                             <td>
                                 <div class="discount-type-container">
                                     <div class="radio-group">
-                                        <label><input type="radio" name="discount_type_${index}" value="fixed" ${
-                                          isFixed ? 'checked' : ''
-                                        } onchange="markUnsaved(); updateDiscountSymbol(this)">
+                                        <label><input type="radio" name="discount_type_${index}" value="fixed" ${isFixed ? 'checked' : ''
+        } onchange="markUnsaved(); updateDiscountSymbol(this)">
                                         Fixed ($)</label>
-                                        <label><input type="radio" name="discount_type_${index}" value="percentage" ${
-                                          !isFixed ? 'checked' : ''
-                                        } onchange="markUnsaved(); updateDiscountSymbol(this)">
+                                        <label><input type="radio" name="discount_type_${index}" value="percentage" ${!isFixed ? 'checked' : ''
+        } onchange="markUnsaved(); updateDiscountSymbol(this)">
                                         Percent (%)</label>
                                     </div>
                                     <div class="discount-value-wrapper" data-type="${isFixed ? 'fixed' : 'percentage'}">
                                         <span class="prefix">$</span>
-                                        <input type="number" class="discount-value" step="0.01" min="0"  value="${
-                                          discount.value || ''
-                                        }" onchange="markUnsaved()">
+                                        <input type="number" class="discount-value" step="0.01" min="0"  value="${discount.value || ''
+        }" onchange="markUnsaved()">
                                         <span class="suffix">%</span>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="checkbox-list ticket-levels-checkboxes" data-selected='${JSON.stringify(
-                                  discount.ticketLevels || [],
-                                )}'>
+          discount.ticketLevels || [],
+        )}'>
                                     <!-- Dynamically populated -->
                                 </div>
                             </td>
-                            <td><input type="number" class="discount-quantity" min="0" value="${
-                              discount.quantityAvailable || ''
-                            }" onchange="markUnsaved()"></td>
+                            <td><input type="number" class="discount-quantity" min="0" value="${discount.quantityAvailable || ''
+        }" onchange="markUnsaved()"></td>
                             <td><button type="button" class="btn btn-remove" onclick="removeDiscountRow(this)">Remove</button></td>
                         `;
-        return row;
-      }
+      return row;
+    }
 
-      function updateDiscountSymbol(radio) {
-        const container = radio.closest('.discount-type-container');
-        const wrapper = container.querySelector('.discount-value-wrapper');
-        wrapper.setAttribute('data-type', radio.value);
-        wrapper.querySelector('.discount-value').style.textAlign =
-          radio.value === 'fixed' ? 'left' : 'right';
-      }
+    function updateDiscountSymbol(radio) {
+      const container = radio.closest('.discount-type-container');
+      const wrapper = container.querySelector('.discount-value-wrapper');
+      wrapper.setAttribute('data-type', radio.value);
+      wrapper.querySelector('.discount-value').style.textAlign =
+        radio.value === 'fixed' ? 'left' : 'right';
+    }
 
-      // Add discount row
-      function addDiscountRow() {
-        const tbody = document.getElementById('discount_codesTableBody');
-        const row = createDiscountRow({}, discountRowCounter++);
-        tbody.appendChild(row);
-        markUnsaved();
-        updateTicketLevelCheckboxes();
+    // Add discount row
+    function addDiscountRow() {
+      const tbody = document.getElementById('discount_codesTableBody');
+      const row = createDiscountRow({}, discountRowCounter++);
+      tbody.appendChild(row);
+      markUnsaved();
+      updateTicketLevelCheckboxes();
 
-        // Show discount codes section if hidden
-        document.getElementById('discount_codesSection').style.display =
-          'block';
-      }
+      // Show discount codes section if hidden
+      document.getElementById('discount_codesSection').style.display =
+        'block';
+    }
 
-      // Remove discount row
-      function removeDiscountRow(button) {
-        button.closest('tr').remove();
-        markUnsaved();
-      }
+    // Remove discount row
+    function removeDiscountRow(button) {
+      button.closest('tr').remove();
+      markUnsaved();
+    }
 
-      // Update ticket level checkboxes
-      function updateTicketLevelCheckboxes() {
-        const itemNames = Array.from(document.querySelectorAll('.item-name'))
-          .map((input) => input.value.trim())
-          .filter((name) => name !== '');
+    // Update ticket level checkboxes
+    function updateTicketLevelCheckboxes() {
+      const itemNames = Array.from(document.querySelectorAll('.item-name'))
+        .map((input) => input.value.trim())
+        .filter((name) => name !== '');
 
-        document
-          .querySelectorAll('.ticket-levels-checkboxes')
-          .forEach((container) => {
-            // Get previously selected values
-            let selectedValues = [];
-            try {
-              selectedValues = JSON.parse(container.dataset.selected || '[]');
-            } catch (e) {}
+      document
+        .querySelectorAll('.ticket-levels-checkboxes')
+        .forEach((container) => {
+          // Get previously selected values
+          let selectedValues = [];
+          try {
+            selectedValues = JSON.parse(container.dataset.selected || '[]');
+          } catch (e) { }
 
-            // Also check currently checked boxes
-            const currentlyChecked = Array.from(
-              container.querySelectorAll('input[type="checkbox"]:checked'),
-            ).map((cb) => cb.value);
-            selectedValues = [
-              ...new Set([...selectedValues, ...currentlyChecked]),
-            ];
+          // Also check currently checked boxes
+          const currentlyChecked = Array.from(
+            container.querySelectorAll('input[type="checkbox"]:checked'),
+          ).map((cb) => cb.value);
+          selectedValues = [
+            ...new Set([...selectedValues, ...currentlyChecked]),
+          ];
 
-            container.innerHTML = '';
+          container.innerHTML = '';
 
-            if (itemNames.length === 0) {
-              container.innerHTML =
-                '<em style="color: #999; font-size: 12px;">Add items to see options</em>';
-            } else {
-              itemNames.forEach((name, index) => {
-                const id = `ticket_${
-                  container.closest('tr').rowIndex
+          if (itemNames.length === 0) {
+            container.innerHTML =
+              '<em style="color: #999; font-size: 12px;">Add items to see options</em>';
+          } else {
+            itemNames.forEach((name, index) => {
+              const id = `ticket_${container.closest('tr').rowIndex
                 }_${index}`;
-                const label = document.createElement('label');
-                label.style.display = 'flex';
-                label.style.alignItems = 'center';
-                label.style.gap = '5px';
-                label.innerHTML = `
+              const label = document.createElement('label');
+              label.style.display = 'flex';
+              label.style.alignItems = 'center';
+              label.style.gap = '5px';
+              label.innerHTML = `
                                         <input type="checkbox" value="${escapeHtml(
-                                          name,
-                                        )}"
-                                               ${
-                                                 selectedValues.includes(name)
-                                                   ? 'checked'
-                                                   : ''
-                                               }
+                name,
+              )}"
+                                               ${selectedValues.includes(name)
+                  ? 'checked'
+                  : ''
+                }
                                                onchange="markUnsaved()">
                                         ${escapeHtml(name)}
                                     `;
-                container.appendChild(label);
-              });
-            }
-          });
-      }
-
-      // Listen for item name changes
-      document.addEventListener('input', function (e) {
-        if (e.target.classList.contains('item-name')) {
-          updateTicketLevelCheckboxes();
-        }
-      });
-
-      // Escape HTML
-      function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      }
-
-      // Set up inline editing
-      function setupInlineEditing() {
-        document.querySelectorAll('.editable-field').forEach((field) => {
-          const display = field.querySelector('.field-display');
-          const input = field.querySelector('input, textarea, select');
-
-          display.addEventListener('click', () => {
-            field.classList.add('editing');
-            input.focus();
-          });
-
-          input.addEventListener('blur', () => {
-            const fieldName = field.dataset.field;
-            const fieldType = field.dataset.type;
-            const value = input.value;
-
-            // Update display
-            let displayValue = value;
-            if (fieldType === 'date' && value) {
-              displayValue = formatDate(value);
-            } else if (fieldType === 'time' && value) {
-              displayValue = formatTime(value);
-            } else if (fieldName === 'desired_short_url' && value) {
-              displayValue = 'https://give.choa.org/' + value;
-            }
-
-            display.textContent = displayValue || 'Click to edit';
-            display.classList.toggle('empty', !value);
-
-            if (fieldName === 'admin_data.status') {
-              display.style.color = value === 'Development' ? '#d9534f' : '';
-            }
-
-            field.classList.remove('editing');
-
-            // Only mark as unsaved if there are actual changes
-            if (checkForActualChanges()) {
-              markUnsaved();
-            } else {
-              clearUnsavedStatus();
-            }
-          });
-
-          input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && input.tagName !== 'TEXTAREA') {
-              input.blur();
-            }
-            if (e.key === 'Escape') {
-              // Revert to original value
-              const fieldName = field.dataset.field;
-              input.value = getNestedValue(projectData, fieldName) || '';
-              input.blur();
-            }
-          });
-        });
-      }
-
-      // Collect form data
-      function collectFormData() {
-        const data = {
-          project_name: document.querySelector(
-            '[data-field="project_name"] input',
-          ).value,
-          foundation_team: document.querySelector(
-            '[data-field="foundation_team"] select',
-          ).value,
-          requested_by: projectData.requested_by || null,
-          project_types: Array.from(
-            document.querySelectorAll('input[name="project_type"]:checked'),
-          ).map((cb) => cb.value),
-          other_project_type_description: document.getElementById('type8')
-            ?.checked
-            ? document.getElementById('other_project_type_description')
-                ?.value || ''
-            : null,
-        };
-
-        // Raiser's Edge Info - collect if section is visible
-        const raisersEdgeSection =
-          document.getElementById('raisersEdgeSection');
-        if (raisersEdgeSection.style.display !== 'none') {
-          data.raisers_edge_info = {
-            fund:
-              document.querySelector(
-                '[data-field="raisers_edge_info.fund"] input',
-              ).value || '',
-            appeal:
-              document.querySelector(
-                '[data-field="raisers_edge_info.appeal"] input',
-              ).value || '',
-            package:
-              document.querySelector(
-                '[data-field="raisers_edge_info.package"] input',
-              ).value || '',
-          };
-        } else {
-          // Clear Raiser's Edge info if section is not visible
-          data.raisers_edge_info = null;
-        }
-
-        // Confirmation Content - collect if section is visible
-        const confirmationSection = document.getElementById(
-          'confirmationSection',
-        );
-        if (confirmationSection.style.display !== 'none') {
-          data.confirmation_content = {
-            confirmation_text:
-              document.querySelector(
-                '[data-field="confirmation_content.confirmation_text"] textarea',
-              ).value || '',
-            closed_page_text:
-              document.querySelector(
-                '[data-field="confirmation_content.closed_page_text"] textarea',
-              ).value || '',
-          };
-        } else {
-          // Clear Confirmation Content if section is not visible
-          data.confirmation_content = null;
-        }
-
-        // Event Details - collect if section is visible
-        const eventDetailsSection = document.getElementById(
-          'event_detailsSection',
-        );
-        if (eventDetailsSection.style.display !== 'none') {
-          data.event_details = {
-            go_live_date:
-              document.querySelector(
-                '[data-field="event_details.go_live_date"] input',
-              ).value || '',
-            event_date:
-              document.querySelector(
-                '[data-field="event_details.event_date"] input',
-              ).value || '',
-            event_time:
-              document.querySelector(
-                '[data-field="event_details.event_time"] input',
-              ).value || '',
-            ticket_cutoff_date:
-              document.querySelector(
-                '[data-field="event_details.ticket_cutoff_date"] input',
-              ).value || '',
-            event_description:
-              document.querySelector(
-                '[data-field="event_details.event_description"] textarea',
-              ).value || '',
-            location:
-              document.querySelector(
-                '[data-field="event_details.location"] input',
-              ).value || '',
-          };
-        } else {
-          // Clear Event Details if section is not visible
-          data.event_details = null;
-        }
-
-        // Email Details - collect if section is visible
-        const emailDetailsSection = document.getElementById(
-          'emailDetailsSection',
-        );
-        if (emailDetailsSection.style.display !== 'none') {
-          data.email_details = {
-            desired_send_date:
-              document.querySelector(
-                '[data-field="email_details.desired_send_date"] input',
-              ).value || '',
-          };
-        } else {
-          // Clear Email Details if section is not visible
-          data.email_details = null;
-        }
-
-        // Items - collect if section is visible
-        const itemsSection = document.getElementById('itemsSection');
-        if (itemsSection.style.display !== 'none') {
-          data.items = [];
-          document.querySelectorAll('#itemsTableBody tr').forEach((row) => {
-            const name = row.querySelector('.item-name').value.trim();
-            if (name) {
-              data.items.push({
-                name: name,
-                description: row.querySelector('.item-description').value,
-                price: parseFloat(row.querySelector('.item-price').value) || 0,
-                fairMarketValue:
-                  parseFloat(row.querySelector('.item-fmv').value) || 0,
-                quantityAvailable:
-                  parseInt(row.querySelector('.item-quantity').value) || 0,
-              });
-            }
-          });
-        } else {
-          // Clear Items if section is not visible
-          data.items = null;
-        }
-
-        // Discount Codes
-        if (
-          document.getElementById('discount_codesSection').style.display !==
-          'none'
-        ) {
-          data.discount_codes = [];
-          document
-            .querySelectorAll('#discount_codesTableBody tr')
-            .forEach((row) => {
-              const code = row.querySelector('.discount-code').value.trim();
-              if (code) {
-                const discount_typeRadio = row.querySelector(
-                  'input[type="radio"]:checked',
-                );
-                const ticketLevels = Array.from(
-                  row.querySelectorAll(
-                    '.ticket-levels-checkboxes input[type="checkbox"]:checked',
-                  ),
-                ).map((cb) => cb.value);
-
-                data.discount_codes.push({
-                  code: code,
-                  type: discount_typeRadio ? discount_typeRadio.value : 'fixed',
-                  value:
-                    parseFloat(row.querySelector('.discount-value').value) || 0,
-                  ticketLevels: ticketLevels,
-                  quantityAvailable:
-                    parseInt(row.querySelector('.discount-quantity').value) ||
-                    0,
-                });
-              }
+              container.appendChild(label);
             });
-        }
-
-        // Desired Short URL - collect if visible
-        const shortUrlGroup = document.getElementById('shortUrlGroup');
-        if (shortUrlGroup.style.display !== 'none') {
-          data.desired_short_url =
-            document.querySelector('[data-field="desired_short_url"] input')
-              ?.value || '';
-        }
-
-        // Additional Comments - always collect
-        data.additional_comments =
-          document.querySelector('[data-field="additional_comments"] textarea')
-            .value || '';
-
-        // Admin Data - collect if admin mode is enabled
-        if (isAdminMode()) {
-          // Helper function to normalize empty values
-          const normalizeValue = (value, originalValue) => {
-            // If the value is empty string and original was null/undefined, keep it as null
-            if (
-              value === '' &&
-              (originalValue === null || originalValue === undefined)
-            ) {
-              return null;
-            }
-            // If the value is 'Select' and original was not 'Select', revert to original
-            if (value === 'Select' && originalValue !== 'Select') {
-              return originalValue;
-            }
-            return value || null;
-          };
-
-          const originalAdmin = projectData?.admin_data || {};
-
-          data.admin_data = {
-            assigned_to: normalizeValue(
-              document.querySelector(
-                '[data-field="admin_data.assigned_to"] select',
-              ).value,
-              originalAdmin.assigned_to,
-            ),
-            date_assigned: normalizeValue(
-              document.querySelector(
-                '[data-field="admin_data.date_assigned"] input',
-              ).value,
-              originalAdmin.date_assigned,
-            ),
-            status: normalizeValue(
-              document.querySelector('[data-field="admin_data.status"] select')
-                .value,
-              originalAdmin.status,
-            ),
-            ds_validated:
-              document.getElementById('ds_validated').checked || false,
-            contact_form_id: normalizeValue(
-              document.querySelector(
-                '[data-field="admin_data.contact_form_id"] input',
-              ).value,
-              originalAdmin.contact_form_id,
-            ),
-            event_registration_form_id: normalizeValue(
-              document.querySelector(
-                '[data-field="admin_data.event_registration_form_id"] input',
-              ).value,
-              originalAdmin.event_registration_form_id,
-            ),
-            donation_form_id: normalizeValue(
-              document.querySelector(
-                '[data-field="admin_data.donation_form_id"] input',
-              ).value,
-              originalAdmin.donation_form_id,
-            ),
-            p2p_id: normalizeValue(
-              document.querySelector('[data-field="admin_data.p2p_id"] input')
-                .value,
-              originalAdmin.p2p_id,
-            ),
-            estore_id: normalizeValue(
-              document.querySelector(
-                '[data-field="admin_data.estore_id"] input',
-              ).value,
-              originalAdmin.estore_id,
-            ),
-            admin_comments: normalizeValue(
-              document.querySelector(
-                '[data-field="admin_data.admin_comments"] textarea',
-              ).value,
-              originalAdmin.admin_comments,
-            ),
-          };
-        } else {
-          data.admin_data = projectData?.admin_data || null;
-        }
-
-        // Only include requested_by when creating new projects
-        if (isNewProject && projectData?.requested_by) {
-          data.requested_by = projectData.requested_by;
-        }
-
-        return data;
-      }
-
-      // Validate form data
-      function validateFormData(data) {
-        const errors = [];
-
-        if (!data.project_name || !data.project_name.trim()) {
-          errors.push('Project Name is required');
-        }
-
-        if (!data.foundation_team || !data.foundation_team.trim()) {
-          errors.push('Foundation Team is required');
-        }
-
-        return errors;
-      }
-
-      sendEmailNotification = async function (
-        formData,
-        originalData,
-        emailTemplate = 'template_bv7hxpe',
-      ) {
-        console.log(
-          'Preparing to send email notification with form data:',
-          formData,
-        );
-
-        // Helper function to add indicator if value changed
-        const addIndicatorIfChanged = (newValue, originalValue) => {
-          const newVal = newValue || '';
-          const origVal = originalValue || '';
-
-          if (newVal !== origVal) {
-            return '&#128312;' + newVal + '&#128312;';
           }
-          return newVal;
-        };
+        });
+    }
 
-        console.log(
-          'Project Data for comparison:',
-          { originalData },
-          { formData },
-        );
+    // Listen for item name changes
+    document.addEventListener('input', function (e) {
+      if (e.target.classList.contains('item-name')) {
+        updateTicketLevelCheckboxes();
+      }
+    });
 
-        // Fetch the requester's full name from org_members table
-        const requesterInfo = await fetchRequesterInfo(formData.requested_by);
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
 
-        const emailFormData = {
-          projectFormURL: `https://give.choa.org/site/SPageNavigator/project_requests/details.html?id=${originalData.id}`,
-          requesterName: requesterInfo[0] || 'Unknown',
-          requesterEmail: requesterInfo[1] || 'Unknown',
-          projectName: addIndicatorIfChanged(
-            formData.project_name,
-            originalData?.project_name,
-          ),
-          teamName: addIndicatorIfChanged(
-            formData.foundation_team,
-            originalData?.foundation_team,
-          ),
-          eventDate: addIndicatorIfChanged(
-            formData.event_details?.event_date,
-            originalData?.event_details?.event_date,
-          ),
-          eventTime: addIndicatorIfChanged(
-            formData.event_details?.event_time,
-            originalData?.event_details?.event_time,
-          ),
-          goLiveDate: addIndicatorIfChanged(
-            formData.event_details?.go_live_date,
-            originalData?.event_details?.go_live_date,
-          ),
-          shutoffDate: addIndicatorIfChanged(
-            formData.event_details?.ticket_cutoff_date,
-            originalData?.event_details?.ticket_cutoff_date,
-          ),
-          eventTitle: addIndicatorIfChanged(
-            formData.project_name,
-            originalData?.project_name,
-          ),
-          eventDescription: addIndicatorIfChanged(
-            formData.event_details?.event_description,
-            originalData?.event_details?.event_description,
-          ),
-          reFund: addIndicatorIfChanged(
-            formData.raisers_edge_info?.fund,
-            originalData?.raisers_edge_info?.fund,
-          ),
-          reAppeal: addIndicatorIfChanged(
-            formData.raisers_edge_info?.appeal,
-            originalData?.raisers_edge_info?.appeal,
-          ),
-          rePackage: addIndicatorIfChanged(
-            formData.raisers_edge_info?.package,
-            originalData?.raisers_edge_info?.package,
-          ),
-          confirmationPage: addIndicatorIfChanged(
-            formData.confirmation_content?.confirmation_text,
-            originalData?.confirmation_content?.confirmation_text,
-          ),
-          confirmationEmail: addIndicatorIfChanged(
-            formData.confirmation_content?.confirmation_text,
-            originalData?.confirmation_content?.confirmation_text,
-          ),
-          closedContent: addIndicatorIfChanged(
-            formData.confirmation_content?.closed_page_text,
-            originalData?.confirmation_content?.closed_page_text,
-          ),
-          shortURL: addIndicatorIfChanged(
-            formData.desired_short_url,
-            originalData?.desired_short_url,
-          ),
-          additionalComments: addIndicatorIfChanged(
-            formData.additional_comments,
-            originalData?.additional_comments,
-          ),
-          projectTypes: addIndicatorIfChanged(
-            formData.project_types?.join(', ') +
-              (formData.other_project_type_description
-                ? ' (' + formData.other_project_type_description + ')'
-                : ''),
-            originalData?.project_types?.join(', ') +
-              (originalData?.other_project_type_description
-                ? ' (' + originalData.other_project_type_description + ')'
-                : ''),
-          ),
-          projectStatus: addIndicatorIfChanged(
-            formData.admin_data?.status,
-            originalData?.admin_data?.status,
-          ),
-          eventID: addIndicatorIfChanged(
-            formData.admin_data?.event_registration_form_id,
-            originalData?.admin_data?.event_registration_form_id,
-          ),
-          donationID: addIndicatorIfChanged(
-            formData.admin_data?.donation_form_id,
-            originalData?.admin_data?.donation_form_id,
-          ),
+    // Set up inline editing
+    function setupInlineEditing() {
+      document.querySelectorAll('.editable-field').forEach((field) => {
+        const display = field.querySelector('.field-display');
+        const input = field.querySelector('input, textarea, select');
 
-          adminComments: addIndicatorIfChanged(
-            formData.admin_data?.admin_comments,
-            originalData?.admin_data?.admin_comments,
-          ),
-          assignedTo: addIndicatorIfChanged(
-            formData.admin_data?.assigned_to,
-            originalData?.admin_data?.assigned_to,
-          ),
-          contactFormID: addIndicatorIfChanged(
-            formData.admin_data?.contact_form_id,
-            originalData?.admin_data?.contact_form_id,
-          ),
-          dateAssigned: addIndicatorIfChanged(
-            formData.admin_data?.date_assigned,
-            originalData?.admin_data?.date_assigned,
-          ),
-          dsValidated: addIndicatorIfChanged(
-            formData.admin_data?.ds_validated,
-            originalData?.admin_data?.ds_validated,
-          ),
-          estoreID: addIndicatorIfChanged(
-            formData.admin_data?.estore_id,
-            originalData?.admin_data?.estore_id,
-          ),
-          p2pID: addIndicatorIfChanged(
-            formData.admin_data?.p2p_id,
-            originalData?.admin_data?.p2p_id,
-          ),
-        };
+        display.addEventListener('click', () => {
+          field.classList.add('editing');
+          input.focus();
+        });
 
-        const rowify = (str) => {
-          return str
-            .replaceAll('"', '')
-            .replaceAll('[{', ' -')
-            .replaceAll('}]', '')
-            .replaceAll(',', ', ')
-            .replaceAll(':', ': ')
-            .replaceAll('}, {', '\n  -');
-        };
+        input.addEventListener('blur', () => {
+          const fieldName = field.dataset.field;
+          const fieldType = field.dataset.type;
+          const value = input.value;
 
-        let emailFormData_F = {
-          ...emailFormData,
-          eventItems: addIndicatorIfChanged(
-            rowify(JSON.stringify(formData?.items)),
-            rowify(JSON.stringify(originalData?.items)),
-          ),
-        };
-        console.log('Final email form data:', { emailFormData_F });
-        (emailjs
-          .send('service_cxg4jsj', emailTemplate, emailFormData_F)
-          .then(function (response) {
-            console.log('EMAIL SUCCESS!', response.status, response.text);
-          }),
-          function (error) {
-            console.log('FAILED...', error);
-          });
+          // Update display
+          let displayValue = value;
+          if (fieldType === 'date' && value) {
+            displayValue = formatDate(value);
+          } else if (fieldType === 'time' && value) {
+            displayValue = formatTime(value);
+          } else if (fieldName === 'desired_short_url' && value) {
+            displayValue = 'https://give.choa.org/' + value;
+          }
+
+          display.textContent = displayValue || 'Click to edit';
+          display.classList.toggle('empty', !value);
+
+          if (fieldName === 'admin_data.status') {
+            display.style.color = value === 'Development' ? '#d9534f' : '';
+          }
+
+          field.classList.remove('editing');
+
+          // Only mark as unsaved if there are actual changes
+          if (checkForActualChanges()) {
+            markUnsaved();
+          } else {
+            clearUnsavedStatus();
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && input.tagName !== 'TEXTAREA') {
+            input.blur();
+          }
+          if (e.key === 'Escape') {
+            // Revert to original value
+            const fieldName = field.dataset.field;
+            input.value = getNestedValue(projectData, fieldName) || '';
+            input.blur();
+          }
+        });
+      });
+    }
+
+    // Collect form data
+    function collectFormData() {
+      const data = {
+        project_name: document.querySelector(
+          '[data-field="project_name"] input',
+        ).value,
+        foundation_team: document.querySelector(
+          '[data-field="foundation_team"] select',
+        ).value,
+        requested_by: projectData.requested_by || null,
+        project_types: Array.from(
+          document.querySelectorAll('input[name="project_type"]:checked'),
+        ).map((cb) => cb.value),
+        other_project_type_description: document.getElementById('type8')
+          ?.checked
+          ? document.getElementById('other_project_type_description')
+            ?.value || ''
+          : null,
       };
 
-      // Save project
-      async function saveProject() {
-        const formData = collectFormData();
-        console.log('Form Data to save:', formData);
+      // Raiser's Edge Info - collect if section is visible
+      const raisersEdgeSection =
+        document.getElementById('raisersEdgeSection');
+      if (raisersEdgeSection.style.display !== 'none') {
+        data.raisers_edge_info = {
+          fund:
+            document.querySelector(
+              '[data-field="raisers_edge_info.fund"] input',
+            ).value || '',
+          appeal:
+            document.querySelector(
+              '[data-field="raisers_edge_info.appeal"] input',
+            ).value || '',
+          package:
+            document.querySelector(
+              '[data-field="raisers_edge_info.package"] input',
+            ).value || '',
+        };
+      } else {
+        // Clear Raiser's Edge info if section is not visible
+        data.raisers_edge_info = null;
+      }
 
-        // Capture original data before it gets updated
-        const originalData = projectData
-          ? JSON.parse(JSON.stringify(projectData))
-          : null;
+      // Confirmation Content - collect if section is visible
+      const confirmationSection = document.getElementById(
+        'confirmationSection',
+      );
+      if (confirmationSection.style.display !== 'none') {
+        data.confirmation_content = {
+          confirmation_text:
+            document.querySelector(
+              '[data-field="confirmation_content.confirmation_text"] textarea',
+            ).value || '',
+          closed_page_text:
+            document.querySelector(
+              '[data-field="confirmation_content.closed_page_text"] textarea',
+            ).value || '',
+        };
+      } else {
+        // Clear Confirmation Content if section is not visible
+        data.confirmation_content = null;
+      }
 
-        // Validate
-        const errors = validateFormData(formData);
-        if (errors.length > 0) {
-          showErrorMessage('Validation errors: ' + errors.join(', '));
-          return;
-        }
+      // Event Details - collect if section is visible
+      const eventDetailsSection = document.getElementById(
+        'event_detailsSection',
+      );
+      if (eventDetailsSection.style.display !== 'none') {
+        data.event_details = {
+          go_live_date:
+            document.querySelector(
+              '[data-field="event_details.go_live_date"] input',
+            ).value || '',
+          event_date:
+            document.querySelector(
+              '[data-field="event_details.event_date"] input',
+            ).value || '',
+          event_time:
+            document.querySelector(
+              '[data-field="event_details.event_time"] input',
+            ).value || '',
+          ticket_cutoff_date:
+            document.querySelector(
+              '[data-field="event_details.ticket_cutoff_date"] input',
+            ).value || '',
+          event_description:
+            document.querySelector(
+              '[data-field="event_details.event_description"] textarea',
+            ).value || '',
+          location:
+            document.querySelector(
+              '[data-field="event_details.location"] input',
+            ).value || '',
+        };
+      } else {
+        // Clear Event Details if section is not visible
+        data.event_details = null;
+      }
 
-        const saveBtn = document.getElementById('saveBtn');
-        saveBtn.disabled = true;
-        const originalBtnText = saveBtn.textContent;
-        saveBtn.textContent = 'Saving...';
+      // Email Details - collect if section is visible
+      const emailDetailsSection = document.getElementById(
+        'emailDetailsSection',
+      );
+      if (emailDetailsSection.style.display !== 'none') {
+        data.email_details = {
+          desired_send_date:
+            document.querySelector(
+              '[data-field="email_details.desired_send_date"] input',
+            ).value || '',
+        };
+      } else {
+        // Clear Email Details if section is not visible
+        data.email_details = null;
+      }
 
-        try {
-          let data, error;
+      // Items - collect if section is visible
+      const itemsSection = document.getElementById('itemsSection');
+      if (itemsSection.style.display !== 'none') {
+        data.items = [];
+        document.querySelectorAll('#itemsTableBody tr').forEach((row) => {
+          const name = row.querySelector('.item-name').value.trim();
+          if (name) {
+            data.items.push({
+              name: name,
+              description: row.querySelector('.item-description').value,
+              price: parseFloat(row.querySelector('.item-price').value) || 0,
+              fairMarketValue:
+                parseFloat(row.querySelector('.item-fmv').value) || 0,
+              quantityAvailable:
+                parseInt(row.querySelector('.item-quantity').value) || 0,
+            });
+          }
+        });
+      } else {
+        // Clear Items if section is not visible
+        data.items = null;
+      }
 
-          if (isNewProject) {
-            // Create new project
-            // Get the current authenticated user
-            const {
-              data: { user },
-            } = await supabase.auth.getUser();
+      // Discount Codes
+      if (
+        document.getElementById('discount_codesSection').style.display !==
+        'none'
+      ) {
+        data.discount_codes = [];
+        document
+          .querySelectorAll('#discount_codesTableBody tr')
+          .forEach((row) => {
+            const code = row.querySelector('.discount-code').value.trim();
+            if (code) {
+              const discount_typeRadio = row.querySelector(
+                'input[type="radio"]:checked',
+              );
+              const ticketLevels = Array.from(
+                row.querySelectorAll(
+                  '.ticket-levels-checkboxes input[type="checkbox"]:checked',
+                ),
+              ).map((cb) => cb.value);
 
-            if (!user) {
-              throw new Error('You must be logged in to create a project');
+              data.discount_codes.push({
+                code: code,
+                type: discount_typeRadio ? discount_typeRadio.value : 'fixed',
+                value:
+                  parseFloat(row.querySelector('.discount-value').value) || 0,
+                ticketLevels: ticketLevels,
+                quantityAvailable:
+                  parseInt(row.querySelector('.discount-quantity').value) ||
+                  0,
+              });
             }
+          });
+      }
 
-            // Add user_id to formData for RLS policy compliance
-            // const projectData = {
-            //   ...formData,
-            //   user_id: user.id
-            // };
+      // Desired Short URL - collect if visible
+      const shortUrlGroup = document.getElementById('shortUrlGroup');
+      if (shortUrlGroup.style.display !== 'none') {
+        data.desired_short_url =
+          document.querySelector('[data-field="desired_short_url"] input')
+            ?.value || '';
+      }
 
-            const result = await supabase
-              .from('projects')
-              .insert([formData])
-              .select()
-              .single();
+      // Additional Comments - always collect
+      data.additional_comments =
+        document.querySelector('[data-field="additional_comments"] textarea')
+          .value || '';
 
-            data = result.data;
-            error = result.error;
+      // Admin Data - collect if admin mode is enabled
+      if (isAdminMode()) {
+        // Helper function to normalize empty values
+        const normalizeValue = (value, originalValue) => {
+          // If the value is empty string and original was null/undefined, keep it as null
+          if (
+            value === '' &&
+            (originalValue === null || originalValue === undefined)
+          ) {
+            return null;
+          }
+          // If the value is 'Select' and original was not 'Select', revert to original
+          if (value === 'Select' && originalValue !== 'Select') {
+            return originalValue;
+          }
+          return value || null;
+        };
 
-            if (error)
-              console.log('Supabase error details:', error, { formData });
-            if (error) throw error;
+        const originalAdmin = projectData?.admin_data || {};
 
-            // Update state to editing mode
-            isNewProject = false;
-            projectId = data.id;
-            projectData = data;
+        data.admin_data = {
+          assigned_to: normalizeValue(
+            document.querySelector(
+              '[data-field="admin_data.assigned_to"] select',
+            ).value,
+            originalAdmin.assigned_to,
+          ),
+          date_assigned: normalizeValue(
+            document.querySelector(
+              '[data-field="admin_data.date_assigned"] input',
+            ).value,
+            originalAdmin.date_assigned,
+          ),
+          status: normalizeValue(
+            document.querySelector('[data-field="admin_data.status"] select')
+              .value,
+            originalAdmin.status,
+          ),
+          ds_validated:
+            document.getElementById('ds_validated').checked || false,
+          contact_form_id: normalizeValue(
+            document.querySelector(
+              '[data-field="admin_data.contact_form_id"] input',
+            ).value,
+            originalAdmin.contact_form_id,
+          ),
+          event_registration_form_id: normalizeValue(
+            document.querySelector(
+              '[data-field="admin_data.event_registration_form_id"] input',
+            ).value,
+            originalAdmin.event_registration_form_id,
+          ),
+          donation_form_id: normalizeValue(
+            document.querySelector(
+              '[data-field="admin_data.donation_form_id"] input',
+            ).value,
+            originalAdmin.donation_form_id,
+          ),
+          p2p_id: normalizeValue(
+            document.querySelector('[data-field="admin_data.p2p_id"] input')
+              .value,
+            originalAdmin.p2p_id,
+          ),
+          estore_id: normalizeValue(
+            document.querySelector(
+              '[data-field="admin_data.estore_id"] input',
+            ).value,
+            originalAdmin.estore_id,
+          ),
+          admin_comments: normalizeValue(
+            document.querySelector(
+              '[data-field="admin_data.admin_comments"] textarea',
+            ).value,
+            originalAdmin.admin_comments,
+          ),
+        };
+      } else {
+        data.admin_data = projectData?.admin_data || null;
+      }
 
-            // Update URL to include the new project ID
-            window.history.replaceState({}, '', `?id=${data.id}`);
+      // Only include requested_by when creating new projects
+      if (isNewProject && projectData?.requested_by) {
+        data.requested_by = projectData.requested_by;
+      }
 
-            // Update UI
-            document.getElementById('project_title').textContent =
-              data.project_name || 'Project Details';
-            document.getElementById('subtitle').innerHTML =
-              'Click on any field to edit. <span id="editStatus" class="edit-status" style="display: none;">Unsaved changes</span>';
-            document.getElementById('saveBtn').textContent = 'Save Changes';
-            document.getElementById('discardBtn').textContent =
-              'Discard Changes';
+      return data;
+    }
 
-            showSuccessMessage('Project created successfully!');
-          } else {
-            // Update existing project
-            const result = await supabase
-              .from('projects')
-              .update(formData)
-              .eq('id', projectId)
-              .select()
-              .single();
+    // Validate form data
+    function validateFormData(data) {
+      const errors = [];
 
-            data = result.data;
-            error = result.error;
+      if (!data.project_name || !data.project_name.trim()) {
+        errors.push('Project Name is required');
+      }
 
-            if (error)
-              console.log('Supabase error details:', error, { formData });
-            if (error) throw error;
+      if (!data.foundation_team || !data.foundation_team.trim()) {
+        errors.push('Foundation Team is required');
+      }
 
-            projectData = data;
-            showSuccessMessage('Project updated successfully!');
+      return errors;
+    }
+
+    sendEmailNotification = async function (
+      formData,
+      originalData,
+      emailTemplate = 'template_bv7hxpe',
+    ) {
+      console.log(
+        'Preparing to send email notification with form data:',
+        formData,
+      );
+
+      // Helper function to add indicator if value changed
+      const addIndicatorIfChanged = (newValue, originalValue) => {
+        const newVal = newValue || '';
+        const origVal = originalValue || '';
+
+        if (newVal !== origVal) {
+          return '&#128312;' + newVal + '&#128312;';
+        }
+        return newVal;
+      };
+
+      console.log(
+        'Project Data for comparison:',
+        { originalData },
+        { formData },
+      );
+
+      // Fetch the requester's full name from org_members table
+      const requesterInfo = await fetchRequesterInfo(formData.requested_by);
+
+//      console.log('Assigned email: ', adminsInSelectList[document.querySelector('select#assigned_to').selectedIndex].email);
+
+      const emailFormData = {
+        projectFormURL: `https://give.choa.org/site/SPageNavigator/project_requests/details.html?id=${originalData.id}`,
+        requesterName: requesterInfo[0] || 'Unknown',
+        requesterEmail: requesterInfo[1] || 'Unknown',
+        projectName: addIndicatorIfChanged(
+          formData.project_name,
+          originalData?.project_name,
+        ),
+        teamName: addIndicatorIfChanged(
+          formData.foundation_team,
+          originalData?.foundation_team,
+        ),
+        eventDate: addIndicatorIfChanged(
+          formData.event_details?.event_date,
+          originalData?.event_details?.event_date,
+        ),
+        eventTime: addIndicatorIfChanged(
+          formData.event_details?.event_time,
+          originalData?.event_details?.event_time,
+        ),
+        goLiveDate: addIndicatorIfChanged(
+          formData.event_details?.go_live_date,
+          originalData?.event_details?.go_live_date,
+        ),
+        shutoffDate: addIndicatorIfChanged(
+          formData.event_details?.ticket_cutoff_date,
+          originalData?.event_details?.ticket_cutoff_date,
+        ),
+        eventTitle: addIndicatorIfChanged(
+          formData.project_name,
+          originalData?.project_name,
+        ),
+        eventDescription: addIndicatorIfChanged(
+          formData.event_details?.event_description,
+          originalData?.event_details?.event_description,
+        ),
+        reFund: addIndicatorIfChanged(
+          formData.raisers_edge_info?.fund,
+          originalData?.raisers_edge_info?.fund,
+        ),
+        reAppeal: addIndicatorIfChanged(
+          formData.raisers_edge_info?.appeal,
+          originalData?.raisers_edge_info?.appeal,
+        ),
+        rePackage: addIndicatorIfChanged(
+          formData.raisers_edge_info?.package,
+          originalData?.raisers_edge_info?.package,
+        ),
+        confirmationPage: addIndicatorIfChanged(
+          formData.confirmation_content?.confirmation_text,
+          originalData?.confirmation_content?.confirmation_text,
+        ),
+        confirmationEmail: addIndicatorIfChanged(
+          formData.confirmation_content?.confirmation_text,
+          originalData?.confirmation_content?.confirmation_text,
+        ),
+        closedContent: addIndicatorIfChanged(
+          formData.confirmation_content?.closed_page_text,
+          originalData?.confirmation_content?.closed_page_text,
+        ),
+        shortURL: addIndicatorIfChanged(
+          formData.desired_short_url,
+          originalData?.desired_short_url,
+        ),
+        additionalComments: addIndicatorIfChanged(
+          formData.additional_comments,
+          originalData?.additional_comments,
+        ),
+        projectTypes: addIndicatorIfChanged(
+          formData.project_types?.join(', ') +
+          (formData.other_project_type_description
+            ? ' (' + formData.other_project_type_description + ')'
+            : ''),
+          originalData?.project_types?.join(', ') +
+          (originalData?.other_project_type_description
+            ? ' (' + originalData.other_project_type_description + ')'
+            : ''),
+        ),
+        projectStatus: addIndicatorIfChanged(
+          formData.admin_data?.status,
+          originalData?.admin_data?.status,
+        ),
+        eventID: addIndicatorIfChanged(
+          formData.admin_data?.event_registration_form_id,
+          originalData?.admin_data?.event_registration_form_id,
+        ),
+        donationID: addIndicatorIfChanged(
+          formData.admin_data?.donation_form_id,
+          originalData?.admin_data?.donation_form_id,
+        ),
+
+        adminComments: addIndicatorIfChanged(
+          formData.admin_data?.admin_comments,
+          originalData?.admin_data?.admin_comments,
+        ),
+        assignedTo: addIndicatorIfChanged(
+          formData.admin_data?.assigned_to,
+          originalData?.admin_data?.assigned_to,
+        ),
+    //    assignedEmail: adminsInSelectList[document.querySelector('select#assigned_to').selectedIndex].user_email,
+    assignedEmail: adminsInSelectList.find(item => `${item.first_name} ${item.last_name}` === formData.admin_data?.assigned_to).user_email,
+        contactFormID: addIndicatorIfChanged(
+          formData.admin_data?.contact_form_id,
+          originalData?.admin_data?.contact_form_id,
+        ),
+        dateAssigned: addIndicatorIfChanged(
+          formData.admin_data?.date_assigned,
+          originalData?.admin_data?.date_assigned,
+        ),
+        dsValidated: addIndicatorIfChanged(
+          formData.admin_data?.ds_validated,
+          originalData?.admin_data?.ds_validated,
+        ),
+        estoreID: addIndicatorIfChanged(
+          formData.admin_data?.estore_id,
+          originalData?.admin_data?.estore_id,
+        ),
+        p2pID: addIndicatorIfChanged(
+          formData.admin_data?.p2p_id,
+          originalData?.admin_data?.p2p_id,
+        ),
+      };
+
+      const rowify = (str) => {
+        return str
+          .replaceAll('"', '')
+          .replaceAll('[{', ' -')
+          .replaceAll('}]', '')
+          .replaceAll(',', ', ')
+          .replaceAll(':', ': ')
+          .replaceAll('}, {', '\n  -');
+      };
+
+      let emailFormData_F = {
+        ...emailFormData,
+        eventItems: addIndicatorIfChanged(
+          rowify(JSON.stringify(formData?.items)),
+          rowify(JSON.stringify(originalData?.items)),
+        ),
+      };
+      console.log('Final email form data:', { emailFormData_F });
+      (emailjs
+        .send('service_cxg4jsj', emailTemplate, emailFormData_F)
+        .then(function (response) {
+          console.log('EMAIL SUCCESS!', response.status, response.text);
+        }),
+        function (error) {
+          console.log('FAILED...', error);
+        });
+    };
+
+    // Save project
+    async function saveProject() {
+      const formData = collectFormData();
+      console.log('Form Data to save:', formData);
+
+   //   console.log('Assigned admin email: ', `adminsInSelectList[${document.querySelector('select#assigned_to').selectedIndex}].email)`, { adminsInSelectList },
+     //   adminsInSelectList[document.querySelector('select#assigned_to').selectedIndex].user_email);
+
+
+      // Capture original data before it gets updated
+      const originalData = projectData
+        ? JSON.parse(JSON.stringify(projectData))
+        : null;
+
+      // Validate
+      const errors = validateFormData(formData);
+      if (errors.length > 0) {
+        showErrorMessage('Validation errors: ' + errors.join(', '));
+        return;
+      }
+
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      const originalBtnText = saveBtn.textContent;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        let data, error;
+
+        if (isNewProject) {
+          // Create new project
+          // Get the current authenticated user
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+
+          if (!user) {
+            throw new Error('You must be logged in to create a project');
           }
 
-          const isTestMode =
-            new URLSearchParams(window.location.search).get('test') === 'test';
+          // Add user_id to formData for RLS policy compliance
+          // const projectData = {
+          //   ...formData,
+          //   user_id: user.id
+          // };
 
-          if (isTestMode) {
-            console.log('Test mode enabled — skipping email notifications.');
-          } else {
+          const result = await supabase
+            .from('projects')
+            .insert([formData])
+            .select()
+            .single();
+
+          data = result.data;
+          error = result.error;
+
+          if (error)
+            console.log('Supabase error details:', error, { formData });
+          if (error) throw error;
+
+          // Update state to editing mode
+          isNewProject = false;
+          projectId = data.id;
+          projectData = data;
+
+          // Update URL to include the new project ID
+          window.history.replaceState({}, '', `?id=${data.id}`);
+
+          // Update UI
+          document.getElementById('project_title').textContent =
+            data.project_name || 'Project Details';
+          document.getElementById('subtitle').innerHTML =
+            'Click on any field to edit. <span id="editStatus" class="edit-status" style="display: none;">Unsaved changes</span>';
+          document.getElementById('saveBtn').textContent = 'Save Changes';
+          document.getElementById('discardBtn').textContent =
+            'Discard Changes';
+
+          showSuccessMessage('Project created successfully!');
+        } else {
+          // Update existing project
+          const result = await supabase
+            .from('projects')
+            .update(formData)
+            .eq('id', projectId)
+            .select()
+            .single();
+
+          data = result.data;
+          error = result.error;
+
+          if (error)
+            console.log('Supabase error details:', error, { formData });
+          if (error) throw error;
+
+          projectData = data;
+          showSuccessMessage('Project updated successfully!');
+        }
+
+        const isTestMode =
+          new URLSearchParams(window.location.search).get('test') === 'test';
+
+        if (isTestMode) {
+          console.log('Test mode enabled &#8212; skipping email notifications.', { formData });
+        } else {
+          await sendEmailNotification(
+            formData,
+            originalData,
+            'template_bv7hxpe',
+          );
+
+          if (
+            projectData?.admin_data?.status === 'Development' &&
+            originalData?.admin_data?.status !== 'Development' &&
+            (projectData.project_types.includes('Donation form') ||
+              projectData.project_types.includes(
+                'Event registration/ticket form',
+              ) ||
+              projectData.project_types.includes('P2P site') ||
+              projectData.project_types.includes('E-store'))
+          ) {
+            console.log(
+              'Project has moved to Development status with ' +
+              projectData.project_types +
+              ', sending test email notification.',
+              { formData },
+              { originalData },
+              { projectData },
+            );
+            document.querySelector(
+              '[data-field="admin_data.status"] .field-display',
+            ).style.color = '#d9534f';
+
             await sendEmailNotification(
               formData,
               originalData,
-              'template_bv7hxpe',
+              'template_83wszpl',
             );
-
-            if (
-              projectData?.admin_data?.status === 'Development' &&
-              originalData?.admin_data?.status !== 'Development' &&
-              (projectData.project_types.includes('Donation form') ||
-                projectData.project_types.includes(
-                  'Event registration/ticket form',
-                ) ||
-                projectData.project_types.includes('P2P site') ||
-                projectData.project_types.includes('E-store'))
-            ) {
-              console.log(
-                'Project has moved to Development status with ' +
-                  projectData.project_types +
-                  ', sending test email notification.',
-                { formData },
-                { originalData },
-                { projectData },
-              );
-              document.querySelector(
-                '[data-field="admin_data.status"] .field-display',
-              ).style.color = '#d9534f';
-
-              await sendEmailNotification(
-                formData,
-                originalData,
-                'template_83wszpl',
-              );
-            }
-          }
-
-          clearUnsavedStatus();
-
-          // Update page title if project name changed
-          document.getElementById('project_title').textContent =
-            formData.project_name || 'Project Details';
-          document.title = (formData.project_name || 'Project') + ' - Details';
-        } catch (error) {
-          console.error('Error saving project:', error);
-          showErrorMessage(
-            'Failed to save: ' + (error.message || 'Unknown error'),
-          );
-        } finally {
-          saveBtn.disabled = false;
-          if (!isNewProject) {
-            saveBtn.textContent = 'Save Changes';
-          } else {
-            saveBtn.textContent = 'Create Project';
           }
         }
-      }
 
-      // Reload project
-      function reloadProject() {
-        if (isNewProject) {
-          // For new projects, go back to projects list
-          if (hasUnsavedChanges) {
-            if (
-              !confirm(
-                'Are you sure you want to cancel? Your changes will be lost.',
-              )
-            ) {
-              return;
-            }
-          }
-          window.location.href =
-            '/site/SPageNavigator/project_requests/projects_list.html';
+        clearUnsavedStatus();
+
+        // Update page title if project name changed
+        document.getElementById('project_title').textContent =
+          formData.project_name || 'Project Details';
+        document.title = (formData.project_name || 'Project') + ' - Details';
+      } catch (error) {
+        console.error('Error saving project:', error);
+        showErrorMessage(
+          'Failed to save: ' + (error.message || 'Unknown error'),
+        );
+      } finally {
+        saveBtn.disabled = false;
+        if (!isNewProject) {
+          saveBtn.textContent = 'Save Changes';
         } else {
-          // For existing projects, reload the data
-          if (hasUnsavedChanges) {
-            if (!confirm('Are you sure you want to discard your changes?')) {
-              return;
-            }
-          }
-          fetchProject(projectId);
-          clearUnsavedStatus();
+          saveBtn.textContent = 'Create Project';
         }
       }
+    }
 
-      // Check authentication and get user
-      async function checkAuthAndGetUser() {
-        try {
-          const {
-            data: { session },
-            error,
-          } = await supabase.auth.getSession();
-
-          if (error) throw error;
-
-          if (!session) {
-            // Not logged in, redirect to login page
-            window.location.href =
-              '/site/SPageNavigator/project_requests/login.html';
-            return null;
+    // Reload project
+    function reloadProject() {
+      if (isNewProject) {
+        // For new projects, go back to projects list
+        if (hasUnsavedChanges) {
+          if (
+            !confirm(
+              'Are you sure you want to cancel? Your changes will be lost.',
+            )
+          ) {
+            return;
           }
-
-          // Display user email
-          const userEmailElement = document.getElementById('userEmail');
-          if (userEmailElement && session.user) {
-            userEmailElement.textContent = session.user.email;
+        }
+        window.location.href =
+          '/site/SPageNavigator/project_requests/projects_list.html';
+      } else {
+        // For existing projects, reload the data
+        if (hasUnsavedChanges) {
+          if (!confirm('Are you sure you want to discard your changes?')) {
+            return;
           }
+        }
+        fetchProject(projectId);
+        clearUnsavedStatus();
+      }
+    }
 
-          // Check if user has admin role
-          if (session.user && session.user.email) {
-            userIsAdmin = await checkUserAdminRole(session.user.email);
-            console.log('User admin status:', userIsAdmin);
-          }
+    // Check authentication and get user
+    async function checkAuthAndGetUser() {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
 
-          return session.user;
-        } catch (error) {
-          console.error('Error checking authentication:', error);
+        if (error) throw error;
+
+        if (!session) {
+          // Not logged in, redirect to login page
           window.location.href =
             '/site/SPageNavigator/project_requests/login.html';
           return null;
         }
+
+        // Display user email
+        const userEmailElement = document.getElementById('userEmail');
+        if (userEmailElement && session.user) {
+          userEmailElement.textContent = session.user.email;
+        }
+
+        // Check if user has admin role
+        if (session.user && session.user.email) {
+          userIsAdmin = await checkUserAdminRole(session.user.email);
+          console.log('User admin status:', userIsAdmin);
+        }
+
+        return session.user;
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+        window.location.href =
+          '/site/SPageNavigator/project_requests/login.html';
+        return null;
+      }
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+
+        // Redirect to login page
+        window.location.href =
+          '/site/SPageNavigator/project_requests/login.html';
+      } catch (error) {
+        console.error('Error logging out:', error);
+        alert('Failed to log out: ' + error.message);
+      }
+    }
+
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+      if (hasUnsavedChanges) {
+        let formDifferences = {};
+        // Log current form data and original project data
+        const currentFormData = collectFormData();
+        console.log('=== UNSAVED CHANGES DETECTED ===');
+        console.log('Original project data:', projectData);
+        console.log('Current form data:', currentFormData);
+
+        // Compare and show differences
+        if (projectData) {
+          console.log('=== DIFFERENCES ===');
+          const differences = {};
+
+          // Check all keys in current form data
+          for (const key in currentFormData) {
+            if (
+              !valuesAreEqual(key, currentFormData[key], projectData[key])
+            ) {
+              differences[key] = {
+                original: projectData[key],
+                current: currentFormData[key],
+              };
+            }
+          }
+
+          formDifferences = differences;
+          console.log('Changed fields:', differences);
+        }
+
+        e.preventDefault();
+
+        console.log(
+          'Form differences:',
+          formDifferences,
+          'length:',
+          Object.keys(formDifferences).length,
+        );
+        if (Object.keys(formDifferences).length === 0) {
+          // No differences found, allow unload
+          return;
+        } // Show confirmation dialog
+        e.returnValue = '';
+      }
+    });
+
+
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check authentication first
+      const user = await checkAuthAndGetUser();
+      if (!user) return; // Will redirect to login
+
+      projectId = getProjectIdFromUrl();
+
+      setupInlineEditing();
+
+      if (!projectId || projectId === 'new') {
+        // Create new project mode
+        await initNewProject();
+      } else {
+        // Edit existing project mode
+        await fetchProject(projectId);
       }
 
-      // Logout function
-      async function logout() {
+
+      // Fetch organization members from Supabase
+      async function loadOrgMembers() {
         try {
-          const { error } = await supabase.auth.signOut();
-          if (error) throw error;
+          const { data, error } = await supabase
+            .from('org_members')
+            .select('first_name, last_name, role, user_email, user_id')
+            .order('last_name', { ascending: true });
 
-          // Redirect to login page
-          window.location.href =
-            '/site/SPageNavigator/project_requests/login.html';
+          if (error) {
+            console.error('Error fetching org members:', error);
+            return;
+          }
+
+          const assignedToSelect = document.querySelector('#assigned_to');
+          if (assignedToSelect && data) {
+            console.log({ data });
+            const admins = data.filter(
+              (member) => member.role.toLowerCase() === 'admin',
+            );
+            console.log({ admins });
+            adminsInSelectList = admins;
+            admins.forEach((member, i) => {
+              //adminsInSelectList[i]={id: member.id, first_name: member.first_name, last_name: member.last_name, email: member.email};
+              const opt = document.createElement('option');
+              const fullName = `${member.first_name} ${member.last_name}`;
+              // const adminEmail = member.user_email;
+              opt.value = fullName;
+              opt.textContent = fullName;
+              // opt.dataset.email = adminEmail;
+
+              assignedToSelect.appendChild(opt);
+            });
+
+            assignedToSelect.addEventListener('change', function () {
+              const selectedOption = this.options[this.selectedIndex];
+
+              // Example: copy a single data attribute
+              this.dataset.email = selectedOption.dataset.email;
+            });
+
+          }
         } catch (error) {
-          console.error('Error logging out:', error);
-          alert('Failed to log out: ' + error.message);
+          console.error('Error loading org members:', error);
         }
       }
 
-      // Warn before leaving with unsaved changes
-      window.addEventListener('beforeunload', (e) => {
-        if (hasUnsavedChanges) {
-          let formDifferences = {};
-          // Log current form data and original project data
-          const currentFormData = collectFormData();
-          console.log('=== UNSAVED CHANGES DETECTED ===');
-          console.log('Original project data:', projectData);
-          console.log('Current form data:', currentFormData);
+      // Load org members
+      loadOrgMembers();
+    });
+  </script>
+</body>
 
-          // Compare and show differences
-          if (projectData) {
-            console.log('=== DIFFERENCES ===');
-            const differences = {};
-
-            // Check all keys in current form data
-            for (const key in currentFormData) {
-              if (
-                !valuesAreEqual(key, currentFormData[key], projectData[key])
-              ) {
-                differences[key] = {
-                  original: projectData[key],
-                  current: currentFormData[key],
-                };
-              }
-            }
-
-            formDifferences = differences;
-            console.log('Changed fields:', differences);
-          }
-
-          e.preventDefault();
-
-          console.log(
-            'Form differences:',
-            formDifferences,
-            'length:',
-            Object.keys(formDifferences).length,
-          );
-          if (Object.keys(formDifferences).length === 0) {
-            // No differences found, allow unload
-            return;
-          } // Show confirmation dialog
-          e.returnValue = '';
-        }
-      });
-
-      // Initialize
-      document.addEventListener('DOMContentLoaded', async () => {
-        // Check authentication first
-        const user = await checkAuthAndGetUser();
-        if (!user) return; // Will redirect to login
-
-        projectId = getProjectIdFromUrl();
-
-        setupInlineEditing();
-
-        if (!projectId || projectId === 'new') {
-          // Create new project mode
-          await initNewProject();
-        } else {
-          // Edit existing project mode
-          await fetchProject(projectId);
-        }
-
-        // Fetch organization members from Supabase
-        async function loadOrgMembers() {
-          try {
-            const { data, error } = await supabase
-              .from('org_members')
-              .select('first_name, last_name, role, user_email, user_id')
-              .order('last_name', { ascending: true });
-
-            if (error) {
-              console.error('Error fetching org members:', error);
-              return;
-            }
-
-            const assignedToSelect = document.querySelector('#assigned_to');
-            if (assignedToSelect && data) {
-              console.log({ data });
-              const admins = data.filter(
-                (member) => member.role.toLowerCase() === 'admin',
-              );
-              console.log({ admins });
-              admins.forEach((member) => {
-                const opt = document.createElement('option');
-                const fullName = `${member.first_name} ${member.last_name}`;
-                opt.value = fullName;
-                opt.textContent = fullName;
-                assignedToSelect.appendChild(opt);
-              });
-            }
-          } catch (error) {
-            console.error('Error loading org members:', error);
-          }
-        }
-
-        // Load org members
-        loadOrgMembers();
-      });
-    </script>
-  </body>
 </html>
 
 ]]
