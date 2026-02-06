@@ -2930,6 +2930,34 @@
 
               // Example: copy a single data attribute
               this.dataset.email = selectedOption.dataset.email;
+
+              // If assigned_to changed from "Select" to an actual user
+              if (selectedOption.value && selectedOption.value !== 'Select') {
+                // Set Date Assigned to today if currently blank
+                const dateAssignedInput = document.querySelector('[data-field="admin_data.date_assigned"] input');
+                if (dateAssignedInput && !dateAssignedInput.value) {
+                  const today = new Date().toISOString().split('T')[0];
+                  dateAssignedInput.value = today;
+                  // Update display if visible
+                  const dateDisplay = document.querySelector('[data-field="admin_data.date_assigned"] .field-display');
+                  if (dateDisplay) {
+                    dateDisplay.textContent = today;
+                  }
+                }
+
+                // Set Status to "Assigned" if currently blank
+                const statusSelect = document.querySelector('#project_status');
+                if (statusSelect && !statusSelect.value) {
+                  statusSelect.value = 'Assigned';
+                  // Update display if visible
+                  const statusDisplay = document.querySelector('[data-field="admin_data.status"] .field-display');
+                  if (statusDisplay) {
+                    statusDisplay.textContent = 'Assigned';
+                  }
+                }
+
+                markUnsaved();
+              }
             });
 
           }
