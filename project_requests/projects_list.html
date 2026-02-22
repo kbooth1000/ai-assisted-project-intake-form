@@ -289,16 +289,6 @@
         color: #c2185b;
       }
 
-      /*      .subgroup-header {
-            font-size: 16px;
-            font-weight: 600;
-            color: #555;
-            margin-top: 20px;
-            margin-bottom: 12px;
-            padding-left: 10px;
-            border-left: 3px solid #667eea;
-        } */
-
       .subgroup-header {
         font-size: 12px;
         font-weight: 500;
@@ -306,10 +296,53 @@
         padding: 1px 0 1px 4px;
         background: #777;
         letter-spacing: 0.8px;
+        margin-bottom: 3px;
       }
 
       .subgroup-header:first-child {
         margin-top: 0;
+      }
+
+      /* Accordion styles for subgroup headers */
+      .subgroup-header {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        user-select: none;
+      }
+
+      .subgroup-header:hover {
+        background: #666;
+      }
+
+      .subgroup-header .chevron {
+        font-size: 10px;
+        transition: transform 0.2s ease;
+        display: inline-block;
+      }
+
+      .subgroup-header.collapsed .chevron {
+        transform: rotate(-90deg);
+      }
+
+      .subgroup-header .project-count {
+        font-size: 11px;
+        opacity: 0.8;
+        margin-left: 4px;
+      }
+
+      /* Accordion content container */
+      .subgroup-content {
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.2s ease-out;
+        max-height: 2000px;
+        opacity: 1;
+      }
+
+      .subgroup-content.collapsed {
+        max-height: 0;
+        opacity: 0;
       }
 
       .project-owner {
@@ -675,6 +708,44 @@
       let currentUserId = null;
       let currentUserName = null;
 
+      // Accordion state management
+      const defaultOpenStatuses = ['Submitted', 'In Progress'];
+      const defaultClosedStatuses = ['On Hold', 'Completed', 'No Status'];
+
+      // Get accordion state from sessionStorage or return default
+      function getAccordionState(assignedTo, status) {
+        const key = `accordion_${assignedTo}_${status}`;
+        const saved = sessionStorage.getItem(key);
+        if (saved !== null) {
+          return saved === 'true';
+        }
+        // Return default: open for Submitted/In Progress, closed for others
+        return defaultOpenStatuses.includes(status);
+      }
+
+      // Save accordion state to sessionStorage
+      function setAccordionState(assignedTo, status, isOpen) {
+        const key = `accordion_${assignedTo}_${status}`;
+        sessionStorage.setItem(key, isOpen.toString());
+      }
+
+      // Toggle accordion for a subgroup
+      function toggleAccordion(header, contentWrapper, assignedTo, status) {
+        const isCollapsed = header.classList.contains('collapsed');
+
+        if (isCollapsed) {
+          // Expand
+          header.classList.remove('collapsed');
+          contentWrapper.classList.remove('collapsed');
+          setAccordionState(assignedTo, status, true);
+        } else {
+          // Collapse
+          header.classList.add('collapsed');
+          contentWrapper.classList.add('collapsed');
+          setAccordionState(assignedTo, status, false);
+        }
+      }
+
       // Show error state
       function showError(message, detail = '') {
         document.getElementById('loading').style.display = 'none';
@@ -1025,16 +1096,54 @@
 
               // Render each status subgroup
               statusKeys.forEach((status, index) => {
-                // Create subgroup header
+                const projectsInSubgroup = grouped[assignedTo][status];
+                const projectCount = projectsInSubgroup.length;
+
+                // Create subgroup header with chevron and count
                 const subHeader = document.createElement('div');
                 subHeader.className = 'subgroup-header';
-                subHeader.textContent = status;
+
+                // Add chevron
+                const chevron = document.createElement('span');
+                chevron.className = 'chevron';
+                chevron.innerHTML = '&#9660;'; // Right-pointing triangle
+                subHeader.appendChild(chevron);
+
+                // Add status text
+                const statusText = document.createElement('span');
+                statusText.textContent = status;
+                subHeader.appendChild(statusText);
+
+                // Add project count
+                const countSpan = document.createElement('span');
+                countSpan.className = 'project-count';
+                countSpan.textContent = `(${projectCount})`;
+                subHeader.appendChild(countSpan);
+
                 groupContainer.appendChild(subHeader);
 
-                // Add project cards to status subgroup
-                grouped[assignedTo][status].forEach((project) => {
+                // Create content wrapper for project cards
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'subgroup-content';
+
+                // Add project cards to content wrapper
+                projectsInSubgroup.forEach((project) => {
                   const card = createProjectCard(project);
-                  groupContainer.appendChild(card);
+                  contentWrapper.appendChild(card);
+                });
+
+                groupContainer.appendChild(contentWrapper);
+
+                // Apply initial collapsed state based on sessionStorage or defaults
+                const isOpen = getAccordionState(assignedTo, status);
+                if (!isOpen) {
+                  subHeader.classList.add('collapsed');
+                  contentWrapper.classList.add('collapsed');
+                }
+
+                // Add click handler for accordion toggle
+                subHeader.addEventListener('click', () => {
+                  toggleAccordion(subHeader, contentWrapper, assignedTo, status);
                 });
               });
 
