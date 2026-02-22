@@ -367,6 +367,51 @@
         margin-bottom: 15px;
       }
 
+      /* My Projects Toggle */
+      .toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .toggle-label {
+        font-size: 14px;
+        color: #666;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        background: #ccc;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .toggle-switch.active {
+        background: #28a745;
+      }
+
+      .toggle-switch::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        transition: transform 0.3s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+
+      .toggle-switch.active::after {
+        transform: translateX(20px);
+      }
+
       .btn-new-project {
         padding: 12px 24px;
         background: #28a745;
@@ -562,7 +607,12 @@
             Showing <span id="displayedCount">0</span> of
             <span id="totalCount">0</span> projects
           </div>
-          <div style="display: flex; align-items: center; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 20px">
+            <!-- My Projects Toggle -->
+            <div class="toggle-container">
+              <label class="toggle-label" for="myProjectsToggle">Show only my projects</label>
+              <div id="myProjectsToggle" class="toggle-switch" onclick="toggleMyProjects()"></div>
+            </div>
             <label for="sortBy" style="font-size: 14px; color: #666; margin: 0"
               >Sort by:</label
             >
@@ -621,6 +671,9 @@
       let filteredProjects = [];
       // let currentSortBy = 'created_at';
       let currentSortBy = 'assigned_to';
+      let showMyProjectsOnly = false;
+      let currentUserId = null;
+      let currentUserName = null;
 
       // Show error state
       function showError(message, detail = '') {
@@ -825,13 +878,13 @@
         cardHeader.appendChild(typesDiv);
 
         const assignedTo = project.admin_data?.assigned_to;
-        if (assignedTo) {
+        // if (assignedTo) {
           const assignedDiv = document.createElement('div');
           assignedDiv.className = 'project-owner';
-          assignedDiv.innerHTML = `<span class="project-owner-label">Assigned to:</span> ${assignedTo}`;
+          assignedDiv.innerHTML = `<span class="project-owner-label">Assigned to:</span> ${assignedTo ? assignedTo : 'Unassigned'}`;
           //     projectOwnerDiv.appendChild(assignedDiv);
           cardHeader.appendChild(assignedDiv);
-        }
+        // }
 
         // Copy Project button
         const copyBtn = document.createElement('button');
@@ -1055,14 +1108,36 @@
         renderProjects(sorted);
       }
 
-      // Filter projects based on search query
+      // Toggle My Projects filter
+      function toggleMyProjects() {
+        showMyProjectsOnly = !showMyProjectsOnly;
+        const toggle = document.getElementById('myProjectsToggle');
+        toggle.classList.toggle('active', showMyProjectsOnly);
+
+        // Re-apply filters with current search value
+        const searchBox = document.getElementById('searchBox');
+        filterProjects(searchBox.value);
+      }
+
+      // Filter projects based on search query and My Projects toggle
       function filterProjects(query) {
         const searchTerm = query.toLowerCase().trim();
 
-        if (!searchTerm) {
-          filteredProjects = [...allProjects];
-        } else {
-          filteredProjects = allProjects.filter((project) => {
+        // Start with all projects
+        let results = [...allProjects];
+
+        // Apply "My Projects" filter if enabled
+        if (showMyProjectsOnly && currentUserId) {
+          results = results.filter((project) => {
+            const isRequester = project.requested_by === currentUserId;
+            const isAssigned = currentUserName && project.admin_data?.assigned_to === currentUserName;
+            return isRequester || isAssigned;
+          });
+        }
+
+        // Apply search filter
+        if (searchTerm) {
+          results = results.filter((project) => {
             const name = (project.project_name || '').toLowerCase();
             const team = (project.foundation_team || '').toLowerCase();
             const types = (project.project_types || []).join(' ').toLowerCase();
@@ -1074,6 +1149,8 @@
             );
           });
         }
+
+        filteredProjects = results;
 
         const sorted = sortProjects(filteredProjects);
         renderProjects(sorted);
@@ -1110,10 +1187,24 @@
             return null;
           }
 
-          // Display user email
+          // Display user email and store user ID
           const userEmailElement = document.getElementById('userEmail');
           if (userEmailElement && session.user) {
             userEmailElement.textContent = session.user.email;
+
+            // Fetch current user's info from org_members by email (since user_id may differ from auth ID)
+            const { data: orgMember } = await supabase
+              .from('org_members')
+              .select('user_id, first_name, last_name')
+              .eq('user_email', session.user.email)
+              .maybeSingle();
+
+            if (orgMember) {
+              currentUserId = orgMember.user_id;
+              if (orgMember.first_name && orgMember.last_name) {
+                currentUserName = orgMember.first_name + ' ' + orgMember.last_name;
+              }
+            }
           }
 
           return session.user;
