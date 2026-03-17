@@ -1693,7 +1693,11 @@ tbody#itemsTableBody > tr td:nth-child(5) {
         }
 
         if (fieldName === 'admin_data.status' && value === 'Development') {
+          display.style.color = '#3da32d';
+        } 
+        if (fieldName === 'admin_data.status' && value === 'Testing') {
           display.style.color = '#d9534f';
+          display.style.fontWeight = '700';
         }
 
         // Set input value
@@ -2089,8 +2093,13 @@ tbody#itemsTableBody > tr td:nth-child(5) {
           display.textContent = displayValue || 'Click to edit';
           display.classList.toggle('empty', !value);
 
+          // if (fieldName === 'admin_data.status') {
+          //   display.style.color = ;
+          // }
+
           if (fieldName === 'admin_data.status') {
-            display.style.color = value === 'Development' ? '#d9534f' : '';
+            display.style.color = value === 'Testing' ? '#d9534f' : (value === 'Development' ? '#3da32d' : '');
+            display.style.fontWeight = value === 'Testing' ? '700' : '';
           }
 
           field.classList.remove('editing');
@@ -2698,8 +2707,10 @@ tbody#itemsTableBody > tr td:nth-child(5) {
           );
 
           if (
-            projectData?.admin_data?.status === 'Development' &&
-            originalData?.admin_data?.status !== 'Development' &&
+            ((projectData?.admin_data?.status === 'Development' &&
+            originalData?.admin_data?.status !== 'Development' ) ||
+            (projectData?.admin_data?.status === 'Testing' &&
+            originalData?.admin_data?.status !== 'Testing' )) &&
             (projectData.project_types.includes('Donation form') ||
               projectData.project_types.includes(
                 'Event registration/ticket form',
@@ -2708,7 +2719,7 @@ tbody#itemsTableBody > tr td:nth-child(5) {
               projectData.project_types.includes('E-store'))
           ) {
             console.log(
-              'Project has moved to Development status with ' +
+              'Project has moved to ' + projectData?.admin_data?.status + ' status with ' +
               projectData.project_types +
               ', sending test email notification.',
               { formData },
