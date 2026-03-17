@@ -975,46 +975,37 @@
         // create projectDatesDiv
         const projectDatesDiv = document.createElement('div');
         projectDatesDiv.className = 'project-dates-div';
+        card.appendChild(projectDatesDiv);
 
         // Created date
         const createdDate = formatDate(project.created_at);
-        if (createdDate) {
-          card.appendChild(projectDatesDiv);
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'project-date';
+        dateDiv.innerHTML = createdDate ? `Created: ${createdDate}` : '&nbsp;';
+        projectDatesDiv.appendChild(dateDiv);
 
-          const dateDiv = document.createElement('div');
-          dateDiv.className = 'project-date';
-          dateDiv.textContent = `Created: ${createdDate}`;
-          projectDatesDiv.appendChild(dateDiv);
-        }
-
-        // ADD REQUESTED BY INFO HERE IF NEEDED
+        // Requester info
         const requesterName = project.requester_name || 'Requester Unknown';
-        if (requesterName) {
-          const requesterDiv = document.createElement('div');
-          requesterDiv.className = 'project-date';
-          requesterDiv.textContent = `Requested by: ${requesterName}`;
-          projectDatesDiv.appendChild(requesterDiv);
-        }
+        const requesterDiv = document.createElement('div');
+        requesterDiv.className = 'project-date';
+        requesterDiv.innerHTML = requesterName ? `Requested by: ${requesterName}` : '&nbsp;';
+        projectDatesDiv.appendChild(requesterDiv);
 
         // Go-live date
         const goLiveDate = formatDate(project.event_details?.go_live_date);
-        if (goLiveDate) {
-          const goLiveDateDiv = document.createElement('div');
-          goLiveDateDiv.className = 'project-date';
-          goLiveDateDiv.textContent = `Go-Live Date: ${goLiveDate}`;
-          projectDatesDiv.appendChild(goLiveDateDiv);
-        }
+        const goLiveDateDiv = document.createElement('div');
+        goLiveDateDiv.className = 'project-date';
+        goLiveDateDiv.innerHTML = goLiveDate ? `Go-Live Date: ${goLiveDate}` : '&nbsp;';
+        projectDatesDiv.appendChild(goLiveDateDiv);
 
         // Email desired send date
         const desiredSendDate = formatDate(
           project.email_details?.desired_send_date,
         );
-        if (desiredSendDate) {
-          const sendDateDiv = document.createElement('div');
-          sendDateDiv.className = 'project-date';
-          sendDateDiv.textContent = `Email Send Date: ${desiredSendDate}`;
-          projectDatesDiv.appendChild(sendDateDiv);
-        }
+        const sendDateDiv = document.createElement('div');
+        sendDateDiv.className = 'project-date';
+        sendDateDiv.innerHTML = desiredSendDate ? `Email Send Date: ${desiredSendDate}` : '&nbsp;';
+        projectDatesDiv.appendChild(sendDateDiv);
 
         return card;
       }
