@@ -3030,6 +3030,17 @@ input.item-price::-webkit-outer-spin-button,
               assignedToSelect.appendChild(opt);
             });
 
+            // Restore the stored value now that options are populated
+            const storedAssignedTo = projectData?.admin_data?.assigned_to;
+            if (storedAssignedTo) {
+              assignedToSelect.value = storedAssignedTo;
+              const assignedDisplay = document.querySelector('[data-field="admin_data.assigned_to"] .field-display');
+              if (assignedDisplay) {
+                assignedDisplay.textContent = storedAssignedTo;
+                assignedDisplay.classList.remove('empty');
+              }
+            }
+
             assignedToSelect.addEventListener('change', function () {
               const selectedOption = this.options[this.selectedIndex];
 
