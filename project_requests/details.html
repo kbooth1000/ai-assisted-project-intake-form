@@ -439,6 +439,30 @@ tbody#itemsTableBody > tr td:nth-child(5) {
     width: 20px;
 }
 
+input.item-fmv, input.item-price  {
+max-width: 80px; 
+width: 80px;
+text-align:right;
+}
+
+td:has(input.item-price), td:has(input.item-fmv) {
+    width: 90px;
+}
+
+/*  REMOVE INCREMENT/DECREMENT ARROWS ON ITEM PRICE AND FMV FIELDS */
+input.item-fmv::-webkit-outer-spin-button,
+  input.item-fmv::-webkit-inner-spin-button,
+input.item-price::-webkit-outer-spin-button,
+  input.item-price::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input.item-fmv[type=number], input.item-price  {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+
     td input,
     td textarea {
       margin: 0;
@@ -1383,12 +1407,76 @@ tbody#itemsTableBody > tr td:nth-child(5) {
       status.textContent = 'Unsaved changes';
       status.classList.add('unsaved');
       status.style.display = 'inline-block';
+
+      // Persist draft to localStorage so unsaved changes survive session expiry
+      try {
+        const key = `project_draft_${projectId || 'new'}`;
+        localStorage.setItem(key, JSON.stringify(collectFormData()));
+      } catch (e) { /* storage unavailable */ }
     }
 
     // Clear unsaved status
     function clearUnsavedStatus() {
       hasUnsavedChanges = false;
       document.getElementById('editStatus').style.display = 'none';
+      try {
+        localStorage.removeItem(`project_draft_${projectId || 'new'}`);
+      } catch (e) { /* storage unavailable */ }
+    }
+
+    // Restore a previously saved draft from localStorage after re-authentication
+    function restoreDraftIfExists() {
+      try {
+        const key = `project_draft_${projectId || 'new'}`;
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+
+        // Simple editable fields
+        document.querySelectorAll('.editable-field').forEach((field) => {
+          const fieldName = field.dataset.field;
+          const value = getNestedValue(draft, fieldName);
+          if (value === undefined) return;
+          const input = field.querySelector('input, textarea, select');
+          if (input) input.value = value || '';
+          const display = field.querySelector('.field-display');
+          const fieldType = field.dataset.type;
+          let displayValue = value || '';
+          if (fieldType === 'date' && value) displayValue = formatDate(value);
+          else if (fieldType === 'time' && value) displayValue = formatTime(value);
+          else if (fieldName === 'desired_short_url' && value) displayValue = 'https://give.choa.org/' + value;
+          display.textContent = displayValue || 'Click to edit';
+          display.classList.toggle('empty', !value);
+        });
+
+        // Project types checkboxes
+        if (draft.project_types) {
+          renderproject_types(draft.project_types);
+          handleProjectTypeChange();
+        }
+
+        // Other project type description
+        const otherDesc = document.getElementById('other_project_type_description');
+        if (otherDesc && draft.other_project_type_description != null) {
+          otherDesc.value = draft.other_project_type_description;
+        }
+
+        // Items table
+        if (draft.items) renderItems(draft.items);
+
+        // Discount codes table
+        if (draft.discount_codes) renderdiscount_codes(draft.discount_codes);
+
+        // DS validated checkbox
+        const dsValidated = document.getElementById('ds_validated');
+        if (dsValidated && draft.admin_data) {
+          dsValidated.checked = draft.admin_data.ds_validated || false;
+        }
+
+        markUnsaved();
+      } catch (e) {
+        console.warn('Could not restore draft:', e);
+      }
     }
 
     // Compare two values for equality, handling admin_data specially
@@ -1516,6 +1604,7 @@ tbody#itemsTableBody > tr td:nth-child(5) {
         projectData = data;
         await renderProject(data);
         showContent();
+        restoreDraftIfExists();
       } catch (error) {
         console.error('Error fetching project:', error);
         showError(error.message || 'Failed to load project');
@@ -1573,6 +1662,7 @@ tbody#itemsTableBody > tr td:nth-child(5) {
 
       await renderProject(projectData);
       showContent();
+      restoreDraftIfExists();
     }
 
     // Check if project types include Raiser's Edge relevant types
@@ -2024,7 +2114,7 @@ tbody#itemsTableBody > tr td:nth-child(5) {
 
           if (itemNames.length === 0) {
             container.innerHTML =
-              '<em style="color: #999; font-size: 12px;">Add items to see options</em>';
+              '<em style="color: #999; font-size: 12px;">Add items above to see options</em>';
           } else {
             itemNames.forEach((name, index) => {
               const id = `ticket_${container.closest('tr').rowIndex
@@ -2939,6 +3029,17 @@ tbody#itemsTableBody > tr td:nth-child(5) {
 
               assignedToSelect.appendChild(opt);
             });
+
+            // Restore the stored value now that options are populated
+            const storedAssignedTo = projectData?.admin_data?.assigned_to;
+            if (storedAssignedTo) {
+              assignedToSelect.value = storedAssignedTo;
+              const assignedDisplay = document.querySelector('[data-field="admin_data.assigned_to"] .field-display');
+              if (assignedDisplay) {
+                assignedDisplay.textContent = storedAssignedTo;
+                assignedDisplay.classList.remove('empty');
+              }
+            }
 
             assignedToSelect.addEventListener('change', function () {
               const selectedOption = this.options[this.selectedIndex];
