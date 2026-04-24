@@ -755,6 +755,33 @@ input.item-price::-webkit-outer-spin-button,
         padding: 8px;
       }
     }
+
+    .sync-warning {
+      display: none;
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 1rem 1.5rem;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .sync-warning.show {
+      display: block;
+    }
+
+    .sync-warning-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
   </style>
 </head>
 
@@ -798,6 +825,14 @@ input.item-price::-webkit-outer-spin-button,
 
       <div id="errorMessageBox" class="error-message">
         &#10007; <span id="errorMessageText">Error updating project.</span>
+      </div>
+
+      <div id="syncWarning" class="sync-warning">
+        &#9888; This record was updated by another user.
+        <div class="sync-warning-actions">
+          <button class="btn btn-primary" onclick="acceptRemoteChanges()" style="padding:8px 16px;font-size:13px;">Reload latest</button>
+          <button class="btn btn-secondary" onclick="dismissSyncWarning()" style="padding:8px 16px;font-size:13px;">Keep my changes</button>
+        </div>
       </div>
 
       <!-- Basic Fields and Admin Section Container -->
@@ -968,7 +1003,7 @@ input.item-price::-webkit-outer-spin-button,
               <div class="editable-field" data-field="admin_data.contact_form_id">
                 <div class="field-display"></div>
                 <div class="field-edit">
-                  <input type="text" maxlength="20" />
+                  <input type="text" maxlength="30" />
                 </div>
               </div>
             </div>
@@ -977,7 +1012,7 @@ input.item-price::-webkit-outer-spin-button,
               <div class="editable-field" data-field="admin_data.event_registration_form_id">
                 <div class="field-display"></div>
                 <div class="field-edit">
-                  <input type="text" maxlength="20" />
+                  <input type="text" maxlength="30" />
                 </div>
               </div>
             </div>
@@ -986,7 +1021,7 @@ input.item-price::-webkit-outer-spin-button,
               <div class="editable-field" data-field="admin_data.donation_form_id">
                 <div class="field-display"></div>
                 <div class="field-edit">
-                  <input type="text" maxlength="20" />
+                  <input type="text" maxlength="30" />
                 </div>
               </div>
             </div>
@@ -995,7 +1030,7 @@ input.item-price::-webkit-outer-spin-button,
               <div class="editable-field" data-field="admin_data.p2p_id">
                 <div class="field-display"></div>
                 <div class="field-edit">
-                  <input type="text" maxlength="20" />
+                  <input type="text" maxlength="30" />
                 </div>
               </div>
             </div>
@@ -1004,7 +1039,7 @@ input.item-price::-webkit-outer-spin-button,
               <div class="editable-field" data-field="admin_data.estore_id">
                 <div class="field-display"></div>
                 <div class="field-edit">
-                  <input type="text" maxlength="20" />
+                  <input type="text" maxlength="30" />
                 </div>
               </div>
             </div>
@@ -1012,12 +1047,12 @@ input.item-price::-webkit-outer-spin-button,
 
           <!-- Group C -->
           <div style="padding: 15px; background: #f8f9fa; border-radius: 6px">
-            <div class="form-group">
+            <div class="form-group" style="display:flex; flex-direction:column;">
               <label>Admin comments:</label>
               <div class="editable-field" data-field="admin_data.admin_comments" data-type="textarea">
                 <div class="field-display"></div>
                 <div class="field-edit">
-                  <textarea rows="3"></textarea>
+                  <textarea rows="3" style="height:80px;"></textarea>
                 </div>
               </div>
             </div>
@@ -1167,7 +1202,7 @@ input.item-price::-webkit-outer-spin-button,
             <tr>
               <th>Code</th>
               <th>Type & Value</th>
-              <th>Ticket Levels</th>
+              <th>Ticket Levels Discount Applies To</th>
               <th>Qty Available</th>
               <th>Action</th>
             </tr>
@@ -1269,6 +1304,69 @@ input.item-price::-webkit-outer-spin-button,
     let discountRowCounter = 0;
     let isNewProject = false;
     let userIsAdmin = false;
+    let realtimeSubscription = null;
+    let pendingRemoteData = null;
+
+    // Autosave state
+    let lastActivityTime = Date.now();
+    const ACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes of inactivity = not "active"
+    const AUTOSAVE_INTERVAL_MS = 4 * 60 * 1000; // autosave every 4 minutes
+
+// Set up BroadcastChannel for cross-tab communication
+const channel = new BroadcastChannel(`project_${projectId}`);
+
+channel.addEventListener('message', (event) => {
+  if (event.data.type === 'SAVED') {
+    // Another tab just saved — reload to get fresh data, don't overwrite
+    console.log('Another tab saved. Reloading to sync...');
+    hasUnsavedChanges = false; // prevent our own beforeunload warning
+    fetchProject(projectId);   // pull fresh data from the DB
+  }
+});
+
+
+    function recordActivity() {
+      lastActivityTime = Date.now();
+    }
+
+    ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'].forEach(evt =>
+      document.addEventListener(evt, recordActivity, { passive: true })
+    );
+
+    async function saveProjectSilently() {
+      if (isNewProject || !projectId || !hasUnsavedChanges) return;
+
+      const isActive = (Date.now() - lastActivityTime) < ACTIVITY_TIMEOUT_MS;
+      if (!isActive) return;
+
+      const formData = collectFormData();
+      const errors = validateFormData(formData);
+      if (errors.length > 0) return; // don't autosave invalid data
+
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .update(formData)
+          .eq('id', projectId)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        projectData = data;
+        clearUnsavedStatus();
+        console.log('Autosaved project silently. Reloading...');
+
+        // After a successful save:
+channel.postMessage({ type: 'SAVED', savedAt: Date.now() });
+
+        window.location.reload();
+      } catch (err) {
+        console.warn('Autosave failed:', err);
+      }
+    }
+
+    setInterval(saveProjectSilently, AUTOSAVE_INTERVAL_MS);
 
     // Get project ID from URL
     function getProjectIdFromUrl() {
@@ -1586,6 +1684,52 @@ input.item-price::-webkit-outer-spin-button,
       }
     }
 
+    // Realtime sync across browsers/devices
+    function setupRealtimeSync(id) {
+      if (realtimeSubscription) {
+        supabase.removeChannel(realtimeSubscription);
+      }
+
+      realtimeSubscription = supabase
+        .channel(`project-sync-${id}`)
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'projects', filter: `id=eq.${id}` },
+          (payload) => {
+            // Skip if we already have this version (our own save echoing back)
+            if (projectData && payload.new.updated_at === projectData.updated_at) return;
+
+            if (!hasUnsavedChanges) {
+              projectData = payload.new;
+              renderProject(payload.new).then(() => showContent());
+            } else {
+              showSyncWarning(payload.new);
+            }
+          }
+        )
+        .subscribe();
+    }
+
+    function showSyncWarning(remoteData) {
+      pendingRemoteData = remoteData;
+      document.getElementById('syncWarning').classList.add('show');
+    }
+
+    function dismissSyncWarning() {
+      document.getElementById('syncWarning').classList.remove('show');
+      pendingRemoteData = null;
+    }
+
+    function acceptRemoteChanges() {
+      if (pendingRemoteData) {
+        projectData = pendingRemoteData;
+        renderProject(pendingRemoteData).then(() => showContent());
+        clearUnsavedStatus();
+      }
+      document.getElementById('syncWarning').classList.remove('show');
+      pendingRemoteData = null;
+    }
+
     // Fetch project from Supabase
     async function fetchProject(id) {
       console.log('Supabase URL:', supabaseConfig.url);
@@ -1604,6 +1748,7 @@ input.item-price::-webkit-outer-spin-button,
         projectData = data;
         await renderProject(data);
         showContent();
+        setupRealtimeSync(id);
         restoreDraftIfExists();
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -2782,6 +2927,11 @@ input.item-price::-webkit-outer-spin-button,
 
           projectData = data;
           showSuccessMessage('Project updated successfully!');
+
+          // Notify other tabs about the save so they can update or warn about changes
+          localStorage.setItem('project_saved', JSON.stringify({ projectId, timestamp: new Date().getTime() }));
+          channel.postMessage({ type: 'SAVED', savedAt: Date.now() });
+
         }
 
         const isTestMode =
