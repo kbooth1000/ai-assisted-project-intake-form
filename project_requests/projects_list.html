@@ -117,6 +117,42 @@
             border-color: #667eea;
         }
 
+        .search-box-wrapper {
+            position: relative;
+        }
+
+        .search-box-wrapper .search-box {
+            padding-right: 40px;
+        }
+
+        .search-clear {
+            display: none;
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: #e0e0e0;
+            color: #666;
+            border-radius: 50%;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-clear:hover {
+            background: #ccc;
+            color: #333;
+        }
+
+        .search-box-wrapper.has-text .search-clear {
+            display: flex;
+        }
+
         /* Projects Grid */
         .projects-grid {
             display: grid;
@@ -612,8 +648,12 @@
 
             <!-- Search Box -->
             <div class="search-container">
-                <input type="text" id="searchBox" class="search-box" placeholder="Search projects by name or team..."
-                    autocomplete="off" />
+                <div class="search-box-wrapper" id="searchBoxWrapper">
+                    <input type="text" id="searchBox" class="search-box"
+                        placeholder="Search projects by name or team..." autocomplete="off" />
+                    <button type="button" id="searchClear" class="search-clear" onclick="clearSearch()"
+                        aria-label="Clear search">&times;</button>
+                </div>
             </div>
 
             <!-- Sort and Count -->
@@ -1258,15 +1298,28 @@
         // Setup search functionality
         function setupSearch() {
             const searchBox = document.getElementById('searchBox');
+            const searchBoxWrapper = document.getElementById('searchBoxWrapper');
 
             // Debounce search input
             let searchTimeout;
             searchBox.addEventListener('input', (e) => {
+                searchBoxWrapper.classList.toggle('has-text', e.target.value.length > 0);
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
                     filterProjects(e.target.value);
                 }, 300);
             });
+        }
+
+        // Clear the search box and reset the filtered results
+        function clearSearch() {
+            const searchBox = document.getElementById('searchBox');
+            const searchBoxWrapper = document.getElementById('searchBoxWrapper');
+
+            searchBox.value = '';
+            searchBoxWrapper.classList.remove('has-text');
+            searchBox.focus();
+            filterProjects('');
         }
 
         // Check authentication and get user
