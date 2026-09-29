@@ -1036,6 +1036,11 @@
                         // Put "Unassigned" at the end
                         if (a === 'Unassigned') return 1;
                         if (b === 'Unassigned') return -1;
+                        // Put the logged-in user's own group at the top
+                        if (currentUserName) {
+                            if (a === currentUserName) return -1;
+                            if (b === currentUserName) return 1;
+                        }
                         return a.localeCompare(b);
                     });
 
@@ -1180,6 +1185,10 @@
                     break;
             }
 
+            // Bring the logged-in user's own projects (requested or assigned to them)
+            // to the top, preserving the relative order established above.
+            sorted.sort((a, b) => (isMyProject(a) ? 0 : 1) - (isMyProject(b) ? 0 : 1));
+
             return sorted;
         }
 
@@ -1205,6 +1214,14 @@
             filterProjects(searchBox.value);
         }
 
+        // Check whether a project belongs to the current user (as requester or assignee)
+        function isMyProject(project) {
+            if (!currentUserId && !currentUserName) return false;
+            const isRequester = currentUserId && project.requested_by === currentUserId;
+            const isAssigned = currentUserName && project.admin_data?.assigned_to === currentUserName;
+            return !!(isRequester || isAssigned);
+        }
+
         // Filter projects based on search query and My Projects toggle
         function filterProjects(query) {
             const searchTerm = query.toLowerCase().trim();
@@ -1214,11 +1231,7 @@
 
             // Apply "My Projects" filter if enabled
             if (showMyProjectsOnly && currentUserId) {
-                results = results.filter((project) => {
-                    const isRequester = project.requested_by === currentUserId;
-                    const isAssigned = currentUserName && project.admin_data?.assigned_to === currentUserName;
-                    return isRequester || isAssigned;
-                });
+                results = results.filter((project) => isMyProject(project));
             }
 
             // Apply search filter
